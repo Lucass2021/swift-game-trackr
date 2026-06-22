@@ -7,6 +7,16 @@
 
 ---
 
+## Code style (all clients)
+
+- **Avoid comments.** Write self-documenting code: clear names, small functions, and
+  obvious structure instead of explanatory comments. Don't add comments that restate what
+  the code already says, and don't leave `TODO`/placeholder comments in committed code.
+  Only keep a comment when it explains *why* something non-obvious is done (a workaround, a
+  protocol quirk, a deliberate deviation) — never *what* the code does.
+
+---
+
 ## Product
 
 **GameTrackr** is a social game-tracking app — think Backloggd / Letterboxd, but for video
