@@ -1,24 +1,17 @@
-//
-//  ContentView.swift
-//  GameTrackr
-//
-//  Created by Lucas Dias on 22/06/26.
-//
-
 import SwiftUI
 
-struct ContentView: View {
+struct WelcomeView: View {
     var body: some View {
         VStack {
             Image(systemName: "globe")
                 .imageScale(.large)
                 .foregroundStyle(.tint)
-            Text("Hello, world!")
+            Text("Welcome to GameTrackr!")
         }
         .padding()
     }
 }
 
 #Preview {
-    ContentView()
+    WelcomeView()
 }
