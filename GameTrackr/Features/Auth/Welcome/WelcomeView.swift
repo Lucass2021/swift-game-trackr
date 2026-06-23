@@ -6,43 +6,40 @@ struct WelcomeView: View {
 
     var body: some View {
         NavigationStack {
-            ZStack {
-                Color.appBackground.ignoresSafeArea()
-
-                VStack(spacing: 0) {
-                    HStack {
-                        Image("logo-wordmark")
-                            .resizable()
-                            .scaledToFit()
-                            .frame(height: 28)
-                        Spacer()
-                    }
-                    .staggeredAppear(0)
-
+            VStack(spacing: 0) {
+                HStack {
+                    Image("logo-wordmark")
+                        .resizable()
+                        .scaledToFit()
+                        .frame(height: 30)
                     Spacer()
-
-                    VStack(spacing: 20) {
-                        Image("logo-hero")
-                            .resizable()
-                            .scaledToFit()
-                            .frame(maxWidth: 280)
-
-                        Text("Your whole gaming journey in one place")
-                            .font(.appBody(16))
-                            .foregroundStyle(Color.appTextSecondary)
-                            .multilineTextAlignment(.center)
-                    }
-                    .staggeredAppear(1)
-
-                    Spacer()
-
-                    WelcomeBottomSection(showRegister: $showRegister, showLogin: $showLogin)
-                        .staggeredAppear(2)
                 }
-                .padding(.horizontal, 24)
-                .padding(.top, 16)
-                .padding(.bottom, 24)
+                .staggeredAppear(0)
+
+                Spacer()
+
+                VStack(spacing: 20) {
+                    Image("logo-hero")
+                        .resizable()
+                        .scaledToFit()
+                        .frame(maxWidth: 300)
+
+                    Text("Your whole gaming journey in one place")
+                        .font(.appBody(18))
+                        .foregroundStyle(Color.appTextSecondary)
+                        .multilineTextAlignment(.center)
+                }
+                .staggeredAppear(1)
+                .padding(.bottom, 40)
+
+                WelcomeBottomSection(showRegister: $showRegister, showLogin: $showLogin)
+                    .staggeredAppear(2)
             }
+            .padding(.horizontal, 24)
+            .padding(.top, 16)
+            .padding(.bottom, 24)
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+            .background(WelcomeBackground())
             .toolbar(.hidden, for: .navigationBar)
             .navigationDestination(isPresented: $showRegister) {
                 Text("Register")

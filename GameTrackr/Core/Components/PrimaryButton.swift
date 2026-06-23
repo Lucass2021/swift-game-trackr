@@ -21,6 +21,7 @@ struct PrimaryButton: View {
             .frame(height: 54)
             .background(Color.appPrimary)
             .clipShape(RoundedRectangle(cornerRadius: 16))
+            .shadow(color: Color.appPrimary.opacity(0.45), radius: 22, y: 4)
         }
         .disabled(isLoading)
         .buttonStyle(PressableButtonStyle())
