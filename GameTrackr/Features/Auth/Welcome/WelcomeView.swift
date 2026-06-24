@@ -42,7 +42,7 @@ struct WelcomeView: View {
             .background(WelcomeBackground())
             .toolbar(.hidden, for: .navigationBar)
             .navigationDestination(isPresented: $showRegister) {
-                Text("Register")
+                RegisterView()
             }
             .navigationDestination(isPresented: $showLogin) {
                 Text("Sign in")
