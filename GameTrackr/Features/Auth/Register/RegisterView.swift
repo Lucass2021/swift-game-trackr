@@ -1,15 +1,14 @@
 import SwiftUI
 
 struct RegisterView: View {
-    @Environment(\.dismiss) private var dismiss
-
     @State private var viewModel = RegisterViewModel()
+    @State private var showLogin = false
 
     var body: some View {
         @Bindable var viewModel = viewModel
 
         return AuthScreenScaffold {
-            backButton
+            BackButton()
                 .staggeredAppear(0)
 
             TitleWithSubtitle(
@@ -30,7 +29,7 @@ struct RegisterView: View {
             RegisterBottomSection(
                 isLoading: viewModel.isLoading,
                 onCreateAccount: { Task { await viewModel.signUp() } },
-                onSignIn: { dismiss() }
+                onSignIn: { showLogin = true }
             )
             .padding(.top, 24)
             .staggeredAppear(4)
@@ -40,22 +39,10 @@ struct RegisterView: View {
                 .staggeredAppear(5)
         }
         .toolbar(.hidden, for: .navigationBar)
-        .onDisappear { viewModel.clear() }
-    }
-
-    private var backButton: some View {
-        HStack {
-            Button {
-                dismiss()
-            } label: {
-                Image(systemName: "chevron.left")
-                    .font(.system(size: 18, weight: .semibold))
-                    .foregroundStyle(Color.appTextPrimary)
-                    .frame(width: 40, height: 40, alignment: .leading)
-            }
-            .buttonStyle(.plain)
-            Spacer()
+        .navigationDestination(isPresented: $showLogin) {
+            LoginView()
         }
+        .onDisappear { viewModel.clear() }
     }
 }
 

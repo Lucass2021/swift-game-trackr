@@ -37,7 +37,7 @@ struct SocialLoginSection: View {
                         .stroke(Color.appOutline, lineWidth: 1)
                 )
             }
-            .buttonStyle(PressableButtonStyle())
+            .buttonStyle(PressableButtonStyle(scale: 0.96, pressedOpacity: 0.8))
         }
     }
 

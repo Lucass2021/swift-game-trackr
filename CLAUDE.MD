@@ -126,6 +126,14 @@ JSON request/response. Pagination via `?page=` + `?per_page=` returning Laravel-
 - `POST /auth/social/{provider}` — provider in `google|apple|steam|discord` → token
 - `GET  /me` — current user + profile
 
+> **Sign-up form (shared by all clients).** The Create-account / sign-up screen collects
+> **Name → `username`**, **Email**, **Password**, **Confirm password**, plus a **required**
+> Terms of Use / Privacy Policy acceptance. Client-side validation is identical on every
+> client: name ≥ 3 chars, email contains `@` and `.`, password ≥ 6 chars, confirm must match,
+> terms must be checked. Field errors surface only **after the first submit**. A
+> password-strength meter (weak / medium / strong) is shown as the user types. Social sign-up
+> currently exposes **Continue with Google** only — Apple / Steam / Discord are deferred.
+
 ### Games (discovery)
 - `GET /games/releases` — recent releases
 - `GET /games/upcoming` — most anticipated (with hype/date)

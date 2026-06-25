@@ -15,6 +15,7 @@ struct SecondaryButton: View {
                     RoundedRectangle(cornerRadius: 16)
                         .stroke(Color.white.opacity(0.18), lineWidth: 1.5)
                 )
+                .contentShape(RoundedRectangle(cornerRadius: 16))
         }
         .buttonStyle(PressableButtonStyle())
     }

@@ -45,7 +45,7 @@ struct WelcomeView: View {
                 RegisterView()
             }
             .navigationDestination(isPresented: $showLogin) {
-                Text("Sign in")
+                LoginView()
             }
         }
     }

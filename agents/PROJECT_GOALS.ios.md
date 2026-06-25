@@ -110,6 +110,29 @@ messaging, and collection.
 
 ---
 
+## Progress log
+
+### 2026-06-24 — Auth UI: Sign-up screen is the cross-platform reference
+
+The SwiftUI **Register (sign-up)** screen is the **design reference** the Android app mirrors
+component-for-component (Lucas builds both halves for parity practice).
+
+- `Features/Auth/Register/`:
+  - `RegisterView` (screen + back button), `RegisterViewModel` (`@Observable`, validation only
+    after `signUp()`).
+  - `Components/`: `RegisterFormSection`, `TermsAcceptanceRow`, `RegisterBottomSection`,
+    `SocialLoginSection`.
+- Shared `Core/Components/`: `AuthScreenScaffold`, `AuthTextField`, `AuthLabeledField`,
+  `TitleWithSubtitle`, `PasswordStrengthMeter` (+ `PasswordStrength`), `PrimaryButton`,
+  `PressableButtonStyle`, `StaggeredAppear`. Validation copy lives in `Core/ValidationMessage`.
+- **Field naming:** the UI label is **"Name"** but maps to `username` in `POST /auth/register`
+  — keep iOS, Android, and the API aligned (see shared `CLAUDE.md`).
+- Social sign-up currently shows **Continue with Google** only; Apple / Steam / Discord deferred.
+- The Android port (Kotlin/Compose) now matches this structure 1:1 — when you change one
+  platform's auth UX, update the other to keep them in sync.
+
+---
+
 ## Folder structure (suggested)
 
 ```
