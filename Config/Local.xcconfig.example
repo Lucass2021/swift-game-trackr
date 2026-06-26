@@ -1,0 +1,6 @@
+// Copy this file to `Local.xcconfig` (same folder) and set your API URL.
+// `Local.xcconfig` is gitignored — it is your personal ".env".
+// The `$()` keeps `//` from being treated as a comment.
+//
+// Example with an ngrok tunnel pointing at your local Laravel API:
+API_BASE_URL = https:/$()/your-subdomain.ngrok-free.app/api

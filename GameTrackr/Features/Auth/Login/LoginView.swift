@@ -1,6 +1,7 @@
 import SwiftUI
 
 struct LoginView: View {
+    @Environment(AuthStore.self) private var authStore
     @State private var viewModel = LoginViewModel()
     @State private var showRegister = false
 
@@ -33,7 +34,7 @@ struct LoginView: View {
             .staggeredAppear(3)
 
             PrimaryButton(title: "Sign in", isLoading: viewModel.isLoading) {
-                Task { await viewModel.signIn() }
+                Task { await viewModel.signIn(authStore: authStore) }
             }
             .padding(.top, 24)
             .staggeredAppear(4)
@@ -52,6 +53,7 @@ struct LoginView: View {
         .navigationDestination(isPresented: $showRegister) {
             RegisterView()
         }
+        .toast(message: $viewModel.errorMessage)
         .onDisappear { viewModel.clear() }
     }
 
@@ -67,5 +69,6 @@ struct LoginView: View {
     NavigationStack {
         LoginView()
     }
+    .environment(AuthStore())
     .preferredColorScheme(.dark)
 }

@@ -10,6 +10,12 @@ class LoginViewModel {
     var errorMessage: String?
     private var submitted = false
 
+    private let service: AuthServicing
+
+    init(service: AuthServicing = AuthService.live) {
+        self.service = service
+    }
+
     var emailError: String? {
         guard submitted else { return nil }
         if email.trimmingCharacters(in: .whitespaces).isEmpty { return ValidationMessage.emailRequired }
@@ -24,12 +30,17 @@ class LoginViewModel {
         return nil
     }
 
-    func signIn() async {
+    func signIn(authStore: AuthStore) async {
         submitted = true
         guard emailError == nil, passwordError == nil else { return }
         isLoading = true
         defer { isLoading = false }
-        print("Sign in -> email: \(email), password: \(password)")
+        do {
+            let response = try await service.login(email: email, password: password)
+            authStore.authenticate(token: response.token, user: response.user)
+        } catch {
+            errorMessage = error.userMessage()
+        }
     }
 
     func signInGoogle() {

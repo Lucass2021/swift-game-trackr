@@ -1,0 +1,6 @@
+// Release build configuration (TestFlight / App Store).
+// Default points to localhost; override API_BASE_URL by creating Config/Local.xcconfig
+// (gitignored) with your ngrok / production URL before archiving for TestFlight.
+API_BASE_URL = http:/$()/localhost:8000/api
+
+#include? "Local.xcconfig"

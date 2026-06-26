@@ -12,6 +12,12 @@ class RegisterViewModel {
     var errorMessage: String?
     private var submitted = false
 
+    private let service: AuthServicing
+
+    init(service: AuthServicing = AuthService.live) {
+        self.service = service
+    }
+
     var nameError: String? {
         guard submitted else { return nil }
         let trimmed = name.trimmingCharacters(in: .whitespaces)
@@ -46,12 +52,22 @@ class RegisterViewModel {
         return nil
     }
 
-    func signUp() async {
+    func signUp(authStore: AuthStore) async {
         submitted = true
         guard nameError == nil, emailError == nil, passwordError == nil, confirmPasswordError == nil, termsError == nil else { return }
         isLoading = true
         defer { isLoading = false }
-        print("Sign up -> name: \(name), email: \(email), password: \(password)")
+        do {
+            let response = try await service.register(
+                name: name,
+                email: email,
+                password: password,
+                passwordConfirmation: confirmPassword
+            )
+            authStore.authenticate(token: response.token, user: response.user)
+        } catch {
+            errorMessage = error.userMessage()
+        }
     }
 
     func signUpGoogle() {

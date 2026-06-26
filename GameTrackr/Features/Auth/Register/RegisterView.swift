@@ -1,6 +1,7 @@
 import SwiftUI
 
 struct RegisterView: View {
+    @Environment(AuthStore.self) private var authStore
     @State private var viewModel = RegisterViewModel()
     @State private var showLogin = false
 
@@ -28,7 +29,7 @@ struct RegisterView: View {
 
             RegisterBottomSection(
                 isLoading: viewModel.isLoading,
-                onCreateAccount: { Task { await viewModel.signUp() } },
+                onCreateAccount: { Task { await viewModel.signUp(authStore: authStore) } },
                 onSignIn: { showLogin = true }
             )
             .padding(.top, 24)
@@ -42,6 +43,7 @@ struct RegisterView: View {
         .navigationDestination(isPresented: $showLogin) {
             LoginView()
         }
+        .toast(message: $viewModel.errorMessage)
         .onDisappear { viewModel.clear() }
     }
 }
@@ -50,5 +52,6 @@ struct RegisterView: View {
     NavigationStack {
         RegisterView()
     }
+    .environment(AuthStore())
     .preferredColorScheme(.dark)
 }
