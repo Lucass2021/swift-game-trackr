@@ -21,13 +21,60 @@ actor APIClient {
     private let encoder = JSONEncoder()
     private let decoder = JSONDecoder()
 
+    private var refreshTask: Task<String, Error>?
+    private var onRefreshFailure: (@Sendable () -> Void)?
+
     init(session: URLSession = .shared) {
         self.session = session
+    }
+
+    func setRefreshFailureHandler(_ handler: @escaping @Sendable () -> Void) {
+        onRefreshFailure = handler
     }
 
     func request<T: Decodable>(_ endpoint: Endpoint, body: Encodable? = nil) async throws -> T {
         let token = endpoint.requiresAuth ? KeychainHelper.getToken() : nil
 
+        do {
+            return try await perform(endpoint, body: body, token: token)
+        } catch APIError.unauthorized {
+            guard endpoint.requiresAuth else { throw APIError.unauthorized }
+            let newToken = try await refreshToken()
+            return try await perform(endpoint, body: body, token: newToken)
+        }
+    }
+
+    private func refreshToken() async throws -> String {
+        if let existing = refreshTask {
+            return try await existing.value
+        }
+
+        let task = Task<String, Error> {
+            guard let current = KeychainHelper.getToken() else {
+                throw APIError.unauthorized
+            }
+            let response: RefreshResponse = try await self.perform(.refresh, body: nil, token: current)
+            KeychainHelper.saveToken(response.token)
+            return response.token
+        }
+        refreshTask = task
+
+        do {
+            let token = try await task.value
+            refreshTask = nil
+            return token
+        } catch {
+            refreshTask = nil
+            onRefreshFailure?()
+            throw APIError.unauthorized
+        }
+    }
+
+    private func perform<T: Decodable>(
+        _ endpoint: Endpoint,
+        body: Encodable?,
+        token: String?
+    ) async throws -> T {
         guard var urlRequest = endpoint.urlRequest(baseURL: baseURL) else {
             throw APIError.networkFailure
         }

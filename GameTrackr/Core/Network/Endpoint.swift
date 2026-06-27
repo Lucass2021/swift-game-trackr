@@ -10,6 +10,7 @@ enum HTTPMethod: String {
 enum Endpoint {
     case register
     case login
+    case refresh
     case logout
     case validateToken
     case me
@@ -18,6 +19,7 @@ enum Endpoint {
         switch self {
         case .register: "/auth/register"
         case .login: "/auth/login"
+        case .refresh: "/auth/refresh"
         case .logout: "/auth/logout"
         case .validateToken: "/auth/validate"
         case .me: "/profile/me"
@@ -26,14 +28,14 @@ enum Endpoint {
 
     var method: HTTPMethod {
         switch self {
-        case .register, .login, .logout, .validateToken: .post
+        case .register, .login, .refresh, .logout, .validateToken: .post
         case .me: .get
         }
     }
 
     var requiresAuth: Bool {
         switch self {
-        case .register, .login: false
+        case .register, .login, .refresh: false
         case .logout, .validateToken, .me: true
         }
     }

@@ -24,13 +24,23 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
-		B603DE3B2FE9DDE500653972 /* GameTrackr.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = GameTrackr.app; sourceTree = BUILT_PRODUCTS_DIR; };
-		B603DE482FE9DDE600653972 /* GameTrackrTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = GameTrackrTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
-		B603DE522FE9DDE600653972 /* GameTrackrUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = GameTrackrUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		AA02DE3D2FE9DDE500653902 /* Debug.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Debug.xcconfig; sourceTree = "<group>"; };
 		AA03DE3D2FE9DDE500653903 /* Release.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Release.xcconfig; sourceTree = "<group>"; };
 		AA04DE3D2FE9DDE500653904 /* Local.xcconfig.example */ = {isa = PBXFileReference; lastKnownFileType = text; path = Local.xcconfig.example; sourceTree = "<group>"; };
+		B603DE3B2FE9DDE500653972 /* GameTrackr.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = GameTrackr.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		B603DE482FE9DDE600653972 /* GameTrackrTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = GameTrackrTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		B603DE522FE9DDE600653972 /* GameTrackrUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = GameTrackrUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
+
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		AA01DE3D2FE9DDE500653901 /* Exceptions for "GameTrackr" folder in "GameTrackr" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = B603DE3A2FE9DDE500653972 /* GameTrackr */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		B603DE3D2FE9DDE500653972 /* GameTrackr */ = {
@@ -52,16 +62,6 @@
 			sourceTree = "<group>";
 		};
 /* End PBXFileSystemSynchronizedRootGroup section */
-
-/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
-		AA01DE3D2FE9DDE500653901 /* Exceptions for "GameTrackr" folder in "GameTrackr" target */ = {
-			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
-			membershipExceptions = (
-				Info.plist,
-			);
-			target = B603DE3A2FE9DDE500653972 /* GameTrackr */;
-		};
-/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
 /* Begin PBXFrameworksBuildPhase section */
 		B603DE382FE9DDE500653972 /* Frameworks */ = {
@@ -88,6 +88,16 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		AA05DE3D2FE9DDE500653905 /* Config */ = {
+			isa = PBXGroup;
+			children = (
+				AA02DE3D2FE9DDE500653902 /* Debug.xcconfig */,
+				AA03DE3D2FE9DDE500653903 /* Release.xcconfig */,
+				AA04DE3D2FE9DDE500653904 /* Local.xcconfig.example */,
+			);
+			path = Config;
+			sourceTree = "<group>";
+		};
 		B603DE322FE9DDE500653972 = {
 			isa = PBXGroup;
 			children = (
@@ -97,16 +107,6 @@
 				B603DE552FE9DDE600653972 /* GameTrackrUITests */,
 				B603DE3C2FE9DDE500653972 /* Products */,
 			);
-			sourceTree = "<group>";
-		};
-		AA05DE3D2FE9DDE500653905 /* Config */ = {
-			isa = PBXGroup;
-			children = (
-				AA02DE3D2FE9DDE500653902 /* Debug.xcconfig */,
-				AA03DE3D2FE9DDE500653903 /* Release.xcconfig */,
-				AA04DE3D2FE9DDE500653904 /* Local.xcconfig.example */,
-			);
-			path = Config;
 			sourceTree = "<group>";
 		};
 		B603DE3C2FE9DDE500653972 /* Products */ = {
