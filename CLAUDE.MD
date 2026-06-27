@@ -67,9 +67,23 @@ and caching that data.
   Custom Tabs) and receives a GameTrackr token at the end.
 - Whether refresh tokens are used (vs. long-lived Sanctum tokens) is **to be confirmed with backend** — see the open questions section.
 
+> ✅ **VERIFIED AGAINST THE RUNNING BACKEND (2026-06-27).** The text above is the original
+> *proposal*; the points below were confirmed with `curl` against the local backend and **take
+> precedence** where they differ:
+> - Auth is **JWT (tymon/jwt-auth), NOT Sanctum.** `JWT_TTL` 60 min, `JWT_REFRESH_TTL` 14 days.
+> - Refresh = **single-token rotation**: on `401`, `POST /auth/refresh` with the *current* token in
+>   the header (no body) → returns a new token, blacklists the old one. **No separate refresh token.**
+> - Verified endpoints differ from the proposed list below: `POST /auth/register` ·
+>   `POST /auth/login` · `POST /auth/refresh` · `POST /auth/validate` · `POST /auth/logout` ·
+>   `GET /profile/me` (not `GET /me`). `password/forgot|reset` **do not exist yet**.
+> - `register` body is **`{ name, email, password, password_confirmation }`** (Laravel `confirmed`
+>   rule) — the field is **`name`**, not `username`.
+> - Token storage on Android is **DataStore (Preferences)**, not EncryptedSharedPreferences
+>   (the Jetpack Security Crypto lib is deprecated). iOS still uses the Keychain.
+
 > ⚠️ **PROPOSED CONTRACT BELOW — confirm every endpoint, field, and status code with the
 > backend owner before implementing.** This section doubles as the alignment doc between the
-> mobile and backend developers.
+> mobile and backend developers. (See the ✅ verified note above for what's already confirmed.)
 
 ---
 
@@ -117,14 +131,18 @@ JSON request/response. Pagination via `?page=` + `?per_page=` returning Laravel-
 `{ data, meta, links }`.
 
 ### Auth
-- `POST /auth/register` — `{ username, email, password }` → user + token
+> ⚠️ Proposed shape below; see the ✅ **verified** note under *Authentication model* for what the
+> running backend actually exposes (JWT, `name`+`password_confirmation`, `auth/refresh`,
+> `auth/validate`, `profile/me`). The lines below are kept as the original team proposal.
+
+- `POST /auth/register` — `{ username, email, password }` → user + token *(verified: `{ name, email, password, password_confirmation }`)*
 - `POST /auth/login` — `{ email, password }` → user + token
 - `POST /auth/logout` — invalidate current token
-- `POST /auth/password/forgot` — `{ email }` → 204 (sends reset email)
-- `POST /auth/password/reset` — `{ token, password }` → 204
+- `POST /auth/password/forgot` — `{ email }` → 204 (sends reset email) *(verified: does not exist yet)*
+- `POST /auth/password/reset` — `{ token, password }` → 204 *(verified: does not exist yet)*
 - `POST /auth/email/verify` — `{ code }` → 204 (if email OTP is used)
 - `POST /auth/social/{provider}` — provider in `google|apple|steam|discord` → token
-- `GET  /me` — current user + profile
+- `GET  /me` — current user + profile *(verified: `GET /profile/me`; also `POST /auth/refresh` + `POST /auth/validate`)*
 
 > **Sign-up form (shared by all clients).** The Create-account / sign-up screen collects
 > **Name → `username`**, **Email**, **Password**, **Confirm password**, plus a **required**

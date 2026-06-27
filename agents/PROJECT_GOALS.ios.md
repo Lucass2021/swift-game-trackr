@@ -1,6 +1,6 @@
 # PROJECT_GOALS — GameTrackr iOS (Swift / SwiftUI)
 
-> Read this together with `PROJECT_CONTEXT.md` (shared product + API contract).
+> Read this together with `CLAUDE.md` (shared product + API contract).
 > This file covers only the **iOS-specific** stack, architecture, and milestones.
 
 ## Developer context
@@ -42,7 +42,7 @@ networking layer, Keychain token storage, and modern Swift Concurrency.
 
 ## Expected screens
 
-See `PROJECT_CONTEXT.md` → *Feature scope by phase*. Auth screens are already designed
+See `CLAUDE.md` → *Feature scope by phase*. Auth screens are already designed
 (Welcome, Sign in, Create account, Forgot/Reset password, Verify email, Success). Build the
 **MVP slice** first (auth → library → profile), then layer discovery, friends, community,
 messaging, and collection.
@@ -112,6 +112,31 @@ messaging, and collection.
 
 ## Progress log
 
+### 2026-06-27 — Auth networking slice + cross-platform decisions (milestones 2–4)
+
+Wired the auth UI to the real backend on iOS, then ported the same slice to Android. Recording
+the verified backend facts and the **cross-platform divergences** so the two repos + the shared
+`CLAUDE.md` stay consistent.
+
+- **Verified backend (with `curl`):** auth is **JWT (tymon/jwt-auth), not Sanctum**. Refresh is
+  **single-token rotation** (`POST /auth/refresh`, current token in header, no body → new token,
+  old one blacklisted). Endpoints: `auth/register` (`{ name, email, password, password_confirmation }`),
+  `auth/login`, `auth/refresh`, `auth/validate`, `auth/logout`, `GET /profile/me`.
+  `password/forgot|reset` don't exist yet. See the ✅ verified note in the shared `CLAUDE.md`.
+- **iOS as built (matches this doc):** `URLSession` `APIClient` (actor) with 401→refresh
+  (retry-once + single-flight + network≠auth), Keychain token storage (`ThisDeviceOnly`),
+  base URL from `.xcconfig` (`Debug`/`Release`/gitignored `Local`). Custom `SplashView` (animated,
+  dismissed when animation **and** `validate()` both finish) + `ToastModifier` for errors.
+- **Android port — intentional divergences** (kept behavior-equivalent):
+  - **DI: Koin, not Hilt.** Hilt's Gradle plugin is incompatible with the Android project's
+    **AGP 9.0.0**; Koin needs no Gradle plugin, so it works there.
+  - **Token storage: DataStore (Preferences)**, not Keychain-equivalent encryption —
+    EncryptedSharedPreferences (Jetpack Security Crypto) is deprecated. Less secure at rest than
+    the iOS Keychain; flagged in the Android goals.
+  - The iOS `Config/.xcconfig` pattern was mirrored on Android with a repo-root `config/`
+    properties folder (`debug`/`release`/gitignored `local` + `.example`) → `BuildConfig.API_BASE_URL`.
+  - Splash + toast were re-created natively in Compose to match this app's `SplashView`/`ToastModifier`.
+
 ### 2026-06-24 — Auth UI: Sign-up screen is the cross-platform reference
 
 The SwiftUI **Register (sign-up)** screen is the **design reference** the Android app mirrors
@@ -167,7 +192,7 @@ GameTrackr/
 
 ## How to use this context with an AI
 
-Paste **`PROJECT_CONTEXT.md` + this file**, then add an instruction, e.g.:
+Paste **`CLAUDE.md` + this file**, then add an instruction, e.g.:
 
 > "Based on this context, configure the Xcode project with the MVVM structure, `KeychainHelper`, and `.xcconfig`-based `Config`."
 
