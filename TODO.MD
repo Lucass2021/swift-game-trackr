@@ -1,4 +1,4 @@
-# Scrollview in forms
+# Test Inject lib from Krzysztof Zabłocki 
 # App icon
 # Tests
 # lefthook and lint

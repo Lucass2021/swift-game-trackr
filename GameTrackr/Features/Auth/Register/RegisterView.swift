@@ -43,6 +43,16 @@ struct RegisterView: View {
         .navigationDestination(isPresented: $showLogin) {
             LoginView()
         }
+        .navigationDestination(isPresented: $viewModel.showSuccess) {
+            SuccessView(
+                title: "Account created!",
+                subtitle: "Your account is ready. Jump in and start tracking your gaming journey.",
+                statusTitle: "Account status",
+                statusValue: "Validated and Active",
+                buttonTitle: "Go to app",
+                onPrimary: { viewModel.completeRegistration(authStore: authStore) }
+            )
+        }
         .toast(message: $viewModel.errorMessage)
         .onDisappear { viewModel.clear() }
     }

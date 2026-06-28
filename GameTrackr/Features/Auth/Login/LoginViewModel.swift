@@ -47,10 +47,6 @@ class LoginViewModel {
         print("Sign in with Google")
     }
 
-    func forgotPassword() {
-        print("Forgot password -> email: \(email)")
-    }
-
     func clear() {
         email = ""
         password = ""

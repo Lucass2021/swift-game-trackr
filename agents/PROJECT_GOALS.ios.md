@@ -112,6 +112,37 @@ messaging, and collection.
 
 ## Progress log
 
+### 2026-06-28 — Password-reset flow + success screen (auth UI completed, mocked)
+
+Finished the remaining auth screens. The reset flow is **mocked client-side** because the
+backend has no `password/forgot|reset` endpoints yet (see shared `CLAUDE.md`); structured so each
+mock body swaps for a real `APIClient.request(...)` later. Full porting spec for the Android app:
+**`agents/password-reset-flow.md`**.
+
+- **New screens** (`Features/Auth/`): `ForgotPassword` (email → "Send code"), `VerifyResetCode`
+  (6-digit OTP, auto-submits on the 6th digit, 30s resend countdown), `ResetPassword`
+  (new + confirm password, reuses `PasswordStrengthMeter`). Generic reusable
+  `Core/Components/SuccessView` (check badge, status card, **auto-redirect in 5s** + button)
+  used both at the end of the reset flow and **after Register**.
+- **New shared component:** `Core/Components/OTPField` (hidden `TextField` + digit boxes).
+- **Mock service:** `AuthService` gained `forgotPassword` / `verifyResetCode` / `resetPassword`
+  (artificial delay; any 6-digit code accepted; returns a fake reset token).
+- **Navigation / pop-to-root:** the whole reset chain is gated by `AuthStore.isResetFlowActive`,
+  which `LoginView`'s `navigationDestination(isPresented:)` is bound to. `SuccessView` sets it
+  `false` to collapse the entire pushed chain back to Login. Reason: an `onChange` on a view that
+  is **covered** in a `NavigationStack` does **not** fire — programmatic deep dismissal must be
+  driven by an observable bound to the navigation, not local `@State` on the covered view.
+- **Register success:** `signUp` now **defers** `authStore.authenticate(...)` — it stores the
+  token/user, shows `SuccessView`, and authenticates only on the primary action (or auto-redirect),
+  so the success screen is actually seen before Home swaps in.
+- **Fixes found while polishing (all relevant to the Android port):**
+  - `AuthScreenScaffold` bottom padding was invisible — `minHeight: geometry.size.height` made the
+    `.padding(.bottom)` overflow below the scroll fold. Fixed with `minHeight: …height - bottomPadding`.
+  - `ToastModifier` moved from `DispatchQueue.asyncAfter`(onAppear) to `.task(id: message)` so the
+    timer **resets per message** and **cancels when the view disappears** (no "leaking"/lost toasts).
+  - `ResetPassword` looked cramped with the keyboard up: removed the `Spacer` between form and
+    button so title+form+button is one centered block (matches `create-new-password` ref).
+
 ### 2026-06-27 — Auth networking slice + cross-platform decisions (milestones 2–4)
 
 Wired the auth UI to the real backend on iOS, then ported the same slice to Android. Recording

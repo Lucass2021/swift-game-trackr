@@ -7,6 +7,7 @@ struct LoginView: View {
 
     var body: some View {
         @Bindable var viewModel = viewModel
+        @Bindable var authStore = authStore
 
         return AuthScreenScaffold {
             BackButton()
@@ -28,7 +29,7 @@ struct LoginView: View {
 
             RememberMeRow(
                 rememberMe: $viewModel.rememberMe,
-                onForgotPassword: { viewModel.forgotPassword() }
+                onForgotPassword: { authStore.isResetFlowActive = true }
             )
             .padding(.top, 20)
             .staggeredAppear(3)
@@ -52,6 +53,9 @@ struct LoginView: View {
         .toolbar(.hidden, for: .navigationBar)
         .navigationDestination(isPresented: $showRegister) {
             RegisterView()
+        }
+        .navigationDestination(isPresented: $authStore.isResetFlowActive) {
+            ForgotPasswordView()
         }
         .toast(message: $viewModel.errorMessage)
         .onDisappear { viewModel.clear() }

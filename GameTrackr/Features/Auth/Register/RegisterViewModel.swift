@@ -10,7 +10,10 @@ class RegisterViewModel {
     var acceptedTerms = false
     var isLoading = false
     var errorMessage: String?
+    var showSuccess = false
     private var submitted = false
+    private var pendingToken: String?
+    private var pendingUser: User?
 
     private let service: AuthServicing
 
@@ -64,10 +67,17 @@ class RegisterViewModel {
                 password: password,
                 passwordConfirmation: confirmPassword
             )
-            authStore.authenticate(token: response.token, user: response.user)
+            pendingToken = response.token
+            pendingUser = response.user
+            showSuccess = true
         } catch {
             errorMessage = error.userMessage()
         }
+    }
+
+    func completeRegistration(authStore: AuthStore) {
+        guard let pendingToken, let pendingUser else { return }
+        authStore.authenticate(token: pendingToken, user: pendingUser)
     }
 
     func signUpGoogle() {

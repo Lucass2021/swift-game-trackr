@@ -41,14 +41,15 @@ private struct ToastModifier: ViewModifier {
                     .transition(.move(edge: .top).combined(with: .opacity))
                     .padding(.top, 60)
                     .zIndex(1)
-                    .onAppear {
-                        DispatchQueue.main.asyncAfter(deadline: .now() + 3) {
-                            withAnimation(.easeOut) { self.message = nil }
-                        }
-                    }
             }
         }
         .animation(.spring(duration: 0.3), value: message)
+        .task(id: message) {
+            guard message != nil else { return }
+            try? await Task.sleep(for: .seconds(3))
+            guard !Task.isCancelled else { return }
+            withAnimation(.easeOut) { message = nil }
+        }
     }
 }
 

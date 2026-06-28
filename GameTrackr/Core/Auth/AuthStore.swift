@@ -5,6 +5,7 @@ import SwiftUI
 class AuthStore {
     private(set) var isAuthenticated: Bool
     private(set) var currentUser: User?
+    var isResetFlowActive = false
 
     init() {
         isAuthenticated = KeychainHelper.getToken() != nil
