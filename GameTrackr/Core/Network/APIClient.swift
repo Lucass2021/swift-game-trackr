@@ -117,6 +117,8 @@ actor APIClient {
         let body = try? decoder.decode(LaravelErrorBody.self, from: data)
 
         switch statusCode {
+        case 400:
+            return .badRequest(body?.firstMessage ?? "Invalid request.")
         case 422:
             return .validation(body?.firstMessage ?? "Validation failed.")
         case 409:

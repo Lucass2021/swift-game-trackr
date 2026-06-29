@@ -14,6 +14,9 @@ enum Endpoint {
     case logout
     case validateToken
     case me
+    case forgotPassword
+    case verifyResetCode
+    case resetPassword
 
     var path: String {
         switch self {
@@ -23,19 +26,24 @@ enum Endpoint {
         case .logout: "/auth/logout"
         case .validateToken: "/auth/validate"
         case .me: "/profile/me"
+        case .forgotPassword: "/auth/forgot-password"
+        case .verifyResetCode: "/auth/verify-reset-code"
+        case .resetPassword: "/auth/reset-password"
         }
     }
 
     var method: HTTPMethod {
         switch self {
-        case .register, .login, .refresh, .logout, .validateToken: .post
+        case .register, .login, .refresh, .logout, .validateToken,
+             .forgotPassword, .verifyResetCode, .resetPassword: .post
         case .me: .get
         }
     }
 
     var requiresAuth: Bool {
         switch self {
-        case .register, .login, .refresh: false
+        case .register, .login, .refresh,
+             .forgotPassword, .verifyResetCode, .resetPassword: false
         case .logout, .validateToken, .me: true
         }
     }

@@ -67,15 +67,22 @@ and caching that data.
   Custom Tabs) and receives a GameTrackr token at the end.
 - Whether refresh tokens are used (vs. long-lived Sanctum tokens) is **to be confirmed with backend** — see the open questions section.
 
-> ✅ **VERIFIED AGAINST THE RUNNING BACKEND (2026-06-27).** The text above is the original
-> *proposal*; the points below were confirmed with `curl` against the local backend and **take
-> precedence** where they differ:
+> ✅ **VERIFIED AGAINST THE RUNNING BACKEND (2026-06-27, updated 2026-06-29).** The text above is
+> the original *proposal*; the points below were confirmed with `curl` against the local backend and
+> **take precedence** where they differ:
 > - Auth is **JWT (tymon/jwt-auth), NOT Sanctum.** `JWT_TTL` 60 min, `JWT_REFRESH_TTL` 14 days.
 > - Refresh = **single-token rotation**: on `401`, `POST /auth/refresh` with the *current* token in
 >   the header (no body) → returns a new token, blacklists the old one. **No separate refresh token.**
 > - Verified endpoints differ from the proposed list below: `POST /auth/register` ·
 >   `POST /auth/login` · `POST /auth/refresh` · `POST /auth/validate` · `POST /auth/logout` ·
->   `GET /profile/me` (not `GET /me`). `password/forgot|reset` **do not exist yet**.
+>   `GET /profile/me` (not `GET /me`).
+> - **Password reset NOW EXISTS as a 3-step OTP flow for mobile (added 2026-06-29).** Clients must
+>   send **`client: "mobile"`** on forgot/reset to get the code flow (the default `"web"` branch
+>   sends an email link instead). Endpoints: `POST /auth/forgot-password` `{ email, client:"mobile" }`
+>   → 200 generic message + emails a **6-digit code** (15-min TTL). `POST /auth/verify-reset-code`
+>   `{ email, code }` → 200 or **400 `{error}`**. `POST /auth/reset-password`
+>   `{ email, code, password, password_confirmation, client:"mobile" }` → 200 (**no token** — the
+>   client must auto-login after). Full client blueprint: **`agents/password-reset-flow.md`**.
 > - `register` body is **`{ name, email, password, password_confirmation }`** (Laravel `confirmed`
 >   rule) — the field is **`name`**, not `username`.
 > - Token storage on Android is **DataStore (Preferences)**, not EncryptedSharedPreferences
@@ -138,8 +145,8 @@ JSON request/response. Pagination via `?page=` + `?per_page=` returning Laravel-
 - `POST /auth/register` — `{ username, email, password }` → user + token *(verified: `{ name, email, password, password_confirmation }`)*
 - `POST /auth/login` — `{ email, password }` → user + token
 - `POST /auth/logout` — invalidate current token
-- `POST /auth/password/forgot` — `{ email }` → 204 (sends reset email) *(verified: does not exist yet)*
-- `POST /auth/password/reset` — `{ token, password }` → 204 *(verified: does not exist yet)*
+- `POST /auth/password/forgot` — `{ email }` → 204 (sends reset email) *(verified: real endpoint is `POST /auth/forgot-password` `{ email, client:"mobile" }` → 200 + 6-digit OTP email; see `agents/password-reset-flow.md`)*
+- `POST /auth/password/reset` — `{ token, password }` → 204 *(verified: real flow is `POST /auth/verify-reset-code` then `POST /auth/reset-password` with `client:"mobile"`, code-based not token-based)*
 - `POST /auth/email/verify` — `{ code }` → 204 (if email OTP is used)
 - `POST /auth/social/{provider}` — provider in `google|apple|steam|discord` → token
 - `GET  /me` — current user + profile *(verified: `GET /profile/me`; also `POST /auth/refresh` + `POST /auth/validate`)*

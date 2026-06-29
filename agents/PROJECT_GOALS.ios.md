@@ -112,6 +112,37 @@ messaging, and collection.
 
 ## Progress log
 
+### 2026-06-29 — Password-reset wired to the real OTP backend + Remember-me removed
+
+The backend shipped a real **3-step OTP** password reset (mobile branch). Replaced the mocks with
+live `APIClient` calls and aligned the client to the verified contract. Full cross-client spec
+(for the Android port) rewritten in **`agents/password-reset-flow.md`**.
+
+- **Endpoints** (`Endpoint.swift`): `.forgotPassword` · `.verifyResetCode` · `.resetPassword`
+  (all POST, no auth). Request models send **`client: "mobile"`** (`ForgotPasswordRequest`,
+  `ResetPasswordRequest`) — without it the backend falls into the web email-link branch.
+- **`AuthService`** real impls; signatures changed: `resetPassword(email:code:newPassword:)` (the
+  old mocked `resetToken` is gone — the backend never returned one). `verifyResetCode` and
+  `forgotPassword` now return `Void`. `MessageResponse` decodes `{ error?, message? }`.
+- **Verify step is server-validated:** navigation to `ResetPassword` only happens after
+  `verify-reset-code` returns 200, carrying `email`+`code` forward (not a token).
+- **Error 400:** added `APIError.badRequest(String)` + a `case 400` in `APIClient.mapError` so the
+  backend's `{ error: "Invalid code" | "Code expired" | "Code already used" }` surfaces as a real
+  toast instead of "Unexpected error (code 400)".
+- **Auto-login after reset:** `reset-password` returns **no token**, so `SuccessView`'s primary
+  button calls `signInAfterReset(authStore:)` → `login` → `authStore.authenticate(...)` → Home.
+  `AuthStore.authenticate`/`logout` now clear `isResetFlowActive` so the flag can't leak and
+  re-trigger the reset flow on a later logout.
+- **Password min = 6** on reset (backend `min:6`, aligned with register). Earlier 8-char rule
+  reverted; `passwordTooShortReset` message removed.
+- **Remember-me removed:** it was dead UI (never read; JWT in Keychain already persists the session).
+  `RememberMeRow` → `ForgotPasswordRow` (keeps the "Forgot my password" link, trailing-aligned);
+  `rememberMe` dropped from `LoginViewModel`.
+- **Backend gotcha that bit us (resolved):** the `verified_at` column was added by *editing an
+  already-applied migration*, so an existing DB needs `migrate:rollback` + `migrate` (a plain
+  `migrate` shows nothing pending). Flagged to backend to use a fresh `ALTER` migration + to null
+  `verified_at` when regenerating a code in `forgotPassword`.
+
 ### 2026-06-28 — Password-reset flow + success screen (auth UI completed, mocked)
 
 Finished the remaining auth screens. The reset flow is **mocked client-side** because the

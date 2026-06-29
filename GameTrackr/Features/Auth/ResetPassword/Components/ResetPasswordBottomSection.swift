@@ -11,7 +11,7 @@ struct ResetPasswordBottomSection: View {
 
 #Preview {
     ResetPasswordBottomSection(
-        viewModel: ResetPasswordViewModel(resetToken: "token"),
+        viewModel: ResetPasswordViewModel(email: "you@email.com", code: "123456"),
         onSave: {}
     )
     .padding()

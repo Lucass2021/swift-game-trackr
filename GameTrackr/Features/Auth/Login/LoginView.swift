@@ -27,8 +27,7 @@ struct LoginView: View {
                 .padding(.top, 28)
                 .staggeredAppear(2)
 
-            RememberMeRow(
-                rememberMe: $viewModel.rememberMe,
+            ForgotPasswordRow(
                 onForgotPassword: { authStore.isResetFlowActive = true }
             )
             .padding(.top, 20)

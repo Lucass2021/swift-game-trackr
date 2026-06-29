@@ -3,6 +3,7 @@ import Foundation
 enum APIError: LocalizedError {
     case unauthorized
     case notFound
+    case badRequest(String)
     case conflict(String)
     case validation(String)
     case rateLimited(retryAfter: Int?)
@@ -27,6 +28,8 @@ enum APIError: LocalizedError {
             return "Invalid email or password."
         case .notFound:
             return "Account not found."
+        case let .badRequest(message):
+            return message
         case let .conflict(message):
             return message
         case let .validation(message):

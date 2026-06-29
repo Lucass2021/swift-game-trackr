@@ -7,7 +7,6 @@ class VerifyResetCodeViewModel {
     var code = ""
     var isLoading = false
     var errorMessage: String?
-    var resetToken: String?
     var showResetPassword = false
     var secondsRemaining = 30
     private var submitted = false
@@ -38,7 +37,7 @@ class VerifyResetCodeViewModel {
 
     func resend() async {
         guard canResend else { return }
-        _ = try? await service.forgotPassword(email: email)
+        try? await service.forgotPassword(email: email)
         await startResendCountdown()
     }
 
@@ -49,7 +48,7 @@ class VerifyResetCodeViewModel {
         isLoading = true
         defer { isLoading = false }
         do {
-            resetToken = try await service.verifyResetCode(email: email, code: code)
+            try await service.verifyResetCode(email: email, code: code)
             showResetPassword = true
         } catch {
             errorMessage = error.userMessage()

@@ -3,7 +3,8 @@ import SwiftUI
 @MainActor
 @Observable
 class ResetPasswordViewModel {
-    let resetToken: String
+    let email: String
+    let code: String
     var password = ""
     var confirmPassword = ""
     var isLoading = false
@@ -13,8 +14,9 @@ class ResetPasswordViewModel {
 
     private let service: AuthServicing
 
-    init(resetToken: String, service: AuthServicing = AuthService.live) {
-        self.resetToken = resetToken
+    init(email: String, code: String, service: AuthServicing = AuthService.live) {
+        self.email = email
+        self.code = code
         self.service = service
     }
 
@@ -37,8 +39,19 @@ class ResetPasswordViewModel {
         isLoading = true
         defer { isLoading = false }
         do {
-            try await service.resetPassword(resetToken: resetToken, newPassword: password)
+            try await service.resetPassword(email: email, code: code, newPassword: password)
             showSuccess = true
+        } catch {
+            errorMessage = error.userMessage()
+        }
+    }
+
+    func signInAfterReset(authStore: AuthStore) async {
+        isLoading = true
+        defer { isLoading = false }
+        do {
+            let response = try await service.login(email: email, password: password)
+            authStore.authenticate(token: response.token, user: response.user)
         } catch {
             errorMessage = error.userMessage()
         }

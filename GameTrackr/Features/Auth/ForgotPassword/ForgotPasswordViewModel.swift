@@ -28,7 +28,7 @@ class ForgotPasswordViewModel {
         isLoading = true
         defer { isLoading = false }
         do {
-            _ = try await service.forgotPassword(email: email)
+            try await service.forgotPassword(email: email)
             showVerifyCode = true
         } catch {
             errorMessage = error.userMessage()

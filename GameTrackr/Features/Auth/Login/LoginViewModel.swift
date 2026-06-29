@@ -5,7 +5,6 @@ import SwiftUI
 class LoginViewModel {
     var email = ""
     var password = ""
-    var rememberMe = false
     var isLoading = false
     var errorMessage: String?
     private var submitted = false
@@ -50,7 +49,6 @@ class LoginViewModel {
     func clear() {
         email = ""
         password = ""
-        rememberMe = false
         errorMessage = nil
         submitted = false
     }

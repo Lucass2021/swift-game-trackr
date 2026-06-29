@@ -44,7 +44,7 @@ struct VerifyResetCodeView: View {
         }
         .toolbar(.hidden, for: .navigationBar)
         .navigationDestination(isPresented: $viewModel.showResetPassword) {
-            ResetPasswordView(resetToken: viewModel.resetToken ?? "")
+            ResetPasswordView(email: viewModel.email, code: viewModel.code)
         }
         .toast(message: $viewModel.errorMessage)
         .task { await viewModel.startResendCountdown() }

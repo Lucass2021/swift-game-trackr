@@ -31,11 +31,13 @@ class AuthStore {
         KeychainHelper.saveToken(token)
         currentUser = user
         isAuthenticated = true
+        isResetFlowActive = false
     }
 
     func logout() {
         KeychainHelper.clearToken()
         currentUser = nil
         isAuthenticated = false
+        isResetFlowActive = false
     }
 }

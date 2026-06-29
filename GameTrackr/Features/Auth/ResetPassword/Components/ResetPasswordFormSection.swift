@@ -33,7 +33,7 @@ struct ResetPasswordFormSection: View {
 }
 
 #Preview {
-    ResetPasswordFormSection(viewModel: ResetPasswordViewModel(resetToken: "token"))
+    ResetPasswordFormSection(viewModel: ResetPasswordViewModel(email: "you@email.com", code: "123456"))
         .padding()
         .background(Color.appBackground)
 }

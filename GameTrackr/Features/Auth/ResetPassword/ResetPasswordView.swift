@@ -4,8 +4,8 @@ struct ResetPasswordView: View {
     @Environment(AuthStore.self) private var authStore
     @State private var viewModel: ResetPasswordViewModel
 
-    init(resetToken: String) {
-        _viewModel = State(initialValue: ResetPasswordViewModel(resetToken: resetToken))
+    init(email: String, code: String) {
+        _viewModel = State(initialValue: ResetPasswordViewModel(email: email, code: code))
     }
 
     var body: some View {
@@ -42,11 +42,11 @@ struct ResetPasswordView: View {
         .navigationDestination(isPresented: $viewModel.showSuccess) {
             SuccessView(
                 title: "All set!",
-                subtitle: "Your password was changed successfully. You can now sign in with your new password.",
+                subtitle: "Your password was changed successfully. Continue to sign in to your account.",
                 statusTitle: "Account status",
                 statusValue: "Validated and Active",
-                buttonTitle: "Back to login",
-                onPrimary: { authStore.isResetFlowActive = false }
+                buttonTitle: "Continue",
+                onPrimary: { Task { await viewModel.signInAfterReset(authStore: authStore) } }
             )
         }
         .toast(message: $viewModel.errorMessage)
@@ -55,7 +55,7 @@ struct ResetPasswordView: View {
 
 #Preview {
     NavigationStack {
-        ResetPasswordView(resetToken: "token")
+        ResetPasswordView(email: "you@email.com", code: "123456")
     }
     .environment(AuthStore())
     .preferredColorScheme(.dark)
