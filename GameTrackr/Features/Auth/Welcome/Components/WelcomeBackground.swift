@@ -14,7 +14,7 @@ struct WelcomeBackground: View {
                             .init(color: .appBackground.opacity(0.55), location: 0.0),
                             .init(color: .appBackground.opacity(0.15), location: 0.35),
                             .init(color: .appBackground.opacity(0.85), location: 0.75),
-                            .init(color: .appBackground, location: 1.0),
+                            .init(color: .appBackground, location: 1.0)
                         ],
                         startPoint: .top,
                         endPoint: .bottom

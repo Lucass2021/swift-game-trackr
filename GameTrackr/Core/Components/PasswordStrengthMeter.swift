@@ -19,25 +19,25 @@ enum PasswordStrength: Int {
         if password.rangeOfCharacter(from: .punctuationCharacters.union(.symbols)) != nil { score += 1 }
 
         switch score {
-        case 0...1: self = .weak
-        case 2...3: self = .medium
+        case 0 ... 1: self = .weak
+        case 2 ... 3: self = .medium
         default: self = .strong
         }
     }
 
     var label: String {
         switch self {
-        case .weak: return "WEAK PASSWORD"
-        case .medium: return "MEDIUM PASSWORD"
-        case .strong: return "STRONG PASSWORD"
+        case .weak: "WEAK PASSWORD"
+        case .medium: "MEDIUM PASSWORD"
+        case .strong: "STRONG PASSWORD"
         }
     }
 
     var color: Color {
         switch self {
-        case .weak: return .appTertiary
-        case .medium: return .appSecondary
-        case .strong: return .appPrimary
+        case .weak: .appTertiary
+        case .medium: .appSecondary
+        case .strong: .appPrimary
         }
     }
 }
@@ -50,7 +50,7 @@ struct PasswordStrengthMeter: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
             HStack(spacing: 8) {
-                ForEach(0..<segments, id: \.self) { index in
+                ForEach(0 ..< segments, id: \.self) { index in
                     Capsule()
                         .fill(index < strength.rawValue ? strength.color : Color.appOutline)
                         .frame(height: 5)

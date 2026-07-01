@@ -55,9 +55,10 @@ class RegisterViewModel {
         return nil
     }
 
-    func signUp(authStore: AuthStore) async {
+    func signUp(authStore _: AuthStore) async {
         submitted = true
-        guard nameError == nil, emailError == nil, passwordError == nil, confirmPasswordError == nil, termsError == nil else { return }
+        guard nameError == nil, emailError == nil, passwordError == nil, confirmPasswordError == nil,
+              termsError == nil else { return }
         isLoading = true
         defer { isLoading = false }
         do {

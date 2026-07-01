@@ -2,7 +2,7 @@ import SwiftUI
 
 struct TermsAcceptanceRow: View {
     @Binding var isAccepted: Bool
-    var error: String? = nil
+    var error: String?
 
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
@@ -27,11 +27,13 @@ struct TermsAcceptanceRow: View {
                 }
                 .buttonStyle(.plain)
 
-                Text("I have read and accept the **[Terms of Use](https://github.com/lucianobcorrea/game-trackr-api)** and the **[Privacy Policy](https://github.com/lucianobcorrea/game-trackr-api)**.")
-                    .font(.appBody(14))
-                    .tint(Color.appSecondary)
-                    .foregroundStyle(Color.appTextSecondary)
-                    .fixedSize(horizontal: false, vertical: true)
+                Text(
+                    "I have read and accept the **[Terms of Use](https://github.com/lucianobcorrea/game-trackr-api)** and the **[Privacy Policy](https://github.com/lucianobcorrea/game-trackr-api)**."
+                )
+                .font(.appBody(14))
+                .tint(Color.appSecondary)
+                .foregroundStyle(Color.appTextSecondary)
+                .fixedSize(horizontal: false, vertical: true)
             }
 
             if let error {

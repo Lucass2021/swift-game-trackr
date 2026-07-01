@@ -25,7 +25,9 @@ class VerifyResetCodeViewModel {
         return nil
     }
 
-    var canResend: Bool { secondsRemaining <= 0 }
+    var canResend: Bool {
+        secondsRemaining <= 0
+    }
 
     func startResendCountdown() async {
         secondsRemaining = 30

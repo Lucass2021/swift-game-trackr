@@ -2,7 +2,7 @@ import SwiftUI
 
 struct BackButton: View {
     @Environment(\.dismiss) private var dismiss
-    var action: (() -> Void)? = nil
+    var action: (() -> Void)?
 
     var body: some View {
         HStack {

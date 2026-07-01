@@ -1,0 +1,3 @@
+disabled_rules:
+  - force_unwrapping
+  - static_over_final_class

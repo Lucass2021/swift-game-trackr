@@ -23,8 +23,7 @@ class AuthStore {
         do {
             let response: ValidateResponse = try await APIClient.shared.request(.validateToken)
             currentUser = response.user
-        } catch {
-        }
+        } catch {}
     }
 
     func authenticate(token: String, user: User) {

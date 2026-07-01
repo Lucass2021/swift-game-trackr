@@ -3,8 +3,8 @@ import SwiftUI
 struct SuccessView: View {
     let title: String
     let subtitle: String
-    var statusTitle: String? = nil
-    var statusValue: String? = nil
+    var statusTitle: String?
+    var statusValue: String?
     let buttonTitle: String
     let onPrimary: () -> Void
 
@@ -56,8 +56,7 @@ struct SuccessView: View {
                     remaining -= 1
                 }
                 onPrimary()
-            } catch {
-            }
+            } catch {}
         }
     }
 

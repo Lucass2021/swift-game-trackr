@@ -14,12 +14,14 @@ struct WelcomeBottomSection: View {
                 showLogin = true
             }
 
-            Text("By continuing, you agree to our **[Terms](https://github.com/lucianobcorrea/game-trackr-api)** and\n **[Privacy Policy](https://github.com/lucianobcorrea/game-trackr-api)**.")
-                .font(.appBody(14))
-                .tint(Color.appSecondary)
-                .foregroundStyle(Color.appTextSecondary)
-                .multilineTextAlignment(.center)
-                .padding(.top, 6)
+            Text(
+                "By continuing, you agree to our **[Terms](https://github.com/lucianobcorrea/game-trackr-api)** and\n **[Privacy Policy](https://github.com/lucianobcorrea/game-trackr-api)**."
+            )
+            .font(.appBody(14))
+            .tint(Color.appSecondary)
+            .foregroundStyle(Color.appTextSecondary)
+            .multilineTextAlignment(.center)
+            .padding(.top, 6)
         }
     }
 }

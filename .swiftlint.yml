@@ -1,0 +1,56 @@
+included:
+  - GameTrackr
+
+excluded:
+  - DerivedData
+  - .build
+
+disabled_rules:
+  - trailing_whitespace
+  - opening_brace
+  - vertical_whitespace
+  - comma
+  - colon
+  - trailing_comma
+  - statement_position
+
+opt_in_rules:
+  - force_unwrapping
+  - empty_count
+  - first_where
+  - contains_over_filter_count
+  - toggle_bool
+  - unneeded_parentheses_in_closure_argument
+  - redundant_nil_coalescing
+  - closure_spacing
+  - explicit_init
+
+line_length:
+  warning: 120
+  error: 160
+  ignores_comments: true
+  ignores_urls: true
+  ignores_interpolated_strings: true
+
+type_body_length:
+  warning: 350
+  error: 500
+
+file_length:
+  warning: 500
+  error: 800
+
+function_body_length:
+  warning: 60
+  error: 100
+
+identifier_name:
+  min_length: 2
+  excluded:
+    - id
+    - vm
+    - x
+    - y
+
+force_cast: error
+force_try: error

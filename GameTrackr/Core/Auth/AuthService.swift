@@ -1,7 +1,8 @@
 import Foundation
 
 protocol AuthServicing: Sendable {
-    func register(name: String, email: String, password: String, passwordConfirmation: String) async throws -> AuthResponse
+    func register(name: String, email: String, password: String, passwordConfirmation: String) async throws
+        -> AuthResponse
     func login(email: String, password: String) async throws -> AuthResponse
     func forgotPassword(email: String) async throws
     func verifyResetCode(email: String, code: String) async throws
@@ -11,7 +12,12 @@ protocol AuthServicing: Sendable {
 struct AuthService: AuthServicing {
     static let live = AuthService()
 
-    func register(name: String, email: String, password: String, passwordConfirmation: String) async throws -> AuthResponse {
+    func register(
+        name: String,
+        email: String,
+        password: String,
+        passwordConfirmation: String
+    ) async throws -> AuthResponse {
         let body = RegisterRequest(
             name: name,
             email: email,

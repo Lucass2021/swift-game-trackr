@@ -3,11 +3,11 @@ import SwiftUI
 struct AuthTextField: View {
     let placeholder: String
     @Binding var text: String
-    var icon: String? = nil
+    var icon: String?
     var isSecure: Bool = false
     var keyboardType: UIKeyboardType = .default
-    var contentType: UITextContentType? = nil
-    var error: String? = nil
+    var contentType: UITextContentType?
+    var error: String?
 
     @State private var isRevealed = false
     @FocusState private var isFocused: Bool
