@@ -4,34 +4,16 @@ struct HomePlaceholderView: View {
     @Environment(AuthStore.self) private var authStore
 
     var body: some View {
-        VStack(spacing: 24) {
-            Spacer()
+        ComingSoonView(
+            icon: "safari",
+            title: greeting,
+            subtitle: "Discover new releases and the most anticipated games. The feed is coming next."
+        )
+    }
 
-            Image("logo-hero")
-                .resizable()
-                .scaledToFit()
-                .frame(maxWidth: 220)
-
-            Text("Welcome\(authStore.currentUser.map { ", \($0.name)" } ?? "")!")
-                .font(.appHeadline(22))
-                .foregroundStyle(Color.appTextPrimary)
-                .multilineTextAlignment(.center)
-
-            Text("You're signed in. The library is coming next.")
-                .font(.appBody(15))
-                .foregroundStyle(Color.appTextSecondary)
-                .multilineTextAlignment(.center)
-
-            Spacer()
-
-            SecondaryButton(title: "Sign out") {
-                authStore.logout()
-            }
-        }
-        .padding(.horizontal, 24)
-        .padding(.bottom, 24)
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .background(Color.appBackground)
+    private var greeting: String {
+        if authStore.isGuest { return "Welcome, guest!" }
+        return "Welcome\(authStore.currentUser.map { ", \($0.name)" } ?? "")!"
     }
 }
 

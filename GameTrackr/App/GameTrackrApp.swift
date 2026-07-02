@@ -24,8 +24,8 @@ private struct RootView: View {
 
     var body: some View {
         ZStack {
-            if authStore.isAuthenticated {
-                HomePlaceholderView()
+            if authStore.isInApp {
+                MainTabView()
             } else {
                 WelcomeView()
             }

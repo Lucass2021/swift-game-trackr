@@ -1,14 +1,32 @@
 import SwiftUI
 
+enum SessionState {
+    case unauthenticated
+    case guest
+    case authenticated
+}
+
 @MainActor
 @Observable
 class AuthStore {
-    private(set) var isAuthenticated: Bool
+    private(set) var state: SessionState
     private(set) var currentUser: User?
     var isResetFlowActive = false
 
+    var isAuthenticated: Bool {
+        state == .authenticated
+    }
+
+    var isGuest: Bool {
+        state == .guest
+    }
+
+    var isInApp: Bool {
+        state != .unauthenticated
+    }
+
     init() {
-        isAuthenticated = KeychainHelper.getToken() != nil
+        state = KeychainHelper.getToken() != nil ? .authenticated : .unauthenticated
         Task { [weak self] in
             await APIClient.shared.setRefreshFailureHandler { [weak self] in
                 Task { @MainActor [weak self] in
@@ -26,17 +44,23 @@ class AuthStore {
         } catch {}
     }
 
+    func continueAsGuest() {
+        currentUser = nil
+        state = .guest
+        isResetFlowActive = false
+    }
+
     func authenticate(token: String, user: User) {
         KeychainHelper.saveToken(token)
         currentUser = user
-        isAuthenticated = true
+        state = .authenticated
         isResetFlowActive = false
     }
 
     func logout() {
         KeychainHelper.clearToken()
         currentUser = nil
-        isAuthenticated = false
+        state = .unauthenticated
         isResetFlowActive = false
     }
 }

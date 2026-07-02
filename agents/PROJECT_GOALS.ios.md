@@ -42,10 +42,12 @@ networking layer, Keychain token storage, and modern Swift Concurrency.
 
 ## Expected screens
 
-See `CLAUDE.md` → *Feature scope by phase*. Auth screens are already designed
-(Welcome, Sign in, Create account, Forgot/Reset password, Verify email, Success). Build the
-**MVP slice** first (auth → library → profile), then layer discovery, friends, community,
-messaging, and collection.
+See `CLAUDE.md` → *Feature scope by phase* and *App navigation & screen flow* (the full flow the
+team drew, `agents/app-flow.jpeg`). Auth screens are already designed and built (Welcome, Sign in
++ **Continue as guest**, Create account, Forgot/Reset password OTP flow, Success). The **app shell**
+comes next: bottom tabs `Home · Library · Community · Profile` + a global header
+(`Notifications · Search · Profile menu`). Build the **MVP slice** first (auth → library → profile),
+then layer discovery, friends, community, messaging, and collection.
 
 ---
 
@@ -111,6 +113,57 @@ messaging, and collection.
 ---
 
 ## Progress log
+
+### 2026-07-02 — App shell: global header + custom bottom tab bar
+
+First screens past auth. Built the **app shell** that hosts every authenticated/guest screen
+(`Features/App/AppShell/`), matching the team's mockups.
+
+- **`MainTabView`** — the shell: `AppHeader` on top, the selected tab's content in the middle,
+  `AppTabBar` at the bottom, inside one `NavigationStack` (nav bar hidden). The header's three
+  actions push `SearchPlaceholderView`, `NotificationsPlaceholderView`, and `ProfileMenuView`
+  via `navigationDestination(isPresented:)`. `RootView` now shows `MainTabView` for `isInApp`.
+- **`AppHeader`** — `logo-wordmark` on the left; three right-aligned icon buttons: **bell**
+  (notifications), **magnifyingglass** (search), **gearshape** (profile menu). Reusable, takes
+  three closures.
+- **`AppTabBar`** — **custom** (not native `TabView`) to match the design and stay visually
+  aligned with the Android app. Bound to `AppTab` (`enum { home, library, community, profile }`,
+  with `icon`/`selectedIcon` SF Symbols). Selected tab tinted `appPrimary`; a top hairline
+  (`appOutline`) and a background that bleeds under the home indicator. **Explore was dropped —
+  Home *is* the explore/discovery screen** (4 tabs, not 5).
+- **Tab screens** are thin placeholders over a reusable `ComingSoonView` (Home / Library /
+  Community / Profile). Home greets the user/guest by name.
+- **`ProfileMenuView`** — the "Profile menu" screen: an account header card + grouped option
+  rows (Edit profile, My collection, My lists, Achievements · Settings, Help, About) + the
+  **session actions moved out of Home** (guest → *Create an account* / *Exit guest mode*;
+  signed-in → *Sign out*). Rows are placeholders pending the real destinations.
+- **Note:** the profile-menu mockup didn't come through (the screenshot captured a file tree),
+  so the menu options are sensible defaults — revisit when the real design lands.
+
+### 2026-07-02 — Guest access + full app navigation flow mapped
+
+The team drew the whole-app flow (`agents/app-flow.jpeg`) and added a **guest** entry point. Auth
+is the last locked-in area; the app shell (Home / Library / Community / Profile) is next.
+
+- **Session is now three-state, not a boolean.** `AuthStore` gained
+  `enum SessionState { unauthenticated, guest, authenticated }` (was `isAuthenticated: Bool`).
+  Derived flags: `isAuthenticated`, `isGuest`, `isInApp` (= guest **or** authenticated). `init`
+  maps a stored Keychain token → `.authenticated`, else `.unauthenticated`. New `continueAsGuest()`
+  sets `.guest` with no token/user; `authenticate(...)` → `.authenticated`; `logout()` →
+  `.unauthenticated` (also the "exit guest" path — clearing an absent token is a no-op).
+- **One app, not two.** `RootView` gates on `authStore.isInApp`, so guest and signed-in users
+  render the **same** `Features/App` tree. **Do not** build a parallel "visitor app" — limitations
+  are **capability checks at the point of the gated action** (read `authStore.isGuest`, prompt to
+  create an account instead of calling the API). No gated actions exist yet (Home is a placeholder);
+  the pattern lands with the first write feature (add-to-library).
+- **UI:** `LoginView` got a lightweight **"Continue as guest"** text button (staggered index 7)
+  calling `continueAsGuest()`. `HomePlaceholderView` adapts by session — guest sees
+  "Welcome, guest!" + a **Create an account** / **Exit guest mode** pair (both `logout()` → back to
+  Welcome); signed-in users keep the single **Sign out**.
+- **Navigation flow** now documented in the shared `CLAUDE.md` (*App navigation & screen flow*):
+  bottom tabs `Home · Library · Community · Profile`, a global header
+  (`Notifications · Search · Profile menu`), Home → New Releases / New Anticipated, Community →
+  My Community / Discover → Post details / Community details.
 
 ### 2026-06-29 — Password-reset wired to the real OTP backend + Remember-me removed
 

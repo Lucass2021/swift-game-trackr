@@ -32,6 +32,16 @@ games. A user can:
 
 The mobile-native clients and the web client are **thin clients** over one backend.
 
+### Guest access
+
+Users can enter the app **without an account** via **"Continue as guest"** on the Login screen.
+A guest reaches the **same app shell and routes** as a signed-in user — there is **no separate
+"visitor" app**. Guests get **read-only discovery**: browse Home / discovery feeds, search, and
+open game/community detail. Any action that writes to a user (add to library, rate/review,
+friend requests, messaging, posting/voting, collection) is **gated**: the client detects the
+guest session at the point of the action and prompts to create an account instead of calling the
+API. Leaving guest mode or tapping a gated CTA returns the user to the Welcome / auth flow.
+
 ---
 
 ## Team & ownership
@@ -66,6 +76,9 @@ and caching that data.
   mobile client opens the provider flow (system browser / ASWebAuthenticationSession /
   Custom Tabs) and receives a GameTrackr token at the end.
 - Whether refresh tokens are used (vs. long-lived Sanctum tokens) is **to be confirmed with backend** — see the open questions section.
+- **Guest sessions are client-only** — no token, no backend call. The client tracks a
+  three-state session (`unauthenticated` / `guest` / `authenticated`) and only guest + authenticated
+  reach the app shell (see *Guest access*). Guests only hit **public read endpoints**.
 
 > ✅ **VERIFIED AGAINST THE RUNNING BACKEND (2026-06-27, updated 2026-06-29).** The text above is
 > the original *proposal*; the points below were confirmed with `curl` against the local backend and
@@ -213,6 +226,30 @@ JSON request/response. Pagination via `?page=` + `?per_page=` returning Laravel-
 - `409` — conflict (e.g. game already in library)
 - `422` — validation error → `{ message, errors: { field: [..] } }`
 - `429` — rate limited → `Retry-After` header
+
+---
+
+## App navigation & screen flow
+
+The whole-app flow the team drew (see `agents/app-flow.jpeg`). Applies to every client.
+
+**Auth stack** (unauthenticated):
+
+- **Welcome** → **Login** and **Create account** (Login ↔ Create account cross-link).
+- **Login** → **Forgot password** → **Confirm OTP code** → **New password** → **Home**.
+- **Login** → **Continue as guest** → **Home** (guest session; see *Guest access*).
+- **Login** / **Create account** → **Home** on success.
+
+**App shell** (authenticated *or* guest) — a bottom tab bar with a global header:
+
+- **Tabs:** `Home` · `Library` · `Community` · `Profile`.
+- **Global header** (present across tabs): `Notifications` · `Search` · `Profile menu`.
+- **Home** → `New Releases` and `New Anticipated` (Most Anticipated) screens.
+- **Community** → `My Community` and `Discover new Communities`.
+  - `My Community` → `Post details` → `Community details`.
+  - `Discover new Communities` → `Community details`.
+
+Guests land on the same shell; write actions inside it are gated (see *Guest access*).
 
 ---
 

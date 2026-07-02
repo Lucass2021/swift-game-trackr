@@ -47,6 +47,10 @@ struct LoginView: View {
                 .padding(.top, 28)
                 .staggeredAppear(6)
 
+            guestPrompt
+                .padding(.top, 16)
+                .staggeredAppear(7)
+
             Spacer(minLength: 0)
         }
         .toolbar(.hidden, for: .navigationBar)
@@ -65,6 +69,13 @@ struct LoginView: View {
             .font(.appBody(15))
             .foregroundStyle(Color.appTextSecondary)
             .onTapGesture { showRegister = true }
+    }
+
+    private var guestPrompt: some View {
+        Text("Just exploring? \(Text("Continue as guest").font(.appLabel(15)).foregroundStyle(Color.appSecondary))")
+            .font(.appBody(15))
+            .foregroundStyle(Color.appTextSecondary)
+            .onTapGesture { authStore.continueAsGuest() }
     }
 }
 
