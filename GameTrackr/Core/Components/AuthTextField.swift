@@ -3,7 +3,7 @@ import SwiftUI
 struct AuthTextField: View {
     let placeholder: String
     @Binding var text: String
-    var icon: String?
+    var icon: AppIcon?
     var isSecure: Bool = false
     var keyboardType: UIKeyboardType = .default
     var contentType: UITextContentType?
@@ -29,9 +29,8 @@ struct AuthTextField: View {
         VStack(alignment: .leading, spacing: 6) {
             HStack(spacing: 12) {
                 if let icon {
-                    Image(systemName: icon)
+                    AppIconView(icon: icon, size: 20)
                         .foregroundStyle(Color.appTextSecondary)
-                        .frame(width: 20)
                 }
 
                 Group {
@@ -55,7 +54,7 @@ struct AuthTextField: View {
                     Button {
                         isRevealed.toggle()
                     } label: {
-                        Image(systemName: isRevealed ? "eye" : "eye.slash")
+                        AppIconView(icon: isRevealed ? .eye : .eyeSlash, size: 20)
                             .foregroundStyle(Color.appTextSecondary)
                     }
                     .buttonStyle(.plain)

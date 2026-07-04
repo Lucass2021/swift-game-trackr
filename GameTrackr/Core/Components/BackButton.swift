@@ -9,8 +9,7 @@ struct BackButton: View {
             Button {
                 if let action { action() } else { dismiss() }
             } label: {
-                Image(systemName: "chevron.left")
-                    .font(.system(size: 18, weight: .semibold))
+                AppIconView(icon: .back, size: 22)
                     .foregroundStyle(Color.appTextPrimary)
                     .frame(width: 40, height: 40, alignment: .leading)
             }

@@ -27,8 +27,7 @@ struct SplashView: View {
                                 .stroke(Color.appOutline, lineWidth: 0.6)
                         )
 
-                    Image(systemName: "gamecontroller.fill")
-                        .font(.system(size: 40, weight: .semibold))
+                    AppIconView(icon: .brand, filled: true, size: 44)
                         .foregroundStyle(Color.appPrimary)
                 }
                 .scaleEffect(iconScale)

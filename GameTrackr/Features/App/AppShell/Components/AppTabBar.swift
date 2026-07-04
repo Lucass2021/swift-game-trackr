@@ -29,8 +29,7 @@ struct AppTabBar: View {
             selection = tab
         } label: {
             VStack(spacing: 5) {
-                Image(systemName: isSelected ? tab.selectedIcon : tab.icon)
-                    .font(.system(size: 20, weight: .medium))
+                AppIconView(icon: tab.icon, filled: isSelected, size: 22)
                 Text(tab.title)
                     .font(.appLabel(12))
             }

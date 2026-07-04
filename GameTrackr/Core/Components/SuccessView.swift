@@ -61,19 +61,17 @@ struct SuccessView: View {
     }
 
     private var checkBadge: some View {
-        Image(systemName: "checkmark.circle.fill")
-            .font(.system(size: 96))
+        AppIconView(icon: .success, filled: true, size: 96)
             .foregroundStyle(Color.appSecondary)
             .shadow(color: Color.appSecondary.opacity(0.4), radius: 24)
     }
 
     private func statusCard(_ heading: String, _ value: String) -> some View {
         HStack(spacing: 14) {
-            Image(systemName: "checkmark.shield.fill")
-                .font(.system(size: 22))
+            AppIconView(icon: .shieldCheck, filled: true, size: 22)
                 .foregroundStyle(Color.appSecondary)
                 .frame(width: 44, height: 44)
-                .background(Color.appBackground)
+                .background(Color.appSecondary.opacity(0.14))
                 .clipShape(RoundedRectangle(cornerRadius: 12))
 
             VStack(alignment: .leading, spacing: 2) {

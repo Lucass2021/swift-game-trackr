@@ -5,7 +5,7 @@ struct HomePlaceholderView: View {
 
     var body: some View {
         ComingSoonView(
-            icon: "safari",
+            icon: .discover,
             title: greeting,
             subtitle: "Discover new releases and the most anticipated games. The feed is coming next."
         )

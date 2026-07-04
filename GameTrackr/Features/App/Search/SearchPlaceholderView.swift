@@ -3,7 +3,7 @@ import SwiftUI
 struct SearchPlaceholderView: View {
     var body: some View {
         ComingSoonView(
-            icon: "magnifyingglass",
+            icon: .search,
             title: "Search",
             subtitle: "Search the game catalog. Coming next."
         )

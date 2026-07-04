@@ -8,7 +8,7 @@ struct ForgotPasswordFormSection: View {
             AuthTextField(
                 placeholder: "you@email.com",
                 text: $viewModel.email,
-                icon: "envelope",
+                icon: .envelope,
                 keyboardType: .emailAddress,
                 contentType: .emailAddress,
                 error: viewModel.emailError

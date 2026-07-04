@@ -19,8 +19,7 @@ struct TermsAcceptanceRow: View {
                         )
                         .overlay {
                             if isAccepted {
-                                Image(systemName: "checkmark")
-                                    .font(.system(size: 12, weight: .bold))
+                                AppIconView(icon: .check, size: 14)
                                     .foregroundStyle(Color.appOnPrimary)
                             }
                         }

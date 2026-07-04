@@ -15,9 +15,9 @@ struct AppHeader: View {
             Spacer(minLength: 12)
 
             HStack(spacing: 6) {
-                headerButton("bell", action: onNotifications)
-                headerButton("magnifyingglass", action: onSearch)
-                headerButton("gearshape", action: onMenu)
+                headerButton(.notifications, action: onNotifications)
+                headerButton(.search, action: onSearch)
+                headerButton(.settings, action: onMenu)
             }
         }
         .padding(.horizontal, 20)
@@ -25,10 +25,9 @@ struct AppHeader: View {
         .background(Color.appBackground)
     }
 
-    private func headerButton(_ systemName: String, action: @escaping () -> Void) -> some View {
+    private func headerButton(_ icon: AppIcon, action: @escaping () -> Void) -> some View {
         Button(action: action) {
-            Image(systemName: systemName)
-                .font(.system(size: 20, weight: .medium))
+            AppIconView(icon: icon, size: 22)
                 .foregroundStyle(Color.appTextPrimary)
                 .frame(width: 40, height: 40)
                 .contentShape(Rectangle())

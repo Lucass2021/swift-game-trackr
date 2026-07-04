@@ -19,21 +19,12 @@ enum AppTab: CaseIterable, Identifiable {
         }
     }
 
-    var icon: String {
+    var icon: AppIcon {
         switch self {
-        case .home: "house"
-        case .library: "square.stack"
-        case .community: "person.3"
-        case .profile: "person"
-        }
-    }
-
-    var selectedIcon: String {
-        switch self {
-        case .home: "house.fill"
-        case .library: "square.stack.fill"
-        case .community: "person.3.fill"
-        case .profile: "person.fill"
+        case .home: .home
+        case .library: .library
+        case .community: .community
+        case .profile: .profile
         }
     }
 }

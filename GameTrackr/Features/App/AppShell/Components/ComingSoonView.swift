@@ -1,14 +1,13 @@
 import SwiftUI
 
 struct ComingSoonView: View {
-    let icon: String
+    let icon: AppIcon
     let title: String
     let subtitle: String
 
     var body: some View {
         VStack(spacing: 14) {
-            Image(systemName: icon)
-                .font(.system(size: 40, weight: .regular))
+            AppIconView(icon: icon, size: 40)
                 .foregroundStyle(Color.appPrimary)
 
             Text(title)
@@ -27,6 +26,6 @@ struct ComingSoonView: View {
 }
 
 #Preview {
-    ComingSoonView(icon: "square.stack", title: "Library", subtitle: "Your game library is coming next.")
+    ComingSoonView(icon: .library, title: "Library", subtitle: "Your game library is coming next.")
         .preferredColorScheme(.dark)
 }

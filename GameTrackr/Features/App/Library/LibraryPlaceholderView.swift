@@ -3,7 +3,7 @@ import SwiftUI
 struct LibraryPlaceholderView: View {
     var body: some View {
         ComingSoonView(
-            icon: "square.stack",
+            icon: .library,
             title: "Library",
             subtitle: "Track the games you own and their status. Coming next."
         )

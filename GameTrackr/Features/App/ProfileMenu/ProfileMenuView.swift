@@ -10,16 +10,16 @@ struct ProfileMenuView: View {
                 accountHeader
 
                 menuSection([
-                    .init(icon: "person.crop.circle", title: "Edit profile"),
-                    .init(icon: "square.grid.2x2", title: "My collection"),
-                    .init(icon: "list.bullet.rectangle", title: "My lists"),
-                    .init(icon: "rosette", title: "Achievements")
+                    .init(icon: .editProfile, title: "Edit profile"),
+                    .init(icon: .grid, title: "My collection"),
+                    .init(icon: .list, title: "My lists"),
+                    .init(icon: .medal, title: "Achievements")
                 ])
 
                 menuSection([
-                    .init(icon: "gearshape", title: "Settings"),
-                    .init(icon: "questionmark.circle", title: "Help & feedback"),
-                    .init(icon: "info.circle", title: "About")
+                    .init(icon: .settings, title: "Settings"),
+                    .init(icon: .help, title: "Help & feedback"),
+                    .init(icon: .info, title: "About")
                 ])
 
                 sessionSection
@@ -35,8 +35,7 @@ struct ProfileMenuView: View {
 
     private var accountHeader: some View {
         HStack(spacing: 14) {
-            Image(systemName: "person.crop.circle.fill")
-                .font(.system(size: 44))
+            AppIconView(icon: .avatar, filled: true, size: 44)
                 .foregroundStyle(Color.appTextSecondary)
 
             VStack(alignment: .leading, spacing: 2) {
@@ -59,16 +58,14 @@ struct ProfileMenuView: View {
             ForEach(Array(items.enumerated()), id: \.element.id) { index, item in
                 Button {} label: {
                     HStack(spacing: 14) {
-                        Image(systemName: item.icon)
-                            .font(.system(size: 18, weight: .medium))
+                        AppIconView(icon: item.icon, size: 20)
                             .foregroundStyle(Color.appPrimary)
                             .frame(width: 24)
                         Text(item.title)
                             .font(.appLabel(16))
                             .foregroundStyle(Color.appTextPrimary)
                         Spacer()
-                        Image(systemName: "chevron.right")
-                            .font(.system(size: 13, weight: .semibold))
+                        AppIconView(icon: .forward, size: 16)
                             .foregroundStyle(Color.appTextSecondary)
                     }
                     .padding(.horizontal, 16)
@@ -102,7 +99,7 @@ struct ProfileMenuView: View {
 
 private struct MenuItem: Identifiable {
     let id = UUID()
-    let icon: String
+    let icon: AppIcon
     let title: String
 }
 
