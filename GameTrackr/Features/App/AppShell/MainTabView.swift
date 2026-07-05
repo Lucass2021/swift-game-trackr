@@ -23,7 +23,7 @@ struct MainTabView: View {
             .background(Color.appBackground)
             .toolbar(.hidden, for: .navigationBar)
             .navigationDestination(isPresented: $showSearch) { SearchPlaceholderView() }
-            .navigationDestination(isPresented: $showNotifications) { NotificationsPlaceholderView() }
+            .navigationDestination(isPresented: $showNotifications) { NotificationsView() }
             .navigationDestination(isPresented: $showMenu) { ProfileMenuView() }
         }
     }
@@ -31,7 +31,7 @@ struct MainTabView: View {
     @ViewBuilder
     private var content: some View {
         switch selection {
-        case .home: HomePlaceholderView()
+        case .home: HomeView()
         case .library: LibraryPlaceholderView()
         case .community: CommunityPlaceholderView()
         case .profile: ProfilePlaceholderView()

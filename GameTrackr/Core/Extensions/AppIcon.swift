@@ -25,6 +25,7 @@ enum AppIcon {
     case grid
     case list
     case help
+    case like
 
     func image(filled: Bool = false) -> Image {
         Image(filled ? "\(glyph)-fill" : glyph)
@@ -56,6 +57,7 @@ enum AppIcon {
         case .grid: "squares-four"
         case .list: "list-bullets"
         case .help: "question"
+        case .like: "heart"
         }
     }
 }

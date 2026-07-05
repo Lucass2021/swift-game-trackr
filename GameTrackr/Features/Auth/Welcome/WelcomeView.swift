@@ -23,6 +23,7 @@ struct WelcomeView: View {
                         .resizable()
                         .scaledToFit()
                         .frame(maxWidth: 300)
+                        .subtleBounce()
 
                     Text("Your whole gaming journey in one place")
                         .font(.appBody(18))

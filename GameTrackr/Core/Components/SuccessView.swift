@@ -64,6 +64,7 @@ struct SuccessView: View {
         AppIconView(icon: .success, filled: true, size: 96)
             .foregroundStyle(Color.appSecondary)
             .shadow(color: Color.appSecondary.opacity(0.4), radius: 24)
+            .subtlePulse()
     }
 
     private func statusCard(_ heading: String, _ value: String) -> some View {

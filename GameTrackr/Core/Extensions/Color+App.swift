@@ -13,6 +13,21 @@ extension Color {
     static let appTextPrimary = Color.white
     static let appTextSecondary = Color(hex: "9BA197")
     static let appOnPrimary = Color.black
+
+    static let coverEmeraldStart = Color(hex: "1B4332")
+    static let coverEmeraldEnd = Color(hex: "081C15")
+    static let coverCrimsonStart = Color(hex: "6A040F")
+    static let coverCrimsonEnd = Color(hex: "1B1B3A")
+    static let coverIndigoStart = Color(hex: "3A0CA3")
+    static let coverIndigoEnd = Color(hex: "10002B")
+    static let coverAzureStart = Color(hex: "023E8A")
+    static let coverAzureEnd = Color(hex: "03071E")
+    static let coverVioletStart = Color(hex: "9D4EDD")
+    static let coverVioletEnd = Color(hex: "240046")
+    static let coverCyanStart = Color(hex: "0077B6")
+    static let coverCyanEnd = Color(hex: "03071E")
+    static let coverPineStart = Color(hex: "2D6A4F")
+    static let coverPineEnd = Color(hex: "1B263B")
 }
 
 extension Color {
