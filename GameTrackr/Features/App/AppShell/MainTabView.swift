@@ -22,7 +22,12 @@ struct MainTabView: View {
             }
             .background(Color.appBackground)
             .toolbar(.hidden, for: .navigationBar)
-            .navigationDestination(isPresented: $showSearch) { SearchPlaceholderView() }
+            .navigationDestination(isPresented: $showSearch) {
+                SearchView(onExploreCommunity: {
+                    showSearch = false
+                    selection = .community
+                })
+            }
             .navigationDestination(isPresented: $showNotifications) { NotificationsView() }
             .navigationDestination(isPresented: $showMenu) { ProfileMenuView() }
         }

@@ -15,6 +15,21 @@
   Only keep a comment when it explains *why* something non-obvious is done (a workaround, a
   protocol quirk, a deliberate deviation) — never *what* the code does.
 
+### Micro-animations (mobile clients)
+
+Two shared looping helpers, mirrored on iOS (`SubtleBounce` / `SubtlePulse`) and Android
+(`subtleBounce` / `subtlePulse`). They are **not interchangeable** — pick by intent:
+
+- **`subtleBounce`** (gentle vertical bob) → attract attention on *idle / persistent*
+  elements: hero art and empty-state icons (Welcome hero, notifications bell).
+- **`subtlePulse`** (breathing scale + glow) → *confirm / celebrate a result* on terminal
+  moments: the Success screen check, and future achievement badges. Never bob a success
+  check — a bouncing checkmark reads as "loading"; the pulse reads as "done".
+
+When pairing `subtlePulse` with a blurred `glow`, keep the glow on a **separate sibling
+layer behind** the pulsing element. An animated `alpha` forces an offscreen buffer clipped
+to the node's bounds, which clips the glow into a hard, flickering square (hit on Android).
+
 ---
 
 ## Product
