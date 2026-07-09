@@ -2,7 +2,7 @@ import SwiftUI
 
 struct MainTabView: View {
     @State private var selection: AppTab = .home
-    @State private var showSearch = false
+    @State private var searchScope: SearchScope?
     @State private var showNotifications = false
     @State private var showMenu = false
 
@@ -11,7 +11,7 @@ struct MainTabView: View {
             VStack(spacing: 0) {
                 AppHeader(
                     onNotifications: { showNotifications = true },
-                    onSearch: { showSearch = true },
+                    onSearch: { searchScope = .all },
                     onMenu: { showMenu = true }
                 )
 
@@ -22,9 +22,9 @@ struct MainTabView: View {
             }
             .background(Color.appBackground)
             .toolbar(.hidden, for: .navigationBar)
-            .navigationDestination(isPresented: $showSearch) {
-                SearchView(onExploreCommunity: {
-                    showSearch = false
+            .navigationDestination(item: $searchScope) { scope in
+                SearchView(scope: scope, onExploreCommunity: {
+                    searchScope = nil
                     selection = .community
                 })
             }
@@ -36,8 +36,8 @@ struct MainTabView: View {
     @ViewBuilder
     private var content: some View {
         switch selection {
-        case .home: HomeView()
-        case .library: LibraryPlaceholderView()
+        case .home: HomeView(onViewAll: { searchScope = $0 })
+        case .library: LibraryView(onBrowseGames: { searchScope = .all })
         case .community: CommunityPlaceholderView()
         case .profile: ProfilePlaceholderView()
         }

@@ -1,6 +1,7 @@
 import SwiftUI
 
 struct SearchView: View {
+    var scope: SearchScope = .all
     var onExploreCommunity: () -> Void = {}
 
     @Environment(\.dismiss) private var dismiss
@@ -56,9 +57,14 @@ struct SearchView: View {
         .scrollDismissesKeyboard(.interactively)
     }
 
+    private var sectionTitle: String {
+        if !query.isEmpty { return "Results" }
+        return scope.isFiltered ? scope.title : "Recent Releases"
+    }
+
     private func sectionHeader(count: Int) -> some View {
         HStack(alignment: .firstTextBaseline) {
-            Text(query.isEmpty ? "Recent Releases" : "Results")
+            Text(sectionTitle)
                 .font(.appHeadline(22))
                 .foregroundStyle(Color.appTextPrimary)
 
