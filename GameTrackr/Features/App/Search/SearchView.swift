@@ -7,6 +7,7 @@ struct SearchView: View {
     @Environment(\.dismiss) private var dismiss
     @State private var query = ""
     @State private var platform: GamePlatform?
+    @State private var showGameDetail = false
     @FocusState private var searchFocused: Bool
 
     var body: some View {
@@ -23,6 +24,9 @@ struct SearchView: View {
         .background(Color.appBackground)
         .toolbar(.hidden, for: .navigationBar)
         .navigationBarBackButtonHidden(true)
+        .navigationDestination(isPresented: $showGameDetail) {
+            GameDetailView(onExploreCommunity: onExploreCommunity)
+        }
     }
 
     private var filteredGames: [SearchGame] {
@@ -87,7 +91,12 @@ struct SearchView: View {
             spacing: 20
         ) {
             ForEach(games) { game in
-                SearchResultCard(game: game)
+                Button {
+                    showGameDetail = true
+                } label: {
+                    SearchResultCard(game: game)
+                }
+                .buttonStyle(PressableButtonStyle())
             }
         }
         .padding(.horizontal, 20)

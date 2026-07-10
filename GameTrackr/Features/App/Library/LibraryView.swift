@@ -2,6 +2,7 @@ import SwiftUI
 
 struct LibraryView: View {
     var onBrowseGames: () -> Void = {}
+    var onGameSelect: () -> Void = {}
 
     @State private var filter: LibraryStatus?
 
@@ -41,7 +42,10 @@ struct LibraryView: View {
             ScrollView(showsIndicators: false) {
                 LazyVStack(spacing: 14) {
                     ForEach(filteredEntries) { entry in
-                        LibraryEntryRow(entry: entry)
+                        Button(action: onGameSelect) {
+                            LibraryEntryRow(entry: entry)
+                        }
+                        .buttonStyle(PressableButtonStyle())
                     }
                 }
                 .padding(.horizontal, 20)

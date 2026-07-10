@@ -3,6 +3,7 @@ import SwiftUI
 struct PrimaryButton: View {
     let title: String
     var isLoading: Bool = false
+    var icon: AppIcon?
     let action: () -> Void
 
     var body: some View {
@@ -12,9 +13,15 @@ struct PrimaryButton: View {
                     ProgressView()
                         .tint(Color.appOnPrimary)
                 } else {
-                    Text(title)
-                        .font(.appLabel(17))
-                        .foregroundStyle(Color.appOnPrimary)
+                    HStack(spacing: 10) {
+                        if let icon {
+                            AppIconView(icon: icon, size: 20)
+                                .foregroundStyle(Color.appOnPrimary)
+                        }
+                        Text(title)
+                            .font(.appLabel(17))
+                            .foregroundStyle(Color.appOnPrimary)
+                    }
                 }
             }
             .frame(maxWidth: .infinity)
