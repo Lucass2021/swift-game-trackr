@@ -45,7 +45,7 @@ struct MainTabView: View {
         switch selection {
         case .home: HomeView(onViewAll: { searchScope = $0 }, onGameSelect: { showGameDetail = true })
         case .library: LibraryView(onBrowseGames: { searchScope = .all }, onGameSelect: { showGameDetail = true })
-        case .community: CommunityPlaceholderView()
+        case .community: CommunityView()
         case .profile: ProfilePlaceholderView()
         }
     }

@@ -46,7 +46,7 @@ class AuthStore {
 
     func continueAsGuest() {
         currentUser = nil
-        state = .guest
+        state = KeychainHelper.getToken() != nil ? .authenticated : .unauthenticated
         isResetFlowActive = false
     }
 

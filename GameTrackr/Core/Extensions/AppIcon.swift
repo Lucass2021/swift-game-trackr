@@ -30,6 +30,12 @@ enum AppIcon {
     case addToLibrary
     case caretDown
     case calendar
+    case comment
+    case bookmark
+    case overflow
+    case send
+    case plus
+    case close
 
     func image(filled: Bool = false) -> Image {
         Image(filled ? "\(glyph)-fill" : glyph)
@@ -66,6 +72,12 @@ enum AppIcon {
         case .addToLibrary: "plus-square"
         case .caretDown: "caret-down"
         case .calendar: "calendar-blank"
+        case .comment: "chat-circle"
+        case .bookmark: "bookmark-simple"
+        case .overflow: "dots-three"
+        case .send: "paper-plane-tilt"
+        case .plus: "plus"
+        case .close: "x"
         }
     }
 }
