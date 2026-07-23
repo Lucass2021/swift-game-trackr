@@ -8,6 +8,7 @@ struct CommunityDetailView: View {
     @State private var isJoined: Bool
     @State private var tab: CommunityDetailTab = .posts
     @State private var posts = CommunityMockData.communityPosts
+    @State private var showCreateTopic = false
 
     init(community: Community, onPostSelect: @escaping (CommunityPost) -> Void = { _ in }) {
         self.community = community
@@ -41,11 +42,14 @@ struct CommunityDetailView: View {
             }
 
             if tab == .posts, !posts.isEmpty {
-                CreatePostButton(action: {})
+                CreatePostButton(action: { showCreateTopic = true })
             }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background(Color.appBackground)
+        .fullScreenCover(isPresented: $showCreateTopic) {
+            CreateTopicView(community: community, onPost: { posts.insert($0, at: 0) })
+        }
         .toolbar(.hidden, for: .navigationBar)
         .navigationBarBackButtonHidden(true)
         .overlay(alignment: .topLeading) {
@@ -69,7 +73,7 @@ struct CommunityDetailView: View {
                     title: "No posts yet",
                     message: "Start the first discussion in this community.",
                     actionTitle: "Create post",
-                    action: {}
+                    action: { showCreateTopic = true }
                 )
             } else {
                 VStack(spacing: 16) {

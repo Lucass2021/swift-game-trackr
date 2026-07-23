@@ -8,6 +8,7 @@ struct CommunityView: View {
     @State private var communities = CommunityMockData.all
     @State private var selectedPost: CommunityPost?
     @State private var selectedCommunity: Community?
+    @State private var showCreateTopic = false
 
     var body: some View {
         ZStack(alignment: .bottomTrailing) {
@@ -29,11 +30,14 @@ struct CommunityView: View {
             }
 
             if segment == .myFeed, !feed.isEmpty {
-                CreatePostButton(action: {})
+                CreatePostButton(action: { showCreateTopic = true })
             }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background(Color.appBackground)
+        .fullScreenCover(isPresented: $showCreateTopic) {
+            CreateTopicView(onPost: { feed.insert($0, at: 0) })
+        }
         .navigationDestination(item: $selectedPost) { post in
             PostDetailView(post: post, onCommunitySelect: {
                 selectedPost = nil
