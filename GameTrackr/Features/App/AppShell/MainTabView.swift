@@ -6,6 +6,7 @@ struct MainTabView: View {
     @State private var showNotifications = false
     @State private var showMenu = false
     @State private var showGameDetail = false
+    @State private var libraryFilter: LibraryStatus?
 
     var body: some View {
         NavigationStack {
@@ -43,10 +44,25 @@ struct MainTabView: View {
     @ViewBuilder
     private var content: some View {
         switch selection {
-        case .home: HomeView(onViewAll: { searchScope = $0 }, onGameSelect: { showGameDetail = true })
-        case .library: LibraryView(onBrowseGames: { searchScope = .all }, onGameSelect: { showGameDetail = true })
-        case .community: CommunityView()
-        case .profile: ProfilePlaceholderView()
+        case .home:
+            HomeView(onViewAll: { searchScope = $0 }, onGameSelect: { showGameDetail = true })
+        case .library:
+            LibraryView(
+                filter: $libraryFilter,
+                onBrowseGames: { searchScope = .all },
+                onGameSelect: { showGameDetail = true }
+            )
+        case .community:
+            CommunityView()
+        case .profile:
+            ProfileView(
+                onGameSelect: { showGameDetail = true },
+                onStatusSelect: { status in
+                    libraryFilter = status
+                    selection = .library
+                },
+                onEditProfile: { showMenu = true }
+            )
         }
     }
 }

@@ -1,10 +1,9 @@
 import SwiftUI
 
 struct LibraryView: View {
+    @Binding var filter: LibraryStatus?
     var onBrowseGames: () -> Void = {}
     var onGameSelect: () -> Void = {}
-
-    @State private var filter: LibraryStatus?
 
     private let entries = LibraryMockData.entries
 
@@ -72,6 +71,7 @@ struct LibraryView: View {
 }
 
 #Preview("Library") {
-    LibraryView()
+    @Previewable @State var filter: LibraryStatus?
+    LibraryView(filter: $filter)
         .preferredColorScheme(.dark)
 }
