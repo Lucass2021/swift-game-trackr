@@ -21,9 +21,12 @@ enum AppIcon {
     case avatar
     case editProfile
     case medal
+    case trophy
     case info
     case grid
     case list
+    case chart
+    case devices
     case help
     case like
     case share
@@ -63,9 +66,12 @@ enum AppIcon {
         case .avatar: "user-circle"
         case .editProfile: "user-circle"
         case .medal: "medal"
+        case .trophy: "trophy"
         case .info: "info"
         case .grid: "squares-four"
         case .list: "list-bullets"
+        case .chart: "chart-line-up"
+        case .devices: "devices"
         case .help: "question"
         case .like: "heart"
         case .share: "share-network"

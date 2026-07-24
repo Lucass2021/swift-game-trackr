@@ -6,6 +6,7 @@ struct MainTabView: View {
     @State private var showNotifications = false
     @State private var showMenu = false
     @State private var showGameDetail = false
+    @State private var showStats = false
     @State private var libraryFilter: LibraryStatus?
 
     var body: some View {
@@ -32,6 +33,7 @@ struct MainTabView: View {
             }
             .navigationDestination(isPresented: $showNotifications) { NotificationsView() }
             .navigationDestination(isPresented: $showMenu) { ProfileMenuView() }
+            .navigationDestination(isPresented: $showStats) { StatsView() }
             .navigationDestination(isPresented: $showGameDetail) {
                 GameDetailView(onExploreCommunity: {
                     showGameDetail = false
@@ -61,7 +63,8 @@ struct MainTabView: View {
                     libraryFilter = status
                     selection = .library
                 },
-                onEditProfile: { showMenu = true }
+                onEditProfile: { showMenu = true },
+                onViewStats: { showStats = true }
             )
         }
     }

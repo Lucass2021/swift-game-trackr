@@ -1,8 +1,22 @@
 import SwiftUI
 
 struct ProfileMenuView: View {
+    var profile: Profile = ProfileMockData.profile
+
     @Environment(AuthStore.self) private var authStore
     @Environment(\.dismiss) private var dismiss
+
+    @State private var showStats = false
+
+    private var accountName: String {
+        guard !authStore.isGuest else { return "Guest" }
+        return authStore.currentUser?.name ?? profile.name
+    }
+
+    private var accountSubtitle: String {
+        guard !authStore.isGuest else { return "Not signed in" }
+        return authStore.currentUser?.email ?? profile.username
+    }
 
     var body: some View {
         ScrollView {
@@ -11,8 +25,7 @@ struct ProfileMenuView: View {
 
                 menuSection([
                     .init(icon: .editProfile, title: "Edit profile"),
-                    .init(icon: .grid, title: "My collection"),
-                    .init(icon: .list, title: "My lists"),
+                    .init(icon: .chart, title: "My stats", action: { showStats = true }),
                     .init(icon: .medal, title: "Achievements")
                 ])
 
@@ -31,6 +44,7 @@ struct ProfileMenuView: View {
         .background(Color.appBackground)
         .navigationTitle("Menu")
         .navigationBarTitleDisplayMode(.inline)
+        .navigationDestination(isPresented: $showStats) { StatsView() }
     }
 
     private var accountHeader: some View {
@@ -39,12 +53,15 @@ struct ProfileMenuView: View {
                 .foregroundStyle(Color.appTextSecondary)
 
             VStack(alignment: .leading, spacing: 2) {
-                Text(authStore.isGuest ? "Guest" : (authStore.currentUser?.name ?? "Profile"))
+                Text(accountName)
                     .font(.appHeadline(18))
                     .foregroundStyle(Color.appTextPrimary)
-                Text(authStore.isGuest ? "Not signed in" : (authStore.currentUser?.email ?? ""))
-                    .font(.appBody(14))
-                    .foregroundStyle(Color.appTextSecondary)
+
+                if !accountSubtitle.isEmpty {
+                    Text(accountSubtitle)
+                        .font(.appBody(14))
+                        .foregroundStyle(Color.appTextSecondary)
+                }
             }
 
             Spacer()
@@ -56,7 +73,7 @@ struct ProfileMenuView: View {
     private func menuSection(_ items: [MenuItem]) -> some View {
         VStack(spacing: 0) {
             ForEach(Array(items.enumerated()), id: \.element.id) { index, item in
-                Button {} label: {
+                Button(action: item.action) {
                     HStack(spacing: 14) {
                         AppIconView(icon: item.icon, size: 20)
                             .foregroundStyle(Color.appPrimary)
@@ -101,6 +118,7 @@ private struct MenuItem: Identifiable {
     let id = UUID()
     let icon: AppIcon
     let title: String
+    var action: () -> Void = {}
 }
 
 #Preview {

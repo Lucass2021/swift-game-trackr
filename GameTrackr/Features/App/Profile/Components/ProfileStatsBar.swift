@@ -2,8 +2,27 @@ import SwiftUI
 
 struct ProfileStatsBar: View {
     let stats: ProfileStats
+    var onTap: (() -> Void)?
 
     var body: some View {
+        if let onTap {
+            Button(action: onTap) {
+                card
+                    .overlay(alignment: .topTrailing) {
+                        AppIconView(icon: .forward, size: 14)
+                            .foregroundStyle(Color.appTextSecondary)
+                            .padding(12)
+                    }
+                    .contentShape(Rectangle())
+            }
+            .buttonStyle(PressableButtonStyle())
+            .accessibilityLabel("View full stats")
+        } else {
+            card
+        }
+    }
+
+    private var card: some View {
         HStack(spacing: 0) {
             stat(value: "\(stats.totalGames)", label: "Games")
             divider

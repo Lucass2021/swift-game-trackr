@@ -9,6 +9,7 @@ struct ProfileView: View {
     var onGameSelect: () -> Void = {}
     var onStatusSelect: (LibraryStatus) -> Void = { _ in }
     var onEditProfile: () -> Void = {}
+    var onViewStats: () -> Void = {}
 
     @Environment(AuthStore.self) private var authStore
 
@@ -29,7 +30,7 @@ struct ProfileView: View {
             VStack(alignment: .leading, spacing: 26) {
                 ProfileHeader(profile: profile, onEdit: onEditProfile)
 
-                ProfileStatsBar(stats: profile.stats)
+                ProfileStatsBar(stats: profile.stats, onTap: onViewStats)
                     .padding(.horizontal, 20)
 
                 section("Breakdown") {
