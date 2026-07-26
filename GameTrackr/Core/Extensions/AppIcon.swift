@@ -20,6 +20,7 @@ enum AppIcon {
     case brand
     case avatar
     case editProfile
+    case addFriend
     case medal
     case trophy
     case info
@@ -65,6 +66,7 @@ enum AppIcon {
         case .brand: "game-controller"
         case .avatar: "user-circle"
         case .editProfile: "user-circle"
+        case .addFriend: "user-plus"
         case .medal: "medal"
         case .trophy: "trophy"
         case .info: "info"

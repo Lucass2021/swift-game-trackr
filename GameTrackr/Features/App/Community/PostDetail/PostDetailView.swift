@@ -10,6 +10,7 @@ struct PostDetailView: View {
     @State private var isBookmarked = false
     @State private var isFollowing = false
     @State private var showComments = false
+    @State private var selectedUser: UserProfile?
 
     init(post: CommunityPost, onCommunitySelect: @escaping () -> Void = {}) {
         self.post = post
@@ -17,6 +18,14 @@ struct PostDetailView: View {
         _isLiked = State(initialValue: post.isLiked)
         _likes = State(initialValue: post.likes)
         _isBookmarked = State(initialValue: post.isBookmarked)
+    }
+
+    private var authorProfile: UserProfile {
+        UserProfile(
+            handle: post.author,
+            avatarStart: post.avatarStart,
+            avatarEnd: post.avatarEnd
+        )
     }
 
     var body: some View {
@@ -49,6 +58,18 @@ struct PostDetailView: View {
         .sheet(isPresented: $showComments) {
             PostCommentsSheet(comments: CommunityMockData.comments)
         }
+        .navigationDestination(isPresented: showUserBinding) {
+            if let selectedUser {
+                UserProfileView(user: selectedUser)
+            }
+        }
+    }
+
+    private var showUserBinding: Binding<Bool> {
+        Binding(
+            get: { selectedUser != nil },
+            set: { if !$0 { selectedUser = nil } }
+        )
     }
 
     private var topBar: some View {
@@ -92,17 +113,26 @@ struct PostDetailView: View {
 
     private var author: some View {
         HStack(spacing: 12) {
-            CommunityAvatar(start: post.avatarStart, end: post.avatarEnd, size: 44)
+            Button {
+                selectedUser = authorProfile
+            } label: {
+                HStack(spacing: 12) {
+                    CommunityAvatar(start: post.avatarStart, end: post.avatarEnd, size: 44)
 
-            VStack(alignment: .leading, spacing: 2) {
-                Text(post.author)
-                    .font(.appLabel(15))
-                    .foregroundStyle(Color.appPrimary)
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text(post.author)
+                            .font(.appLabel(15))
+                            .foregroundStyle(Color.appPrimary)
 
-                Text(post.timeAgo)
-                    .font(.appBody(13))
-                    .foregroundStyle(Color.appTextSecondary)
+                        Text(post.timeAgo)
+                            .font(.appBody(13))
+                            .foregroundStyle(Color.appTextSecondary)
+                    }
+                }
+                .contentShape(Rectangle())
             }
+            .buttonStyle(PressableButtonStyle())
+            .accessibilityLabel("View \(post.author)'s profile")
 
             Spacer()
 

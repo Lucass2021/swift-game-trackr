@@ -10,6 +10,11 @@ struct Profile {
     let stats: ProfileStats
 }
 
+enum ProfileHeaderMode: Equatable {
+    case own
+    case other(isFriend: Bool)
+}
+
 struct ProfileStats {
     let totalGames: Int
     let hours: Int

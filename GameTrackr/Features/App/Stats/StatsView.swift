@@ -7,14 +7,13 @@ struct StatsView: View {
 
     @Environment(\.dismiss) private var dismiss
 
-    private var title: String {
-        guard let ownerName else { return "Your Stats" }
-        return "\(ownerName)'s Stats"
-    }
-
     var body: some View {
         VStack(spacing: 0) {
-            StatsTopBar(title: title, onBack: { dismiss() })
+            StatsTopBar(
+                title: ownerName == nil ? "Your Stats" : "Stats",
+                subtitle: ownerName,
+                onBack: { dismiss() }
+            )
 
             ScrollView(showsIndicators: false) {
                 VStack(spacing: 20) {

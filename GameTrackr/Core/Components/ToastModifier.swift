@@ -20,6 +20,7 @@ private struct ToastView: View {
         Text(message)
             .font(.subheadline)
             .foregroundStyle(.white)
+            .multilineTextAlignment(.center)
             .padding(.horizontal, 16)
             .padding(.vertical, 12)
             .background(style.color)

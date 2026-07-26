@@ -2,6 +2,7 @@ import SwiftUI
 
 struct StatsTopBar: View {
     let title: String
+    var subtitle: String?
     let onBack: () -> Void
     var onShare: () -> Void = {}
 
@@ -15,11 +16,21 @@ struct StatsTopBar: View {
             }
             .buttonStyle(PressableButtonStyle())
 
-            Text(title)
-                .font(.appHeadline(22))
-                .foregroundStyle(Color.appTextPrimary)
+            VStack(alignment: .leading, spacing: 1) {
+                Text(title)
+                    .font(.appHeadline(22))
+                    .foregroundStyle(Color.appTextPrimary)
 
-            Spacer()
+                if let subtitle {
+                    Text(subtitle)
+                        .font(.appBody(13))
+                        .foregroundStyle(Color.appTextSecondary)
+                        .lineLimit(1)
+                        .truncationMode(.tail)
+                }
+            }
+
+            Spacer(minLength: 8)
 
             Button(action: onShare) {
                 AppIconView(icon: .share, size: 22)

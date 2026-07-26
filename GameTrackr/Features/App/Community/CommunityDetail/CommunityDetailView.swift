@@ -9,6 +9,7 @@ struct CommunityDetailView: View {
     @State private var tab: CommunityDetailTab = .posts
     @State private var posts = CommunityMockData.communityPosts
     @State private var showCreateTopic = false
+    @State private var selectedUser: UserProfile?
 
     init(community: Community, onPostSelect: @escaping (CommunityPost) -> Void = { _ in }) {
         self.community = community
@@ -52,6 +53,11 @@ struct CommunityDetailView: View {
         }
         .toolbar(.hidden, for: .navigationBar)
         .navigationBarBackButtonHidden(true)
+        .navigationDestination(isPresented: showUserBinding) {
+            if let selectedUser {
+                UserProfileView(user: selectedUser)
+            }
+        }
         .overlay(alignment: .topLeading) {
             floatingButton(icon: .back, label: "Back") { dismiss() }
                 .padding(.leading, 16)
@@ -93,7 +99,13 @@ struct CommunityDetailView: View {
         case .about:
             CommunityAboutSection(community: community)
         case .members:
-            CommunityMembersSection()
+            CommunityMembersSection(onSelect: { member in
+                selectedUser = UserProfile(
+                    handle: member.author,
+                    avatarStart: member.avatarStart,
+                    avatarEnd: member.avatarEnd
+                )
+            })
         }
     }
 
@@ -107,6 +119,13 @@ struct CommunityDetailView: View {
             circleButton(icon: .share, label: "Share community")
         }
         .padding(.horizontal, 20)
+    }
+
+    private var showUserBinding: Binding<Bool> {
+        Binding(
+            get: { selectedUser != nil },
+            set: { if !$0 { selectedUser = nil } }
+        )
     }
 
     private func circleButton(icon: AppIcon, label: String) -> some View {

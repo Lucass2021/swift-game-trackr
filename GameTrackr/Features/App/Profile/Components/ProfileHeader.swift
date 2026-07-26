@@ -2,8 +2,11 @@ import SwiftUI
 
 struct ProfileHeader: View {
     let profile: Profile
+    var mode: ProfileHeaderMode = .own
     var onEdit: () -> Void = {}
     var onShare: () -> Void = {}
+    var onAddFriend: () -> Void = {}
+    var onMessage: () -> Void = {}
 
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
@@ -68,32 +71,69 @@ struct ProfileHeader: View {
         }
     }
 
+    @ViewBuilder
     private var actions: some View {
-        HStack(spacing: 12) {
-            Button(action: onEdit) {
-                HStack(spacing: 8) {
-                    AppIconView(icon: .editProfile, size: 18)
-                    Text("Edit profile")
-                        .font(.appLabel(15))
+        switch mode {
+        case .own:
+            HStack(spacing: 12) {
+                primaryPill(icon: .editProfile, title: "Edit profile", action: onEdit)
+                circleAction(icon: .share, label: "Share profile", action: onShare)
+            }
+        case let .other(isFriend):
+            HStack(spacing: 12) {
+                if isFriend {
+                    secondaryPill(icon: .check, title: "Friends", action: onAddFriend)
+                } else {
+                    primaryPill(icon: .addFriend, title: "Add friend", action: onAddFriend)
                 }
-                .foregroundStyle(Color.appOnPrimary)
-                .frame(maxWidth: .infinity)
-                .frame(height: 46)
-                .background(Capsule().fill(Color.appPrimary))
-                .contentShape(Capsule())
+                circleAction(icon: .envelope, label: "Send message", action: onMessage)
+                circleAction(icon: .share, label: "Share profile", action: onShare)
             }
-            .buttonStyle(PressableButtonStyle())
-
-            Button(action: onShare) {
-                AppIconView(icon: .share, size: 20)
-                    .foregroundStyle(Color.appTextPrimary)
-                    .frame(width: 46, height: 46)
-                    .background(Circle().stroke(Color.appOutline, lineWidth: 1))
-                    .contentShape(Circle())
-            }
-            .buttonStyle(PressableButtonStyle())
-            .accessibilityLabel("Share profile")
         }
+    }
+
+    private func primaryPill(icon: AppIcon, title: String, action: @escaping () -> Void) -> some View {
+        Button(action: action) {
+            HStack(spacing: 8) {
+                AppIconView(icon: icon, size: 18)
+                Text(title)
+                    .font(.appLabel(15))
+            }
+            .foregroundStyle(Color.appOnPrimary)
+            .frame(maxWidth: .infinity)
+            .frame(height: 46)
+            .background(Capsule().fill(Color.appPrimary))
+            .contentShape(Capsule())
+        }
+        .buttonStyle(PressableButtonStyle())
+    }
+
+    private func secondaryPill(icon: AppIcon, title: String, action: @escaping () -> Void) -> some View {
+        Button(action: action) {
+            HStack(spacing: 8) {
+                AppIconView(icon: icon, size: 18)
+                Text(title)
+                    .font(.appLabel(15))
+            }
+            .foregroundStyle(Color.appTextPrimary)
+            .frame(maxWidth: .infinity)
+            .frame(height: 46)
+            .background(Capsule().stroke(Color.appOutline, lineWidth: 1))
+            .contentShape(Capsule())
+        }
+        .buttonStyle(PressableButtonStyle())
+    }
+
+    private func circleAction(icon: AppIcon, label: String, action: @escaping () -> Void) -> some View {
+        Button(action: action) {
+            AppIconView(icon: icon, size: 20)
+                .foregroundStyle(Color.appTextPrimary)
+                .frame(width: 46, height: 46)
+                .background(Circle().stroke(Color.appOutline, lineWidth: 1))
+                .contentShape(Circle())
+        }
+        .buttonStyle(PressableButtonStyle())
+        .accessibilityLabel(label)
     }
 }
 
