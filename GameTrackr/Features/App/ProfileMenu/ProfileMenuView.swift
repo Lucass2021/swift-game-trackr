@@ -1,12 +1,13 @@
 import SwiftUI
 
 struct ProfileMenuView: View {
-    var profile: Profile = ProfileMockData.profile
+    @Binding var profile: Profile
 
     @Environment(AuthStore.self) private var authStore
     @Environment(\.dismiss) private var dismiss
 
     @State private var showStats = false
+    @State private var showEditProfile = false
 
     private var accountName: String {
         guard !authStore.isGuest else { return "Guest" }
@@ -19,32 +20,40 @@ struct ProfileMenuView: View {
     }
 
     var body: some View {
-        ScrollView {
-            VStack(spacing: 24) {
-                accountHeader
+        VStack(spacing: 0) {
+            ScrollView {
+                VStack(spacing: 24) {
+                    accountHeader
 
-                menuSection([
-                    .init(icon: .editProfile, title: "Edit profile"),
-                    .init(icon: .chart, title: "My stats", action: { showStats = true }),
-                    .init(icon: .medal, title: "Achievements")
-                ])
+                    if !authStore.isGuest {
+                        menuSection([
+                            .init(icon: .editProfile, title: "Edit profile", action: { showEditProfile = true }),
+                            .init(icon: .chart, title: "My stats", action: { showStats = true }),
+                            .init(icon: .medal, title: "Achievements")
+                        ])
+                    }
 
-                menuSection([
-                    .init(icon: .settings, title: "Settings"),
-                    .init(icon: .help, title: "Help & feedback"),
-                    .init(icon: .info, title: "About")
-                ])
-
-                sessionSection
+                    menuSection([
+                        .init(icon: .settings, title: "Settings"),
+                        .init(icon: .help, title: "Help & feedback"),
+                        .init(icon: .info, title: "About")
+                    ])
+                }
+                .padding(.horizontal, 20)
+                .padding(.vertical, 16)
             }
-            .padding(.horizontal, 20)
-            .padding(.vertical, 16)
+
+            sessionSection
+                .padding(.horizontal, 20)
+                .padding(.top, 8)
+                .padding(.bottom, 12)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background(Color.appBackground)
         .navigationTitle("Menu")
         .navigationBarTitleDisplayMode(.inline)
         .navigationDestination(isPresented: $showStats) { StatsView() }
+        .navigationDestination(isPresented: $showEditProfile) { EditProfileView(profile: $profile) }
     }
 
     private var accountHeader: some View {
@@ -122,8 +131,9 @@ private struct MenuItem: Identifiable {
 }
 
 #Preview {
+    @Previewable @State var profile = ProfileMockData.profile
     NavigationStack {
-        ProfileMenuView()
+        ProfileMenuView(profile: $profile)
     }
     .environment(AuthStore())
     .preferredColorScheme(.dark)

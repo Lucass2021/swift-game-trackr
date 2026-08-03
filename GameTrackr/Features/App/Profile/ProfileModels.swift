@@ -8,6 +8,37 @@ struct Profile {
     let avatarStart: Color
     let avatarEnd: Color
     let stats: ProfileStats
+    var visibility: ProfileVisibility = .publicProfile
+}
+
+enum ProfileVisibility: String, CaseIterable, Identifiable {
+    case publicProfile
+    case privateProfile
+
+    var id: String {
+        rawValue
+    }
+
+    var title: String {
+        switch self {
+        case .publicProfile: "Public"
+        case .privateProfile: "Private"
+        }
+    }
+
+    var detail: String {
+        switch self {
+        case .publicProfile: "Anyone can find you and see your library and stats."
+        case .privateProfile: "Only friends can see your library and stats."
+        }
+    }
+
+    var icon: AppIcon {
+        switch self {
+        case .publicProfile: .eye
+        case .privateProfile: .eyeSlash
+        }
+    }
 }
 
 enum ProfileHeaderMode: Equatable {

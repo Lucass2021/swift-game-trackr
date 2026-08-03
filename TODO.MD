@@ -4,7 +4,6 @@
 # Improve Share game function
 # Tests
 
-# Profile
 # Achievements
 # Edit profile 
 # Friends

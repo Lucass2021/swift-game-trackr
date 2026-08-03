@@ -7,7 +7,9 @@ struct MainTabView: View {
     @State private var showMenu = false
     @State private var showGameDetail = false
     @State private var showStats = false
+    @State private var showEditProfile = false
     @State private var libraryFilter: LibraryStatus?
+    @State private var profile = ProfileMockData.profile
 
     var body: some View {
         NavigationStack {
@@ -32,8 +34,9 @@ struct MainTabView: View {
                 })
             }
             .navigationDestination(isPresented: $showNotifications) { NotificationsView() }
-            .navigationDestination(isPresented: $showMenu) { ProfileMenuView() }
+            .navigationDestination(isPresented: $showMenu) { ProfileMenuView(profile: $profile) }
             .navigationDestination(isPresented: $showStats) { StatsView() }
+            .navigationDestination(isPresented: $showEditProfile) { EditProfileView(profile: $profile) }
             .navigationDestination(isPresented: $showGameDetail) {
                 GameDetailView(onExploreCommunity: {
                     showGameDetail = false
@@ -58,12 +61,13 @@ struct MainTabView: View {
             CommunityView()
         case .profile:
             ProfileView(
+                profile: profile,
                 onGameSelect: { showGameDetail = true },
                 onStatusSelect: { status in
                     libraryFilter = status
                     selection = .library
                 },
-                onEditProfile: { showMenu = true },
+                onEditProfile: { showEditProfile = true },
                 onViewStats: { showStats = true }
             )
         }
