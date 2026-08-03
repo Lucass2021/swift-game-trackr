@@ -4,7 +4,7 @@ struct StatsTopBar: View {
     let title: String
     var subtitle: String?
     let onBack: () -> Void
-    var onShare: () -> Void = {}
+    var onShare: (() -> Void)?
 
     var body: some View {
         HStack(spacing: 12) {
@@ -32,14 +32,16 @@ struct StatsTopBar: View {
 
             Spacer(minLength: 8)
 
-            Button(action: onShare) {
-                AppIconView(icon: .share, size: 22)
-                    .foregroundStyle(Color.appSecondary)
-                    .frame(width: 40, height: 40, alignment: .trailing)
-                    .contentShape(Rectangle())
+            if let onShare {
+                Button(action: onShare) {
+                    AppIconView(icon: .share, size: 22)
+                        .foregroundStyle(Color.appSecondary)
+                        .frame(width: 40, height: 40, alignment: .trailing)
+                        .contentShape(Rectangle())
+                }
+                .buttonStyle(PressableButtonStyle())
+                .accessibilityLabel("Share stats")
             }
-            .buttonStyle(PressableButtonStyle())
-            .accessibilityLabel("Share stats")
         }
         .padding(.horizontal, 20)
         .padding(.vertical, 12)

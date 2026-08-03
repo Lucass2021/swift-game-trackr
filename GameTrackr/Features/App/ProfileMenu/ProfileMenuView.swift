@@ -8,6 +8,7 @@ struct ProfileMenuView: View {
 
     @State private var showStats = false
     @State private var showEditProfile = false
+    @State private var showAchievements = false
 
     private var accountName: String {
         guard !authStore.isGuest else { return "Guest" }
@@ -29,7 +30,7 @@ struct ProfileMenuView: View {
                         menuSection([
                             .init(icon: .editProfile, title: "Edit profile", action: { showEditProfile = true }),
                             .init(icon: .chart, title: "My stats", action: { showStats = true }),
-                            .init(icon: .medal, title: "Achievements")
+                            .init(icon: .medal, title: "Achievements", action: { showAchievements = true })
                         ])
                     }
 
@@ -54,6 +55,7 @@ struct ProfileMenuView: View {
         .navigationBarTitleDisplayMode(.inline)
         .navigationDestination(isPresented: $showStats) { StatsView() }
         .navigationDestination(isPresented: $showEditProfile) { EditProfileView(profile: $profile) }
+        .navigationDestination(isPresented: $showAchievements) { AchievementsView() }
     }
 
     private var accountHeader: some View {

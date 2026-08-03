@@ -3,16 +3,18 @@ import SwiftUI
 struct StatsView: View {
     var stats: UserStats = StatsMockData.stats
     var ownerName: String?
-    var onAchievements: () -> Void = {}
 
     @Environment(\.dismiss) private var dismiss
+
+    @State private var showAchievements = false
 
     var body: some View {
         VStack(spacing: 0) {
             StatsTopBar(
                 title: ownerName == nil ? "Your Stats" : "Stats",
                 subtitle: ownerName,
-                onBack: { dismiss() }
+                onBack: { dismiss() },
+                onShare: {}
             )
 
             ScrollView(showsIndicators: false) {
@@ -37,7 +39,10 @@ struct StatsView: View {
                         YearBarChart(years: stats.yearsCompleted)
                     }
 
-                    AchievementSpotlightCard(spotlight: stats.spotlight, onAction: onAchievements)
+                    AchievementSpotlightCard(
+                        spotlight: stats.spotlight,
+                        onAction: { showAchievements = true }
+                    )
                 }
                 .padding(.horizontal, 20)
                 .padding(.top, 12)
@@ -48,6 +53,9 @@ struct StatsView: View {
         .background(Color.appBackground)
         .toolbar(.hidden, for: .navigationBar)
         .navigationBarBackButtonHidden(true)
+        .navigationDestination(isPresented: $showAchievements) {
+            AchievementsView(ownerName: ownerName)
+        }
     }
 }
 
