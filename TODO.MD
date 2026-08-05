@@ -4,9 +4,6 @@
 # Improve Share game function
 # Tests
 
-# Achievements
-# Edit profile 
 # Friends
-# Settings
 # About
 # Help & feedback

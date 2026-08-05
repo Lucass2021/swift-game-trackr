@@ -9,6 +9,7 @@ struct ProfileMenuView: View {
     @State private var showStats = false
     @State private var showEditProfile = false
     @State private var showAchievements = false
+    @State private var showSettings = false
 
     private var accountName: String {
         guard !authStore.isGuest else { return "Guest" }
@@ -34,11 +35,18 @@ struct ProfileMenuView: View {
                         ])
                     }
 
-                    menuSection([
-                        .init(icon: .settings, title: "Settings"),
-                        .init(icon: .help, title: "Help & feedback"),
-                        .init(icon: .info, title: "About")
-                    ])
+                    menuSection(
+                        authStore.isGuest
+                            ? [
+                                .init(icon: .help, title: "Help & feedback"),
+                                .init(icon: .info, title: "About")
+                            ]
+                            : [
+                                .init(icon: .settings, title: "Settings", action: { showSettings = true }),
+                                .init(icon: .help, title: "Help & feedback"),
+                                .init(icon: .info, title: "About")
+                            ]
+                    )
                 }
                 .padding(.horizontal, 20)
                 .padding(.vertical, 16)
@@ -56,6 +64,7 @@ struct ProfileMenuView: View {
         .navigationDestination(isPresented: $showStats) { StatsView() }
         .navigationDestination(isPresented: $showEditProfile) { EditProfileView(profile: $profile) }
         .navigationDestination(isPresented: $showAchievements) { AchievementsView() }
+        .navigationDestination(isPresented: $showSettings) { SettingsView() }
     }
 
     private var accountHeader: some View {
@@ -115,10 +124,7 @@ struct ProfileMenuView: View {
     @ViewBuilder
     private var sessionSection: some View {
         if authStore.isGuest {
-            VStack(spacing: 14) {
-                PrimaryButton(title: "Create an account") { authStore.logout() }
-                SecondaryButton(title: "Exit guest mode") { authStore.logout() }
-            }
+            PrimaryButton(title: "Create an account") { authStore.logout() }
         } else {
             SecondaryButton(title: "Sign out") { authStore.logout() }
         }
