@@ -5,5 +5,3 @@
 # Tests
 
 # Friends
-# About
-# Help & feedback

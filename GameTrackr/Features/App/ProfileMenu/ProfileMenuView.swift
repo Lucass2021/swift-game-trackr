@@ -11,6 +11,7 @@ struct ProfileMenuView: View {
     @State private var showAchievements = false
     @State private var showSettings = false
     @State private var showAbout = false
+    @State private var showHelp = false
 
     private var accountName: String {
         guard !authStore.isGuest else { return "Guest" }
@@ -39,12 +40,12 @@ struct ProfileMenuView: View {
                     menuSection(
                         authStore.isGuest
                             ? [
-                                .init(icon: .help, title: "Help & feedback"),
+                                .init(icon: .help, title: "Help & feedback", action: { showHelp = true }),
                                 .init(icon: .info, title: "About", action: { showAbout = true })
                             ]
                             : [
                                 .init(icon: .settings, title: "Settings", action: { showSettings = true }),
-                                .init(icon: .help, title: "Help & feedback"),
+                                .init(icon: .help, title: "Help & feedback", action: { showHelp = true }),
                                 .init(icon: .info, title: "About", action: { showAbout = true })
                             ]
                     )
@@ -67,6 +68,7 @@ struct ProfileMenuView: View {
         .navigationDestination(isPresented: $showAchievements) { AchievementsView() }
         .navigationDestination(isPresented: $showSettings) { SettingsView() }
         .navigationDestination(isPresented: $showAbout) { AboutView() }
+        .navigationDestination(isPresented: $showHelp) { HelpView() }
     }
 
     private var accountHeader: some View {
