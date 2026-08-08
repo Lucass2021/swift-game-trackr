@@ -3,7 +3,8 @@ import SwiftUI
 struct NotificationsTopBar: View {
     let onBack: () -> Void
     let onMarkAllRead: () -> Void
-    var showMarkAllRead = true
+    let onClearAll: () -> Void
+    var showActions = true
 
     var body: some View {
         HStack(spacing: 12) {
@@ -21,14 +22,20 @@ struct NotificationsTopBar: View {
 
             Spacer()
 
-            if showMarkAllRead {
-                Button(action: onMarkAllRead) {
-                    Text("Mark all read")
-                        .font(.appLabel(14))
-                        .foregroundStyle(Color.appPrimary)
+            if showActions {
+                Menu {
+                    Button(action: onMarkAllRead) {
+                        Label("Mark all read", image: "check")
+                    }
+                    Button(role: .destructive, action: onClearAll) {
+                        Label("Clear all", image: "trash")
+                    }
+                } label: {
+                    AppIconView(icon: .overflow, size: 22)
+                        .foregroundStyle(Color.appTextPrimary)
+                        .frame(width: 40, height: 40, alignment: .trailing)
                         .contentShape(Rectangle())
                 }
-                .buttonStyle(PressableButtonStyle())
             }
         }
         .padding(.horizontal, 20)
@@ -38,7 +45,7 @@ struct NotificationsTopBar: View {
 }
 
 #Preview {
-    NotificationsTopBar(onBack: {}, onMarkAllRead: {})
+    NotificationsTopBar(onBack: {}, onMarkAllRead: {}, onClearAll: {})
         .background(Color.appBackground)
         .preferredColorScheme(.dark)
 }

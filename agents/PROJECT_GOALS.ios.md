@@ -114,6 +114,29 @@ then layer discovery, friends, community, messaging, and collection.
 
 ## Progress log
 
+### 2026-08-08 — Notification deletion, infinite scroll, share buttons, game detail cleanup
+
+Batch of cross-platform feature work aligned with backend discussions.
+
+- **Notification deletion** — **Clear all** via the top-bar overflow menu. The top bar now shows a
+  three-dot overflow menu (`Menu`) with "Mark all read" + "Clear all" (destructive, red label +
+  trash icon). Adds all IDs to the existing `removedIDs` set.
+- **New icon:** `AppIcon.trash` (Phosphor `trash` glyph) added to the shared icon system.
+- **Infinite scroll** on all 8 vertical lists (4 API-backed, 4 mock). New pagination infrastructure
+  in `Core/Pagination/`: `PaginationState<Item>` (real API), `MockPaginationState<Item>` (sliced
+  pages with 600ms delay), `LoadingMoreIndicator`. API lists (`CommunityView`, `CommunityDetailView`,
+  `DiscoverCommunitiesView`) track `currentPage`/`lastPage` from `PaginatedResponse`; mock lists
+  (`SearchView`, `LibraryView`, `NotificationsView`, `AchievementsView`) use `MockPaginationState`
+  with first page preloaded synchronously in `init`. Network layer (`Endpoint`, `CommunityService`)
+  gained `page:` parameters. `CommunityViewModel` refactored to use `PaginationState` with
+  backward-compatible computed properties (`var feed`, `var communities`).
+- **Share buttons** across the app: `ShareLink` on game detail hero, profile (own + other user),
+  stats top bar, community detail, and post detail. All share text-only messages.
+- **Game detail cleanup:** removed `GameCommunitySection` from game detail (community section
+  doesn't belong on game pages per backend discussion).
+- **Bug fix:** mock-paginated screens showed loading + empty state simultaneously — fixed by
+  preloading the first page synchronously in `MockPaginationState.init` instead of async `.task`.
+
 ### 2026-07-02 — App shell: global header + custom bottom tab bar
 
 First screens past auth. Built the **app shell** that hosts every authenticated/guest screen

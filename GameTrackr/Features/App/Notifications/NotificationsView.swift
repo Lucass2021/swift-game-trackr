@@ -14,7 +14,8 @@ struct NotificationsView: View {
             NotificationsTopBar(
                 onBack: { dismiss() },
                 onMarkAllRead: { markedAllRead = true },
-                showMarkAllRead: !authStore.isGuest
+                onClearAll: { clearAll() },
+                showActions: !authStore.isGuest
             )
 
             if authStore.isGuest {
@@ -108,6 +109,14 @@ struct NotificationsView: View {
 
     private func remove(_ item: NotificationItem) {
         _ = withAnimation { removedIDs.insert(item.id) }
+    }
+
+    private func clearAll() {
+        withAnimation {
+            for item in pagination.items {
+                removedIDs.insert(item.id)
+            }
+        }
     }
 }
 

@@ -40,6 +40,7 @@ enum AppIcon {
     case send
     case plus
     case close
+    case trash
 
     func image(filled: Bool = false) -> Image {
         Image(filled ? "\(glyph)-fill" : glyph)
@@ -86,6 +87,7 @@ enum AppIcon {
         case .send: "paper-plane-tilt"
         case .plus: "plus"
         case .close: "x"
+        case .trash: "trash"
         }
     }
 }
