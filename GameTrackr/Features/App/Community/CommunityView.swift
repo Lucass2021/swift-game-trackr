@@ -1,11 +1,10 @@
 import SwiftUI
 
 struct CommunityView: View {
+    @State private var viewModel = CommunityViewModel()
     @State private var segment: CommunitySegment = .myFeed
     @State private var feedFilter = CommunityFeedFilter.latest.rawValue
     @State private var category = "All"
-    @State private var feed = CommunityMockData.feed
-    @State private var communities = CommunityMockData.all
     @State private var selectedPost: CommunityPost?
     @State private var selectedCommunity: Community?
     @State private var showCreateTopic = false
@@ -23,25 +22,32 @@ struct CommunityView: View {
                 case .discover:
                     DiscoverCommunitiesView(
                         category: $category,
-                        communities: $communities,
-                        onSelect: { selectedCommunity = $0 }
+                        communities: viewModel.communities,
+                        onSelect: { selectedCommunity = $0 },
+                        onJoin: { viewModel.toggleJoin($0) }
                     )
                 }
             }
 
-            if segment == .myFeed, !feed.isEmpty {
+            if segment == .myFeed {
                 CreatePostButton(action: { showCreateTopic = true })
             }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background(Color.appBackground)
+        .task { await viewModel.loadFeed() }
+        .task { await viewModel.loadCommunities() }
         .fullScreenCover(isPresented: $showCreateTopic) {
-            CreateTopicView(onPost: { feed.insert($0, at: 0) })
+            CreateTopicView(viewModel: viewModel)
         }
         .navigationDestination(item: $selectedPost) { post in
             PostDetailView(post: post, onCommunitySelect: {
                 selectedPost = nil
-                selectedCommunity = CommunityMockData.detailCommunity
+                if let id = post.communityId,
+                   let community = viewModel.communities.first(where: { $0.id == id })
+                {
+                    selectedCommunity = community
+                }
             })
         }
         .navigationDestination(item: $selectedCommunity) { community in
@@ -51,11 +57,22 @@ struct CommunityView: View {
 
     @ViewBuilder
     private var feedContent: some View {
-        if feed.isEmpty {
+        if let error = viewModel.feedError, viewModel.feed.isEmpty {
+            Spacer()
+            CommunityEmptyState(
+                icon: .info,
+                title: "Couldn't load feed",
+                message: "Check your connection\nand try again.",
+                actionTitle: "Try again",
+                action: { Task { await viewModel.loadFeed() } }
+            )
+            Spacer()
+        } else if viewModel.feed.isEmpty {
+            Spacer()
             CommunityEmptyState(
                 icon: .community,
                 title: "Your feed is quiet",
-                message: "Join a community to see posts from other players here.",
+                message: "Join a community to see posts\nfrom other players here.",
                 actionTitle: "Discover communities",
                 action: { segment = .discover }
             )
@@ -69,20 +86,20 @@ struct CommunityView: View {
                     )
                     .padding(.horizontal, -20)
 
-                    ForEach(Array(feed.enumerated()), id: \.element.id) { index, post in
+                    ForEach(Array(viewModel.feed.enumerated()), id: \.element.id) { index, post in
                         CommunityPostCard(
                             post: post,
                             onSelect: { selectedPost = post },
-                            onLike: { toggleLike(post) },
+                            onLike: { viewModel.toggleLike(post) },
                             onComment: { selectedPost = post },
-                            onBookmark: { toggleBookmark(post) }
+                            onBookmark: { viewModel.toggleBookmark(post) }
                         )
 
-                        if index == 0 {
+                        if index == 0, let suggested = viewModel.communities.first(where: { !$0.isJoined }) {
                             SuggestedCommunityCard(
-                                community: CommunityMockData.suggested,
-                                onSelect: { selectedCommunity = CommunityMockData.suggested },
-                                onJoin: {}
+                                community: suggested,
+                                onSelect: { selectedCommunity = suggested },
+                                onJoin: { viewModel.toggleJoin(suggested) }
                             )
                         }
                     }
@@ -90,18 +107,11 @@ struct CommunityView: View {
                 .padding(.horizontal, 20)
                 .padding(.bottom, 96)
             }
+            .refreshable {
+                await viewModel.loadFeed()
+                await viewModel.loadCommunities()
+            }
         }
-    }
-
-    private func toggleLike(_ post: CommunityPost) {
-        guard let index = feed.firstIndex(where: { $0.id == post.id }) else { return }
-        feed[index].isLiked.toggle()
-        feed[index].likes += feed[index].isLiked ? 1 : -1
-    }
-
-    private func toggleBookmark(_ post: CommunityPost) {
-        guard let index = feed.firstIndex(where: { $0.id == post.id }) else { return }
-        feed[index].isBookmarked.toggle()
     }
 }
 

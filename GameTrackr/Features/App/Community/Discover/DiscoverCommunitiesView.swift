@@ -2,8 +2,9 @@ import SwiftUI
 
 struct DiscoverCommunitiesView: View {
     @Binding var category: String
-    @Binding var communities: [Community]
+    let communities: [Community]
     var onSelect: (Community) -> Void = { _ in }
+    var onJoin: (Community) -> Void = { _ in }
 
     @State private var query = ""
 
@@ -30,12 +31,7 @@ struct DiscoverCommunitiesView: View {
                     CommunityEmptyState(
                         icon: .search,
                         title: "No communities found",
-                        message: "Try a different name or clear the filters to see everything.",
-                        actionTitle: "Clear filters",
-                        action: {
-                            query = ""
-                            category = "All"
-                        }
+                        message: "Try a different search or category."
                     )
                 } else {
                     allCommunities
@@ -52,11 +48,11 @@ struct DiscoverCommunitiesView: View {
 
             ScrollView(.horizontal, showsIndicators: false) {
                 HStack(alignment: .top, spacing: 14) {
-                    ForEach(CommunityMockData.featured) { community in
+                    ForEach(communities.prefix(3)) { community in
                         FeaturedCommunityCard(
                             community: community,
                             onSelect: { onSelect(community) },
-                            onJoin: { toggleJoin(community) }
+                            onJoin: { onJoin(community) }
                         )
                     }
                 }
@@ -77,7 +73,7 @@ struct DiscoverCommunitiesView: View {
                 CommunityRow(
                     community: community,
                     onSelect: { onSelect(community) },
-                    onJoin: { toggleJoin(community) }
+                    onJoin: { onJoin(community) }
                 )
 
                 if community.id != filtered.last?.id {
@@ -89,17 +85,11 @@ struct DiscoverCommunitiesView: View {
             }
         }
     }
-
-    private func toggleJoin(_ community: Community) {
-        guard let index = communities.firstIndex(where: { $0.id == community.id }) else { return }
-        communities[index].isJoined.toggle()
-    }
 }
 
 #Preview {
     @Previewable @State var category = "All"
-    @Previewable @State var communities = CommunityMockData.all
-    DiscoverCommunitiesView(category: $category, communities: $communities)
+    DiscoverCommunitiesView(category: $category, communities: CommunityMockData.all)
         .background(Color.appBackground)
         .preferredColorScheme(.dark)
 }

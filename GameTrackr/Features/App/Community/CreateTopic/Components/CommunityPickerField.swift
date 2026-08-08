@@ -50,36 +50,47 @@ struct CommunityPickerField: View {
 
     private var dropdown: some View {
         VStack(alignment: .leading, spacing: 0) {
-            ForEach(Array(options.enumerated()), id: \.element.id) { index, option in
-                Button {
-                    selection = option
-                    withAnimation(.easeInOut(duration: 0.15)) { isOpen = false }
-                } label: {
-                    HStack(spacing: 12) {
-                        CommunityIcon(start: option.iconStart, end: option.iconEnd, size: 26, cornerRadius: 8)
-
-                        VStack(alignment: .leading, spacing: 2) {
-                            Text(option.name)
-                                .font(.appBody(16))
-                                .foregroundStyle(option.id == selection?.id ? Color.appPrimary : Color.appTextPrimary)
-                                .lineLimit(1)
-
-                            Text(option.subtitle)
-                                .font(.appBody(12))
-                                .foregroundStyle(Color.appTextSecondary)
-                                .lineLimit(1)
-                        }
-
-                        Spacer(minLength: 0)
-                    }
+            if options.isEmpty {
+                Text("You haven't joined any communities yet.")
+                    .font(.appBody(14))
+                    .foregroundStyle(Color.appTextSecondary)
+                    .multilineTextAlignment(.center)
+                    .frame(maxWidth: .infinity)
                     .padding(.horizontal, 14)
-                    .padding(.vertical, 10)
-                    .contentShape(Rectangle())
-                }
-                .buttonStyle(.plain)
+                    .padding(.vertical, 18)
+            } else {
+                ForEach(Array(options.enumerated()), id: \.element.id) { index, option in
+                    Button {
+                        selection = option
+                        withAnimation(.easeInOut(duration: 0.15)) { isOpen = false }
+                    } label: {
+                        HStack(spacing: 12) {
+                            CommunityIcon(start: option.iconStart, end: option.iconEnd, size: 26, cornerRadius: 8)
 
-                if index < options.count - 1 {
-                    Divider().overlay(Color.appOutline)
+                            VStack(alignment: .leading, spacing: 2) {
+                                Text(option.name)
+                                    .font(.appBody(16))
+                                    .foregroundStyle(option.id == selection?.id ? Color.appPrimary : Color
+                                        .appTextPrimary)
+                                    .lineLimit(1)
+
+                                Text(option.subtitle)
+                                    .font(.appBody(12))
+                                    .foregroundStyle(Color.appTextSecondary)
+                                    .lineLimit(1)
+                            }
+
+                            Spacer(minLength: 0)
+                        }
+                        .padding(.horizontal, 14)
+                        .padding(.vertical, 10)
+                        .contentShape(Rectangle())
+                    }
+                    .buttonStyle(.plain)
+
+                    if index < options.count - 1 {
+                        Divider().overlay(Color.appOutline)
+                    }
                 }
             }
         }

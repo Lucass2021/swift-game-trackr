@@ -1,10 +1,12 @@
 import SwiftUI
 
 struct PostCommentsSheet: View {
+    let postId: Int
     @State var comments: [PostComment]
 
     @Environment(\.dismiss) private var dismiss
     @State private var draft = ""
+    @State private var isSubmitting = false
     @FocusState private var composerFocused: Bool
 
     private var total: Int {
@@ -48,7 +50,7 @@ struct PostCommentsSheet: View {
                 .scrollDismissesKeyboard(.interactively)
             }
 
-            CommentComposer(draft: $draft, isFocused: $composerFocused)
+            CommentComposer(draft: $draft, isFocused: $composerFocused, onSubmit: submitComment)
         }
         .background(Color.appSurfaceCard)
         .presentationDragIndicator(.visible)
@@ -107,6 +109,21 @@ struct PostCommentsSheet: View {
         .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
 
+    private func submitComment() {
+        let text = draft.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !text.isEmpty, !isSubmitting else { return }
+        isSubmitting = true
+        draft = ""
+
+        Task {
+            do {
+                let dto = try await CommunityService.shared.addComment(postId: postId, comment: text)
+                comments.append(PostComment(dto: dto))
+            } catch {}
+            isSubmitting = false
+        }
+    }
+
     private func toggleLike(_ comment: PostComment, parent: PostComment? = nil) {
         if let parent {
             guard
@@ -121,13 +138,22 @@ struct PostCommentsSheet: View {
             comments[index].isLiked.toggle()
             comments[index].likes += comments[index].isLiked ? 1 : -1
         }
+
+        Task {
+            do {
+                _ = try await CommunityService.shared.toggleCommentLike(
+                    postId: postId,
+                    commentId: comment.id
+                )
+            } catch {}
+        }
     }
 }
 
 #Preview {
     Color.appBackground
         .sheet(isPresented: .constant(true)) {
-            PostCommentsSheet(comments: CommunityMockData.comments)
+            PostCommentsSheet(postId: 1, comments: CommunityMockData.comments)
         }
         .preferredColorScheme(.dark)
 }

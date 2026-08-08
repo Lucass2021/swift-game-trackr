@@ -3,6 +3,7 @@ import SwiftUI
 struct CommentComposer: View {
     @Binding var draft: String
     var isFocused: FocusState<Bool>.Binding
+    var onSubmit: () -> Void = {}
 
     var body: some View {
         VStack(spacing: 12) {
@@ -40,9 +41,7 @@ struct CommentComposer: View {
                 .background(Capsule().fill(Color.appBackground))
                 .overlay(Capsule().stroke(Color.appOutline, lineWidth: 1))
 
-                Button {
-                    draft = ""
-                } label: {
+                Button(action: onSubmit) {
                     AppIconView(icon: .send, size: 20)
                         .foregroundStyle(Color.appOnPrimary)
                         .frame(width: 44, height: 44)

@@ -9,6 +9,7 @@ struct CreatePostButton: View {
                 .foregroundStyle(Color.appOnPrimary)
                 .frame(width: 58, height: 58)
                 .background(Circle().fill(Color.appPrimary))
+                .shadow(color: Color.appPrimary.opacity(0.45), radius: 18)
                 .contentShape(Circle())
         }
         .buttonStyle(PressableButtonStyle())

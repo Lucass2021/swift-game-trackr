@@ -19,6 +19,7 @@ struct JoinButton: View {
             .padding(.vertical, expanded ? 15 : 10)
             .frame(maxWidth: expanded ? .infinity : nil)
             .background(Capsule().fill(isJoined ? Color.clear : Color.appPrimary))
+            .shadow(color: isJoined ? .clear : Color.appPrimary.opacity(0.35), radius: 14)
             .overlay(Capsule().stroke(isJoined ? Color.appOutline : Color.clear, lineWidth: 1))
             .contentShape(Capsule())
         }

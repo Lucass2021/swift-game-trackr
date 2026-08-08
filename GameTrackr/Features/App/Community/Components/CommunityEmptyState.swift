@@ -4,8 +4,8 @@ struct CommunityEmptyState: View {
     let icon: AppIcon
     let title: String
     let message: String
-    let actionTitle: String
-    let action: () -> Void
+    var actionTitle: String?
+    var action: (() -> Void)?
 
     var body: some View {
         VStack(spacing: 0) {
@@ -28,17 +28,20 @@ struct CommunityEmptyState: View {
                 .padding(.top, 10)
                 .padding(.horizontal, 24)
 
-            Button(action: action) {
-                Text(actionTitle)
-                    .font(.appLabel(16))
-                    .foregroundStyle(Color.appOnPrimary)
-                    .padding(.horizontal, 28)
-                    .padding(.vertical, 15)
-                    .background(Capsule().fill(Color.appPrimary))
-                    .contentShape(Capsule())
+            if let actionTitle, let action {
+                Button(action: action) {
+                    Text(actionTitle)
+                        .font(.appLabel(16))
+                        .foregroundStyle(Color.appOnPrimary)
+                        .padding(.horizontal, 28)
+                        .padding(.vertical, 15)
+                        .background(Capsule().fill(Color.appPrimary))
+                        .shadow(color: Color.appPrimary.opacity(0.35), radius: 16)
+                        .contentShape(Capsule())
+                }
+                .buttonStyle(PressableButtonStyle())
+                .padding(.top, 28)
             }
-            .buttonStyle(PressableButtonStyle())
-            .padding(.top, 28)
         }
         .frame(maxWidth: .infinity)
         .padding(.horizontal, 24)

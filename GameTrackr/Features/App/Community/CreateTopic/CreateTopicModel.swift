@@ -10,6 +10,7 @@ final class CreateTopicModel {
     var title = ""
     var body = ""
     private(set) var hasAttemptedSubmit = false
+    private(set) var isSubmitting = false
 
     let isCommunityLocked: Bool
 
@@ -45,7 +46,7 @@ final class CreateTopicModel {
     }
 
     var canSubmit: Bool {
-        communityError == nil && titleError == nil && bodyError == nil
+        communityError == nil && titleError == nil && bodyError == nil && !isSubmitting
     }
 
     var hasContent: Bool {
@@ -60,23 +61,17 @@ final class CreateTopicModel {
         hasAttemptedSubmit ? error : nil
     }
 
-    func submit() -> CommunityPost? {
+    func submit(using viewModel: CommunityViewModel) async -> Bool {
         hasAttemptedSubmit = true
-        guard canSubmit, let community else { return nil }
+        guard canSubmit, let community else { return false }
 
-        return CommunityPost(
-            author: "You",
-            timeAgo: "now",
-            communityName: community.name,
+        isSubmitting = true
+        let result = await viewModel.createPost(
             title: trimmedTitle,
-            preview: trimmedBody,
-            likes: 0,
-            comments: 0,
-            hasMedia: false,
-            avatarStart: .coverVioletStart,
-            avatarEnd: .coverVioletEnd,
-            mediaStart: .coverVioletStart,
-            mediaEnd: .coverVioletEnd
+            body: trimmedBody,
+            communityId: community.id
         )
+        isSubmitting = false
+        return result != nil
     }
 }

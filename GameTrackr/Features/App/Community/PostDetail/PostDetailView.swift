@@ -10,6 +10,8 @@ struct PostDetailView: View {
     @State private var isBookmarked = false
     @State private var isFollowing = false
     @State private var showComments = false
+    @State private var comments: [PostComment] = []
+    @State private var commentsError = false
     @State private var selectedUser: UserProfile?
 
     init(post: CommunityPost, onCommunitySelect: @escaping () -> Void = {}) {
@@ -38,7 +40,6 @@ struct PostDetailView: View {
                     communityChip
                     title
                     postBody
-                    highlights
 
                     if post.hasMedia {
                         media
@@ -55,8 +56,9 @@ struct PostDetailView: View {
         .background(Color.appBackground)
         .toolbar(.hidden, for: .navigationBar)
         .navigationBarBackButtonHidden(true)
+        .task { await loadComments() }
         .sheet(isPresented: $showComments) {
-            PostCommentsSheet(comments: CommunityMockData.comments)
+            PostCommentsSheet(postId: post.id, comments: comments)
         }
         .navigationDestination(isPresented: showUserBinding) {
             if let selectedUser {
@@ -70,6 +72,32 @@ struct PostDetailView: View {
             get: { selectedUser != nil },
             set: { if !$0 { selectedUser = nil } }
         )
+    }
+
+    private func loadComments() async {
+        commentsError = false
+        do {
+            let dto = try await CommunityService.shared.fetchPost(id: post.id)
+            comments = dto.comments?.map { PostComment(dto: $0) } ?? []
+        } catch {
+            commentsError = true
+        }
+    }
+
+    private func toggleLike() {
+        isLiked.toggle()
+        likes += isLiked ? 1 : -1
+
+        Task {
+            do {
+                let response = try await CommunityService.shared.toggleLike(postId: post.id)
+                isLiked = response.isLiked
+                likes = response.likes
+            } catch {
+                isLiked.toggle()
+                likes += isLiked ? 1 : -1
+            }
+        }
     }
 
     private var topBar: some View {
@@ -184,25 +212,6 @@ struct PostDetailView: View {
             .fixedSize(horizontal: false, vertical: true)
     }
 
-    private var highlights: some View {
-        VStack(alignment: .leading, spacing: 14) {
-            ForEach(CommunityMockData.detailPostHighlights, id: \.self) { highlight in
-                HStack(alignment: .top, spacing: 12) {
-                    Circle()
-                        .fill(Color.appPrimary)
-                        .frame(width: 6, height: 6)
-                        .padding(.top, 8)
-
-                    Text(highlight)
-                        .font(.appBody(15))
-                        .foregroundStyle(Color.appTextSecondary)
-                        .lineSpacing(4)
-                        .fixedSize(horizontal: false, vertical: true)
-                }
-            }
-        }
-    }
-
     private var media: some View {
         RoundedRectangle(cornerRadius: 12, style: .continuous)
             .fill(
@@ -232,11 +241,10 @@ struct PostDetailView: View {
                 tint: isLiked ? .appPrimary : .appTextSecondary,
                 value: likes.abbreviated
             ) {
-                isLiked.toggle()
-                likes += isLiked ? 1 : -1
+                toggleLike()
             }
 
-            action(icon: .comment, label: "Comment", value: post.comments.abbreviated) {
+            action(icon: .comment, label: "Comment", value: comments.count.abbreviated) {
                 showComments = true
             }
 

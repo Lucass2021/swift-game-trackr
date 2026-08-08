@@ -1,12 +1,13 @@
 import SwiftUI
 
 struct CreateTopicView: View {
-    let onPost: (CommunityPost) -> Void
+    let viewModel: CommunityViewModel
 
     @Environment(AuthStore.self) private var authStore
     @Environment(\.dismiss) private var dismiss
 
     @State private var model: CreateTopicModel
+    @State private var joinedCommunities: [Community] = []
     @State private var showDiscardConfirm = false
     @FocusState private var focusedField: Field?
 
@@ -15,9 +16,9 @@ struct CreateTopicView: View {
         case body
     }
 
-    init(community: Community? = nil, onPost: @escaping (CommunityPost) -> Void) {
+    init(viewModel: CommunityViewModel, community: Community? = nil) {
+        self.viewModel = viewModel
         _model = State(initialValue: CreateTopicModel(community: community))
-        self.onPost = onPost
     }
 
     var body: some View {
@@ -33,6 +34,12 @@ struct CreateTopicView: View {
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background(Color.appBackground)
         .preferredColorScheme(.dark)
+        .task {
+            do {
+                let response = try await CommunityService.shared.fetchJoinedCommunities()
+                joinedCommunities = response.data.map { Community(dto: $0) }
+            } catch {}
+        }
         .alert("Discard this post?", isPresented: $showDiscardConfirm) {
             Button("Keep editing", role: .cancel) {}
             Button("Discard", role: .destructive) { dismiss() }
@@ -65,7 +72,7 @@ struct CreateTopicView: View {
 
             if !authStore.isGuest {
                 Button(action: submit) {
-                    Text("Post")
+                    Text(model.isSubmitting ? "Posting..." : "Post")
                         .font(.appLabel(15))
                         .foregroundStyle(Color.appOnPrimary)
                         .padding(.horizontal, 20)
@@ -75,6 +82,7 @@ struct CreateTopicView: View {
                         .contentShape(Capsule())
                 }
                 .buttonStyle(PressableButtonStyle())
+                .disabled(!model.canSubmit)
             }
         }
         .padding(.horizontal, 16)
@@ -150,10 +158,6 @@ struct CreateTopicView: View {
         }
     }
 
-    private var joinedCommunities: [Community] {
-        CommunityMockData.all.filter(\.isJoined)
-    }
-
     private var titleCounter: String? {
         model.titleRemaining <= 20 ? "\(model.titleRemaining)" : nil
     }
@@ -188,16 +192,18 @@ struct CreateTopicView: View {
 
     private func submit() {
         focusedField = nil
-        guard let post = model.submit() else { return }
-        onPost(post)
-        dismiss()
+        Task {
+            if await model.submit(using: viewModel) {
+                dismiss()
+            }
+        }
     }
 }
 
 #Preview {
     Color.appBackground
         .fullScreenCover(isPresented: .constant(true)) {
-            CreateTopicView(onPost: { _ in })
+            CreateTopicView(viewModel: CommunityViewModel())
         }
         .environment(AuthStore())
         .preferredColorScheme(.dark)

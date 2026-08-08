@@ -1,11 +1,12 @@
 import SwiftUI
 
 struct CommunityMembersSection: View {
+    let members: [CommunityMember]
     var onSelect: (CommunityMember) -> Void = { _ in }
 
     var body: some View {
         VStack(spacing: 0) {
-            ForEach(CommunityMockData.members) { member in
+            ForEach(members) { member in
                 Button {
                     onSelect(member)
                 } label: {
@@ -34,7 +35,7 @@ struct CommunityMembersSection: View {
                 .buttonStyle(PressableButtonStyle())
                 .accessibilityLabel("View \(member.author)'s profile")
 
-                if member.id != CommunityMockData.members.last?.id {
+                if member.id != members.last?.id {
                     Rectangle()
                         .fill(Color.appOutline)
                         .frame(height: 1)
@@ -47,7 +48,7 @@ struct CommunityMembersSection: View {
 }
 
 #Preview {
-    CommunityMembersSection()
+    CommunityMembersSection(members: CommunityMockData.members)
         .background(Color.appBackground)
         .preferredColorScheme(.dark)
 }
