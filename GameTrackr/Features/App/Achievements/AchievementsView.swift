@@ -1,16 +1,16 @@
 import SwiftUI
 
 struct AchievementsView: View {
-    var games: [GameAchievements] = AchievementsMockData.games
     var ownerName: String?
 
     @Environment(\.dismiss) private var dismiss
 
     @State private var filter: AchievementFilter = .all
     @State private var selected: GameAchievements?
+    @State private var pagination = MockPaginationState(allItems: AchievementsMockData.games, pageSize: 3)
 
     private var visible: [GameAchievements] {
-        games.filter(filter.matches)
+        pagination.items.filter(filter.matches)
     }
 
     var body: some View {
@@ -43,17 +43,26 @@ struct AchievementsView: View {
             ScrollView(showsIndicators: false) {
                 VStack(spacing: 14) {
                     if filter == .all {
-                        AchievementsSummaryCard(games: games)
+                        AchievementsSummaryCard(games: pagination.items)
                             .padding(.bottom, 6)
                     }
 
-                    ForEach(visible) { game in
+                    ForEach(Array(visible.enumerated()), id: \.element.id) { index, game in
                         Button {
                             selected = game
                         } label: {
                             GameAchievementsRow(game: game)
                         }
                         .buttonStyle(PressableButtonStyle())
+                        .onAppear {
+                            if index >= visible.count - 2 {
+                                Task { await pagination.loadNextPage() }
+                            }
+                        }
+                    }
+
+                    if pagination.isLoadingMore {
+                        LoadingMoreIndicator()
                     }
                 }
                 .padding(.horizontal, 20)

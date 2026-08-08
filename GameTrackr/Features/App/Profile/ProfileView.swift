@@ -28,7 +28,11 @@ struct ProfileView: View {
     private var content: some View {
         ScrollView(showsIndicators: false) {
             VStack(alignment: .leading, spacing: 26) {
-                ProfileHeader(profile: profile, onEdit: onEditProfile)
+                ProfileHeader(
+                    profile: profile,
+                    onEdit: onEditProfile,
+                    shareText: "Check out my gaming profile on GameTrackr!"
+                )
 
                 ProfileStatsBar(stats: profile.stats, onTap: onViewStats)
                     .padding(.horizontal, 20)

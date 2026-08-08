@@ -4,7 +4,7 @@ struct ProfileHeader: View {
     let profile: Profile
     var mode: ProfileHeaderMode = .own
     var onEdit: () -> Void = {}
-    var onShare: () -> Void = {}
+    var shareText: String = ""
     var onAddFriend: () -> Void = {}
     var onMessage: () -> Void = {}
 
@@ -77,7 +77,7 @@ struct ProfileHeader: View {
         case .own:
             HStack(spacing: 12) {
                 primaryPill(icon: .editProfile, title: "Edit profile", action: onEdit)
-                circleAction(icon: .share, label: "Share profile", action: onShare)
+                circleShareLink(label: "Share profile")
             }
         case let .other(isFriend):
             HStack(spacing: 12) {
@@ -87,7 +87,7 @@ struct ProfileHeader: View {
                     primaryPill(icon: .addFriend, title: "Add friend", action: onAddFriend)
                 }
                 circleAction(icon: .envelope, label: "Send message", action: onMessage)
-                circleAction(icon: .share, label: "Share profile", action: onShare)
+                circleShareLink(label: "Share profile")
             }
         }
     }
@@ -127,6 +127,18 @@ struct ProfileHeader: View {
     private func circleAction(icon: AppIcon, label: String, action: @escaping () -> Void) -> some View {
         Button(action: action) {
             AppIconView(icon: icon, size: 20)
+                .foregroundStyle(Color.appTextPrimary)
+                .frame(width: 46, height: 46)
+                .background(Circle().stroke(Color.appOutline, lineWidth: 1))
+                .contentShape(Circle())
+        }
+        .buttonStyle(PressableButtonStyle())
+        .accessibilityLabel(label)
+    }
+
+    private func circleShareLink(label: String) -> some View {
+        ShareLink(item: shareText) {
+            AppIconView(icon: .share, size: 20)
                 .foregroundStyle(Color.appTextPrimary)
                 .frame(width: 46, height: 46)
                 .background(Circle().stroke(Color.appOutline, lineWidth: 1))

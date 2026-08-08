@@ -23,8 +23,11 @@ struct CommunityView: View {
                     DiscoverCommunitiesView(
                         category: $category,
                         communities: viewModel.communities,
+                        isLoadingMore: viewModel.communitiesPagination.isLoadingMore,
+                        canLoadMore: viewModel.communitiesPagination.canLoadMore,
                         onSelect: { selectedCommunity = $0 },
-                        onJoin: { viewModel.toggleJoin($0) }
+                        onJoin: { viewModel.toggleJoin($0) },
+                        onLoadMore: { Task { await viewModel.loadMoreCommunities() } }
                     )
                 }
             }
@@ -94,6 +97,11 @@ struct CommunityView: View {
                             onComment: { selectedPost = post },
                             onBookmark: { viewModel.toggleBookmark(post) }
                         )
+                        .onAppear {
+                            if index >= viewModel.feed.count - 3 {
+                                Task { await viewModel.loadMoreFeed() }
+                            }
+                        }
 
                         if index == 0, let suggested = viewModel.communities.first(where: { !$0.isJoined }) {
                             SuggestedCommunityCard(
@@ -103,13 +111,17 @@ struct CommunityView: View {
                             )
                         }
                     }
+
+                    if viewModel.feedPagination.isLoadingMore {
+                        LoadingMoreIndicator()
+                    }
                 }
                 .padding(.horizontal, 20)
                 .padding(.bottom, 96)
             }
             .refreshable {
-                await viewModel.loadFeed()
-                await viewModel.loadCommunities()
+                await viewModel.loadFeed(reset: true)
+                await viewModel.loadCommunities(reset: true)
             }
         }
     }

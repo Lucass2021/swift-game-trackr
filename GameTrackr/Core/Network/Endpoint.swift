@@ -18,7 +18,7 @@ enum Endpoint {
     case verifyResetCode
     case resetPassword
 
-    case communities(search: String? = nil, perPage: Int? = nil)
+    case communities(search: String? = nil, perPage: Int? = nil, page: Int? = nil)
     case joinedCommunities
     case community(id: Int)
     case createCommunity
@@ -26,7 +26,7 @@ enum Endpoint {
     case joinCommunity(id: Int)
     case leaveCommunity(id: Int)
 
-    case posts(search: String? = nil, communityId: Int? = nil, perPage: Int? = nil)
+    case posts(search: String? = nil, communityId: Int? = nil, perPage: Int? = nil, page: Int? = nil)
     case post(id: Int)
     case createPost
     case deletePost(id: Int)
@@ -92,16 +92,18 @@ enum Endpoint {
 
     var queryItems: [URLQueryItem]? {
         switch self {
-        case let .communities(search, perPage):
+        case let .communities(search, perPage, page):
             var items: [URLQueryItem] = []
             if let search, !search.isEmpty { items.append(.init(name: "search", value: search)) }
             if let perPage { items.append(.init(name: "per_page", value: "\(perPage)")) }
+            if let page { items.append(.init(name: "page", value: "\(page)")) }
             return items.isEmpty ? nil : items
-        case let .posts(search, communityId, perPage):
+        case let .posts(search, communityId, perPage, page):
             var items: [URLQueryItem] = []
             if let search, !search.isEmpty { items.append(.init(name: "search", value: search)) }
             if let communityId { items.append(.init(name: "community_id", value: "\(communityId)")) }
             if let perPage { items.append(.init(name: "per_page", value: "\(perPage)")) }
+            if let page { items.append(.init(name: "page", value: "\(page)")) }
             return items.isEmpty ? nil : items
         default:
             return nil

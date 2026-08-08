@@ -248,7 +248,13 @@ struct PostDetailView: View {
                 showComments = true
             }
 
-            action(icon: .share, label: "Share") {}
+            ShareLink(item: "Check out this discussion on GameTrackr: \"\(post.title)\"") {
+                AppIconView(icon: .share, size: 22)
+                    .foregroundStyle(Color.appTextSecondary)
+                    .contentShape(Rectangle())
+            }
+            .buttonStyle(PressableButtonStyle())
+            .accessibilityLabel("Share")
 
             Spacer()
 

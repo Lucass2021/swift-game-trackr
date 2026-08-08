@@ -74,6 +74,7 @@ struct UserProfileView: View {
                 ProfileHeader(
                     profile: profile,
                     mode: .other(isFriend: isFriend),
+                    shareText: "Check out \(user.name)'s gaming profile on GameTrackr!",
                     onAddFriend: toggleFriend,
                     onMessage: gatedMessage
                 )

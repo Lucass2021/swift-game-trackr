@@ -3,8 +3,11 @@ import SwiftUI
 struct DiscoverCommunitiesView: View {
     @Binding var category: String
     let communities: [Community]
+    var isLoadingMore = false
+    var canLoadMore = false
     var onSelect: (Community) -> Void = { _ in }
     var onJoin: (Community) -> Void = { _ in }
+    var onLoadMore: () -> Void = {}
 
     @State private var query = ""
 
@@ -69,12 +72,17 @@ struct DiscoverCommunitiesView: View {
                 .padding(.horizontal, 20)
                 .padding(.bottom, 8)
 
-            ForEach(filtered) { community in
+            ForEach(Array(filtered.enumerated()), id: \.element.id) { index, community in
                 CommunityRow(
                     community: community,
                     onSelect: { onSelect(community) },
                     onJoin: { onJoin(community) }
                 )
+                .onAppear {
+                    if index >= filtered.count - 3 {
+                        onLoadMore()
+                    }
+                }
 
                 if community.id != filtered.last?.id {
                     Rectangle()
@@ -82,6 +90,10 @@ struct DiscoverCommunitiesView: View {
                         .frame(height: 1)
                         .padding(.horizontal, 20)
                 }
+            }
+
+            if isLoadingMore {
+                LoadingMoreIndicator()
             }
         }
     }

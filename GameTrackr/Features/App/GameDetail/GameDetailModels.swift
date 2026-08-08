@@ -6,18 +6,6 @@ struct GameScreenshot: Identifiable {
     let end: Color
 }
 
-struct GameDiscussion: Identifiable {
-    let id = UUID()
-    let author: String
-    let timeAgo: String
-    let title: String
-    let preview: String
-    let comments: Int
-    let likes: Int
-    let avatarStart: Color
-    let avatarEnd: Color
-}
-
 struct GameSpec: Identifiable {
     let id = UUID()
     let label: String
@@ -40,7 +28,6 @@ struct GameDetail {
     let coverEnd: Color
     let screenshots: [GameScreenshot]
     let about: String
-    let discussions: [GameDiscussion]
     let specs: [GameSpec]
     let systemRequirements: [SystemRequirementTier]
 

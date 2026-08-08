@@ -14,7 +14,8 @@ struct StatsView: View {
                 title: ownerName == nil ? "Your Stats" : "Stats",
                 subtitle: ownerName,
                 onBack: { dismiss() },
-                onShare: {}
+                shareText: ownerName.map { "Check out \($0)'s gaming stats on GameTrackr!" }
+                    ?? "Check out my gaming stats on GameTrackr!"
             )
 
             ScrollView(showsIndicators: false) {

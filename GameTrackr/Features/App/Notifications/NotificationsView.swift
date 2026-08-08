@@ -7,6 +7,7 @@ struct NotificationsView: View {
     @State private var filter: NotificationFilter = .all
     @State private var markedAllRead = false
     @State private var removedIDs: Set<UUID> = []
+    @State private var pagination = MockPaginationState(allItems: NotificationsMockData.items, pageSize: 4)
 
     var body: some View {
         VStack(spacing: 0) {
@@ -64,8 +65,17 @@ struct NotificationsView: View {
                                         onAccept: { remove(item) },
                                         onDecline: { remove(item) }
                                     )
+                                    .onAppear {
+                                        if item.id == items.last?.id {
+                                            Task { await pagination.loadNextPage() }
+                                        }
+                                    }
                                 }
                             }
+                        }
+
+                        if pagination.isLoadingMore {
+                            LoadingMoreIndicator()
                         }
                     }
                     .padding(.horizontal, 16)
@@ -86,7 +96,7 @@ struct NotificationsView: View {
     }
 
     private var visibleItems: [NotificationItem] {
-        NotificationsMockData.items.filter { item in
+        pagination.items.filter { item in
             guard !removedIDs.contains(item.id) else { return false }
             switch filter {
             case .all: return true

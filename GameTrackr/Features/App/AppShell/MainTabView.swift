@@ -38,10 +38,7 @@ struct MainTabView: View {
             .navigationDestination(isPresented: $showStats) { StatsView() }
             .navigationDestination(isPresented: $showEditProfile) { EditProfileView(profile: $profile) }
             .navigationDestination(isPresented: $showGameDetail) {
-                GameDetailView(onExploreCommunity: {
-                    showGameDetail = false
-                    selection = .community
-                })
+                GameDetailView()
             }
         }
     }

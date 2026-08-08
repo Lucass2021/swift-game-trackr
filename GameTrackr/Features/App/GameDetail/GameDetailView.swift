@@ -2,7 +2,6 @@ import SwiftUI
 
 struct GameDetailView: View {
     var game: GameDetail = GameDetailMockData.game
-    var onExploreCommunity: () -> Void = {}
 
     @Environment(\.dismiss) private var dismiss
     @State private var showAddToLibrary = false
@@ -23,8 +22,6 @@ struct GameDetailView: View {
                     GameScreenshotsSection(screenshots: game.screenshots)
 
                     GameAboutSection(about: game.about)
-
-                    GameCommunitySection(discussions: game.discussions, onSeeAll: onExploreCommunity)
 
                     GameSpecificationsSection(
                         specs: game.specs,

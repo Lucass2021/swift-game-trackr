@@ -5,16 +5,16 @@ struct LibraryView: View {
     var onBrowseGames: () -> Void = {}
     var onGameSelect: () -> Void = {}
 
-    private let entries = LibraryMockData.entries
+    @State private var pagination = MockPaginationState(allItems: LibraryMockData.entries, pageSize: 3)
 
     private var filteredEntries: [LibraryEntry] {
-        guard let filter else { return entries }
-        return entries.filter { $0.status == filter }
+        guard let filter else { return pagination.items }
+        return pagination.items.filter { $0.status == filter }
     }
 
     var body: some View {
         VStack(spacing: 0) {
-            if !entries.isEmpty {
+            if !pagination.items.isEmpty {
                 LibraryStatsBar(stats: LibraryMockData.stats)
                     .padding(.horizontal, 20)
                     .padding(.top, 14)
@@ -22,7 +22,7 @@ struct LibraryView: View {
             }
 
             LibraryFilterChips(selection: $filter)
-                .padding(.top, entries.isEmpty ? 12 : 0)
+                .padding(.top, pagination.items.isEmpty ? 12 : 0)
                 .padding(.bottom, 14)
 
             content
@@ -33,18 +33,27 @@ struct LibraryView: View {
 
     @ViewBuilder
     private var content: some View {
-        if entries.isEmpty {
+        if pagination.items.isEmpty {
             LibraryEmptyState(onBrowse: onBrowseGames)
         } else if filteredEntries.isEmpty {
             filterEmptyState
         } else {
             ScrollView(showsIndicators: false) {
                 LazyVStack(spacing: 14) {
-                    ForEach(filteredEntries) { entry in
+                    ForEach(Array(filteredEntries.enumerated()), id: \.element.id) { index, entry in
                         Button(action: onGameSelect) {
                             LibraryEntryRow(entry: entry)
                         }
                         .buttonStyle(PressableButtonStyle())
+                        .onAppear {
+                            if index >= filteredEntries.count - 2 {
+                                Task { await pagination.loadNextPage() }
+                            }
+                        }
+                    }
+
+                    if pagination.isLoadingMore {
+                        LoadingMoreIndicator()
                     }
                 }
                 .padding(.horizontal, 20)

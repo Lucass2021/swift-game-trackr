@@ -6,7 +6,7 @@ struct GameDetailHero: View {
     let onBack: () -> Void
 
     private var shareMessage: String {
-        "Check out \(game.title) on GameTrackr!"
+        "I found \(game.title) on GameTrackr"
     }
 
     var body: some View {

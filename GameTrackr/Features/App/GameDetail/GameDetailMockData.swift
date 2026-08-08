@@ -21,28 +21,6 @@ enum GameDetailMockData {
         rogue netrunner untangling a conspiracy that reaches from the neon-drenched \
         undercity to the corporate spires above.
         """,
-        discussions: [
-            GameDiscussion(
-                author: "Kaelen_Vox",
-                timeAgo: "2h ago",
-                title: "Best builds for early game?",
-                preview: "Just started my playthrough on PS5. Should I focus on the tech tree or go full stealth?",
-                comments: 24,
-                likes: 142,
-                avatarStart: .coverPineStart,
-                avatarEnd: .coverPineEnd
-            ),
-            GameDiscussion(
-                author: "CyberDrifter_99",
-                timeAgo: "5h ago",
-                title: "The level design is insane!",
-                preview: "The verticality in the Upper District is unlike anything I've seen in an open world.",
-                comments: 86,
-                likes: 856,
-                avatarStart: .coverAzureStart,
-                avatarEnd: .coverAzureEnd
-            )
-        ],
         specs: [
             GameSpec(label: "Developer", value: "Void Interactive"),
             GameSpec(label: "Publisher", value: "Nova Games"),

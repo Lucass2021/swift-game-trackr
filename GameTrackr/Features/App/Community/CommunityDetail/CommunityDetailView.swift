@@ -7,7 +7,7 @@ struct CommunityDetailView: View {
     @Environment(\.dismiss) private var dismiss
     @State private var isJoined: Bool
     @State private var tab: CommunityDetailTab = .posts
-    @State private var posts: [CommunityPost] = []
+    @State private var postsPagination = PaginationState<CommunityPost>()
     @State private var members: [CommunityMember] = []
     @State private var showCreateTopic = false
     @State private var selectedUser: UserProfile?
@@ -45,7 +45,7 @@ struct CommunityDetailView: View {
                 .padding(.bottom, 96)
             }
             .refreshable {
-                await loadPosts()
+                await loadPosts(reset: true)
                 await loadMembers()
             }
 
@@ -82,7 +82,7 @@ struct CommunityDetailView: View {
     private var tabContent: some View {
         switch tab {
         case .posts:
-            if postsError, posts.isEmpty {
+            if postsError, postsPagination.items.isEmpty {
                 CommunityEmptyState(
                     icon: .info,
                     title: "Couldn't load posts",
@@ -90,7 +90,7 @@ struct CommunityDetailView: View {
                     actionTitle: "Try again",
                     action: { Task { await loadPosts() } }
                 )
-            } else if posts.isEmpty {
+            } else if postsPagination.items.isEmpty {
                 CommunityEmptyState(
                     icon: .community,
                     title: "No posts yet",
@@ -102,7 +102,7 @@ struct CommunityDetailView: View {
                 )
             } else {
                 VStack(spacing: 16) {
-                    ForEach(posts) { post in
+                    ForEach(Array(postsPagination.items.enumerated()), id: \.element.id) { index, post in
                         CommunityPostCard(
                             post: post,
                             showsCommunityName: false,
@@ -111,6 +111,15 @@ struct CommunityDetailView: View {
                             onComment: { onPostSelect(post) },
                             onBookmark: { toggleBookmark(post) }
                         )
+                        .onAppear {
+                            if index >= postsPagination.items.count - 3 {
+                                Task { await loadPosts(reset: false) }
+                            }
+                        }
+                    }
+
+                    if postsPagination.isLoadingMore {
+                        LoadingMoreIndicator()
                     }
                 }
                 .padding(.horizontal, 20)
@@ -135,7 +144,16 @@ struct CommunityDetailView: View {
             }
 
             circleButton(icon: .notifications, label: "Community notifications")
-            circleButton(icon: .share, label: "Share community")
+
+            ShareLink(item: "Join the \(community.name) community on GameTrackr!") {
+                AppIconView(icon: .share, size: 20)
+                    .foregroundStyle(Color.appTextPrimary)
+                    .frame(width: 50, height: 50)
+                    .background(Circle().stroke(Color.appOutline, lineWidth: 1))
+                    .contentShape(Circle())
+            }
+            .buttonStyle(PressableButtonStyle())
+            .accessibilityLabel("Share community")
         }
         .padding(.horizontal, 20)
     }
@@ -147,14 +165,26 @@ struct CommunityDetailView: View {
         )
     }
 
-    private func loadPosts() async {
-        postsError = false
-        do {
-            let response = try await CommunityService.shared.fetchPosts(communityId: community.id)
-            posts = response.data.map { CommunityPost(dto: $0) }
-        } catch {
-            postsError = true
+    private func loadPosts(reset: Bool = true) async {
+        if reset {
+            postsError = false
+            postsPagination.reset()
+        } else {
+            guard postsPagination.canLoadMore else { return }
+            postsPagination.setLoading(true)
         }
+
+        let nextPage = postsPagination.currentPage + 1
+
+        do {
+            let response = try await CommunityService.shared.fetchPosts(
+                communityId: community.id, perPage: 30, page: nextPage
+            )
+            postsPagination.append(response: response) { $0.map { CommunityPost(dto: $0) } }
+        } catch {
+            if reset { postsError = true }
+        }
+        postsPagination.setLoading(false)
     }
 
     private func loadMembers() async {
@@ -205,29 +235,37 @@ struct CommunityDetailView: View {
     }
 
     private func toggleLike(_ post: CommunityPost) {
-        guard let index = posts.firstIndex(where: { $0.id == post.id }) else { return }
-        posts[index].isLiked.toggle()
-        posts[index].likes += posts[index].isLiked ? 1 : -1
+        guard let index = postsPagination.items.firstIndex(where: { $0.id == post.id }) else { return }
+        var updated = postsPagination.items[index]
+        updated.isLiked.toggle()
+        updated.likes += updated.isLiked ? 1 : -1
+        postsPagination.updateItem(at: index, with: updated)
 
         Task {
             do {
                 let response = try await CommunityService.shared.toggleLike(postId: post.id)
-                if let idx = posts.firstIndex(where: { $0.id == post.id }) {
-                    posts[idx].isLiked = response.isLiked
-                    posts[idx].likes = response.likes
+                if let idx = postsPagination.items.firstIndex(where: { $0.id == post.id }) {
+                    var item = postsPagination.items[idx]
+                    item.isLiked = response.isLiked
+                    item.likes = response.likes
+                    postsPagination.updateItem(at: idx, with: item)
                 }
             } catch {
-                if let idx = posts.firstIndex(where: { $0.id == post.id }) {
-                    posts[idx].isLiked.toggle()
-                    posts[idx].likes += posts[idx].isLiked ? 1 : -1
+                if let idx = postsPagination.items.firstIndex(where: { $0.id == post.id }) {
+                    var item = postsPagination.items[idx]
+                    item.isLiked.toggle()
+                    item.likes += item.isLiked ? 1 : -1
+                    postsPagination.updateItem(at: idx, with: item)
                 }
             }
         }
     }
 
     private func toggleBookmark(_ post: CommunityPost) {
-        guard let index = posts.firstIndex(where: { $0.id == post.id }) else { return }
-        posts[index].isBookmarked.toggle()
+        guard let index = postsPagination.items.firstIndex(where: { $0.id == post.id }) else { return }
+        var updated = postsPagination.items[index]
+        updated.isBookmarked.toggle()
+        postsPagination.updateItem(at: index, with: updated)
     }
 }
 

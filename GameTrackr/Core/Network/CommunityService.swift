@@ -3,10 +3,10 @@ import Foundation
 struct CommunityService {
     static let shared = CommunityService()
 
-    func fetchCommunities(search: String? = nil, perPage: Int? = nil) async throws
+    func fetchCommunities(search: String? = nil, perPage: Int? = nil, page: Int? = nil) async throws
         -> PaginatedResponse<CommunityDTO>
     {
-        try await APIClient.shared.request(.communities(search: search, perPage: perPage))
+        try await APIClient.shared.request(.communities(search: search, perPage: perPage, page: page))
     }
 
     func fetchJoinedCommunities() async throws -> PaginatedResponse<CommunityDTO> {
@@ -28,10 +28,11 @@ struct CommunityService {
     func fetchPosts(
         search: String? = nil,
         communityId: Int? = nil,
-        perPage: Int? = nil
+        perPage: Int? = nil,
+        page: Int? = nil
     ) async throws -> PaginatedResponse<PostDTO> {
         try await APIClient.shared.request(
-            .posts(search: search, communityId: communityId, perPage: perPage)
+            .posts(search: search, communityId: communityId, perPage: perPage, page: page)
         )
     }
 
