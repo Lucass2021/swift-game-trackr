@@ -56,9 +56,6 @@ struct CommunityPostCard: View {
             }
 
             Spacer(minLength: 8)
-
-            AppIconView(icon: .overflow, size: 20)
-                .foregroundStyle(Color.appTextSecondary)
         }
     }
 

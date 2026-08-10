@@ -5,11 +5,12 @@ struct ProfileView: View {
     var breakdown: [StatusCount] = ProfileMockData.breakdown
     var favorites: [LibraryEntry] = ProfileMockData.favorites
     var currentlyPlaying: [LibraryEntry] = ProfileMockData.currentlyPlaying
-    var setups: [SetupItem] = ProfileMockData.setups
+    var setups: [SetupItem] = []
     var onGameSelect: () -> Void = {}
     var onStatusSelect: (LibraryStatus) -> Void = { _ in }
     var onEditProfile: () -> Void = {}
     var onViewStats: () -> Void = {}
+    var onViewSetup: () -> Void = {}
 
     @Environment(AuthStore.self) private var authStore
 
@@ -62,8 +63,14 @@ struct ProfileView: View {
                     .padding(.horizontal, 20)
                 }
 
-                section("My Setup", actionTitle: "View all") {} content: {
-                    ProfileSetupSection(setups: setups)
+                section("My Setup", actionTitle: setups.isEmpty ? nil : "View all") {
+                    onViewSetup()
+                } content: {
+                    ProfileSetupSection(
+                        setups: setups,
+                        onSelect: { _ in onViewSetup() },
+                        onAdd: onViewSetup
+                    )
                 }
             }
             .padding(.bottom, 32)

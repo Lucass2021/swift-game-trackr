@@ -114,6 +114,41 @@ then layer discovery, friends, community, messaging, and collection.
 
 ## Progress log
 
+### 2026-08-10 — My Setup (first real device photos), Discover cleanup, overflow-menu audit
+
+- **My Setup** (`Features/App/Profile/Setup/`) — the profile's Setup section became a real feature:
+  `MySetupView` (list + empty state) → `EditSetupView` (add/edit form) → delete with confirm.
+  `ProfileSetupSection` now has an inline empty card and an "Add setup" tile at the end of the
+  carousel. `SetupCover` renders the first photo, falling back to the palette gradient.
+- **First real images in the app.** Everything until now was gradient placeholders. `EditSetupView`
+  uses **`PhotosPicker`** (max 6, `.images`). Two things worth remembering:
+  - `PhotosPicker` needs **no `NSPhotoLibraryUsageDescription` and shows no permission prompt** —
+    `PHPickerViewController` runs out-of-process and only hands back what the user picked, so the
+    app never gains library access. Nothing was added to `Config/`.
+  - `SetupPhoto` stores a **decoded `UIImage`**, not `Data`, and is `Equatable` by `id`. Holding
+    `Data` would re-decode the JPEG on every `body` evaluation — six of them per keystroke in the
+    thumbnail `ForEach`. `SetupPhoto.downsampled(from:)` resizes to 1200px on the long edge at
+    import so memory stays bounded.
+- **Persistence: none, deliberately.** `setups` is `@State` on `MainTabView`, passed down as a
+  `@Binding`, mirroring how `profile` and library favorites already work. Data is lost on restart;
+  the swap point when `/me/collection` lands is that one property. The profile also **starts empty**
+  so the empty state is the default experience — `ProfileMockData.setups` survives for previews only.
+- **`SetupItem` reuses `AvatarPalette`** (from `EditProfile/`) for the placeholder gradient instead
+  of carrying its own `imageStart`/`imageEnd` colours. The picker for it was in the form briefly and
+  was **removed** — the palette is now assigned automatically, rotating by index in `startNewSetup()`.
+- **Discover:** dropped the "Featured" carousel and deleted `FeaturedCommunityCard.swift`. It showed
+  `communities.prefix(3)` — the same three rows already visible below it — and ignored the chip
+  filter, so picking "RPG" left unrelated communities on screen.
+- **Overflow (`…`) audit.** Three buttons animated on press and did nothing. Removed from
+  `UserProfileView`, `PostDetailView` (non-author branch), and `CommunityPostCard`. The card's was
+  the worst: not a button at all, sitting inside the card-wide `Button(action: onSelect)`, so tapping
+  it *opened the post*. In `PostDetailView` the non-author branch is now `Color.clear.frame(40×40)` —
+  without it the centred wordmark drifts off-axis on every post that isn't yours.
+- **Empty-state centring gotcha:** `CommunityEmptyState` has `.padding(.top, 60)` (asymmetric),
+  so centring it needs `.padding(.bottom, 60)` *first*, then `.frame(maxHeight: .infinity)` —
+  otherwise the block sits ~30pt low. The Android twin uses symmetric `vertical = 60.dp` and
+  centres directly. Worth unifying if the component is ever renamed to `AppEmptyState`.
+
 ### 2026-08-08 — Notification deletion, infinite scroll, share buttons, game detail cleanup
 
 Batch of cross-platform feature work aligned with backend discussions.

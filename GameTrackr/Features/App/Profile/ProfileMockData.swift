@@ -77,20 +77,17 @@ enum ProfileMockData {
         SetupItem(
             title: "Main Battle Station",
             description: "RTX 4090 + i9-14900K, 32\" 4K 144Hz",
-            imageStart: .coverIndigoStart,
-            imageEnd: .coverIndigoEnd
+            palette: .indigo
         ),
         SetupItem(
             title: "Retro Corner",
             description: "CRT TV + SNES, N64, and PS2",
-            imageStart: .coverCrimsonStart,
-            imageEnd: .coverCrimsonEnd
+            palette: .crimson
         ),
         SetupItem(
             title: "Portable Setup",
             description: "Steam Deck OLED + Backbone",
-            imageStart: .coverEmeraldStart,
-            imageEnd: .coverEmeraldEnd
+            palette: .emerald
         )
     ]
 

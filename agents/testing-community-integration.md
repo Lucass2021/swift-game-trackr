@@ -2,6 +2,8 @@
 
 Step-by-step guide to test the real API integration on both iOS and Android.
 
+> Last updated: 2026-08-10.
+
 ---
 
 ## 1. Start the backend
@@ -75,7 +77,8 @@ curl -X POST http://localhost:8000/api/posts \
 | Action | Expected |
 |--------|----------|
 | Open Community tab | Feed loads from API (or shows empty state if no posts) |
-| Switch to Discover | Communities list loads from API |
+| Switch to Discover | Search field, category chips, then "All communities" — all loaded from API. There is **no** Featured carousel (removed 2026-08-10) |
+| Type in the Discover search / pick a chip | The single list filters; nothing above it stays unfiltered |
 | Tap a community | Detail view opens, posts load from API, members load |
 | Tap Join on a community | Button toggles instantly, API call syncs in background |
 | Tap the Like button on a post | Count updates instantly, syncs with API |
@@ -111,11 +114,13 @@ The iOS Simulator shares the Mac's network — no special config needed.
 
 ### Config
 Android Emulator uses `10.0.2.2` to reach the host's localhost.
-This is already configured in `app/build.gradle.kts` as the debug base URL.
+This is already set in **`config/debug.properties`** (repo root, not `app/`), which
+`app/build.gradle.kts` reads into `BuildConfig.API_BASE_URL`.
 
-If using a **physical device** instead of emulator, set your Mac's local IP:
+If using a **physical device** instead of emulator, override it with your Mac's local IP in the
+gitignored local file — it's loaded *after* the build-type file, so it wins:
 ```
-# In app/local.properties or app/build.gradle.kts
+# config/local.properties  (copy from config/local.properties.example)
 API_BASE_URL=http://192.168.x.x:8000/api
 ```
 

@@ -1,6 +1,8 @@
 # API Integration Status
 
-> Last verified: 2026-08-06 against the running backend at `game-trackr-api`.
+> Last verified: 2026-08-10 against the running backend at `game-trackr-api`.
+> (2026-08-10 re-check: no new routes since 2026-08-06 — the Collection/Setup endpoints are
+> still absent, which is why My Setup ships client-side. Everything below still holds.)
 
 ---
 
@@ -24,7 +26,12 @@
 
 ---
 
-## Ready to connect (backend exists, apps use mock data)
+### Community + Posts — integrated on iOS and Android
+
+Both clients call these live (iOS `Core/Network/CommunityService.swift`, Android
+`core/network/CommunityApi.kt`), with optimistic updates on like/join and a mock fallback when the
+request fails. Consumed by: `CommunityView(Model)`, `CommunityDetail`, `DiscoverCommunities`,
+`PostDetail`, `PostCommentsSheet`, `CreateTopic`.
 
 ### Community
 
@@ -65,7 +72,7 @@
 | **Achievements** | Yes (Achievements) | Low | No controller, no model |
 | **Friends** | **No screen yet** | Medium | No controller. TODO.MD lists this as next |
 | **Messaging** | **No screen yet** | Low | No controller, no Reverb config |
-| **Collection** | **No screen yet** | Low | No controller |
+| **Collection / My Setup** | **Yes** (My Setup list + add/edit form, since 2026-08-10) | Medium | No controller. UI is complete on both clients but **in-memory only** — setups and their photos are lost on app restart. Needs `/me/collection` CRUD + image upload |
 | **Game Lists** | **No screen yet** | Low | No controller |
 | **Activity Feed** | **No screen yet** | Low | No controller |
 | **Change password (in-app)** | Yes (Settings) | Low | Exists as OTP reset, not "current→new" flow |

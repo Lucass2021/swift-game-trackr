@@ -200,13 +200,7 @@ struct PostDetailView: View {
                         .contentShape(Rectangle())
                 }
             } else {
-                Button {} label: {
-                    AppIconView(icon: .overflow, size: 22)
-                        .foregroundStyle(Color.appTextPrimary)
-                        .frame(width: 40, height: 40)
-                        .contentShape(Rectangle())
-                }
-                .buttonStyle(PressableButtonStyle())
+                Color.clear.frame(width: 40, height: 40)
             }
         }
         .padding(.horizontal, 12)

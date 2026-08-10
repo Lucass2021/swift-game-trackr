@@ -72,10 +72,6 @@ struct CommunityDetailView: View {
             floatingButton(icon: .back, label: "Back") { dismiss() }
                 .padding(.leading, 16)
         }
-        .overlay(alignment: .topTrailing) {
-            floatingButton(icon: .overflow, label: "More options") {}
-                .padding(.trailing, 16)
-        }
         .ignoresSafeArea(edges: .top)
     }
 

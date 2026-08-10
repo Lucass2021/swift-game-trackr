@@ -54,15 +54,6 @@ struct UserProfileView: View {
                 .foregroundStyle(Color.appTextPrimary)
 
             Spacer()
-
-            Button {} label: {
-                AppIconView(icon: .overflow, size: 22)
-                    .foregroundStyle(Color.appTextPrimary)
-                    .frame(width: 40, height: 40, alignment: .trailing)
-                    .contentShape(Rectangle())
-            }
-            .buttonStyle(PressableButtonStyle())
-            .accessibilityLabel("More options")
         }
         .padding(.horizontal, 16)
         .padding(.vertical, 8)

@@ -28,8 +28,6 @@ struct DiscoverCommunitiesView: View {
 
                 CommunityChipRow(titles: CommunityMockData.categories, selection: $category)
 
-                featured
-
                 if filtered.isEmpty {
                     CommunityEmptyState(
                         icon: .search,
@@ -43,25 +41,6 @@ struct DiscoverCommunitiesView: View {
             .padding(.bottom, 28)
         }
         .scrollDismissesKeyboard(.interactively)
-    }
-
-    private var featured: some View {
-        VStack(alignment: .leading, spacing: 14) {
-            HomeSectionHeader(title: "Featured", onViewAll: {})
-
-            ScrollView(.horizontal, showsIndicators: false) {
-                HStack(alignment: .top, spacing: 14) {
-                    ForEach(communities.prefix(3)) { community in
-                        FeaturedCommunityCard(
-                            community: community,
-                            onSelect: { onSelect(community) },
-                            onJoin: { onJoin(community) }
-                        )
-                    }
-                }
-                .padding(.horizontal, 20)
-            }
-        }
     }
 
     private var allCommunities: some View {

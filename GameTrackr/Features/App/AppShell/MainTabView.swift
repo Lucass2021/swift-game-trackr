@@ -8,8 +8,10 @@ struct MainTabView: View {
     @State private var showGameDetail = false
     @State private var showStats = false
     @State private var showEditProfile = false
+    @State private var showSetup = false
     @State private var libraryFilter: LibraryStatus?
     @State private var profile = ProfileMockData.profile
+    @State private var setups: [SetupItem] = []
 
     var body: some View {
         NavigationStack {
@@ -37,6 +39,7 @@ struct MainTabView: View {
             .navigationDestination(isPresented: $showMenu) { ProfileMenuView(profile: $profile) }
             .navigationDestination(isPresented: $showStats) { StatsView() }
             .navigationDestination(isPresented: $showEditProfile) { EditProfileView(profile: $profile) }
+            .navigationDestination(isPresented: $showSetup) { MySetupView(setups: $setups) }
             .navigationDestination(isPresented: $showGameDetail) {
                 GameDetailView()
             }
@@ -59,13 +62,15 @@ struct MainTabView: View {
         case .profile:
             ProfileView(
                 profile: profile,
+                setups: setups,
                 onGameSelect: { showGameDetail = true },
                 onStatusSelect: { status in
                     libraryFilter = status
                     selection = .library
                 },
                 onEditProfile: { showEditProfile = true },
-                onViewStats: { showStats = true }
+                onViewStats: { showStats = true },
+                onViewSetup: { showSetup = true }
             )
         }
     }
