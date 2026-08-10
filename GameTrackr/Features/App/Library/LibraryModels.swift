@@ -38,8 +38,27 @@ struct LibraryEntry: Identifiable {
     let status: LibraryStatus
     let rating: Int
     let hours: Int
+    var isFavorite: Bool
     let coverStart: Color
     let coverEnd: Color
+
+    init(
+        title: String,
+        status: LibraryStatus,
+        rating: Int,
+        hours: Int,
+        isFavorite: Bool = false,
+        coverStart: Color,
+        coverEnd: Color
+    ) {
+        self.title = title
+        self.status = status
+        self.rating = rating
+        self.hours = hours
+        self.isFavorite = isFavorite
+        self.coverStart = coverStart
+        self.coverEnd = coverEnd
+    }
 }
 
 struct LibraryStats {

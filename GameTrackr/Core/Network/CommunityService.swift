@@ -40,6 +40,10 @@ struct CommunityService {
         try await APIClient.shared.request(.post(id: id))
     }
 
+    func deletePost(id: Int) async throws -> MessageResponse {
+        try await APIClient.shared.request(.deletePost(id: id))
+    }
+
     func createPost(title: String, description: String?, communityId: Int) async throws -> PostDTO {
         let body = CreatePostRequest(title: title, description: description, communityId: communityId)
         let response: CreatePostResponse = try await APIClient.shared.request(.createPost, body: body)

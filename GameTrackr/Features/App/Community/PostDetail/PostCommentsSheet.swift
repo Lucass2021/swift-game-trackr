@@ -3,10 +3,13 @@ import SwiftUI
 struct PostCommentsSheet: View {
     let postId: Int
     @State var comments: [PostComment]
+    var isGuest = false
 
+    @Environment(AuthStore.self) private var authStore
     @Environment(\.dismiss) private var dismiss
     @State private var draft = ""
     @State private var isSubmitting = false
+    @State private var replyingTo: PostComment?
     @FocusState private var composerFocused: Bool
 
     private var total: Int {
@@ -23,13 +26,24 @@ struct PostCommentsSheet: View {
                 ScrollView(showsIndicators: false) {
                     LazyVStack(alignment: .leading, spacing: 22) {
                         ForEach(comments) { comment in
-                            CommentRow(comment: comment, onLike: { toggleLike(comment) })
+                            CommentRow(
+                                comment: comment,
+                                isGuest: isGuest,
+                                currentUserId: authStore.currentUser?.id,
+                                onLike: { toggleLike(comment) },
+                                onReply: { replyingTo = comment },
+                                onDelete: { deleteComment(comment) }
+                            )
 
                             ForEach(comment.replies) { reply in
                                 CommentRow(
                                     comment: reply,
                                     isReply: true,
-                                    onLike: { toggleLike(reply, parent: comment) }
+                                    isGuest: isGuest,
+                                    currentUserId: authStore.currentUser?.id,
+                                    onLike: { toggleLike(reply, parent: comment) },
+                                    onReply: { replyingTo = reply },
+                                    onDelete: { deleteReply(reply, parent: comment) }
                                 )
                             }
 
@@ -50,13 +64,48 @@ struct PostCommentsSheet: View {
                 .scrollDismissesKeyboard(.interactively)
             }
 
-            CommentComposer(draft: $draft, isFocused: $composerFocused, onSubmit: submitComment)
+            if !isGuest {
+                VStack(spacing: 0) {
+                    if let replyingTo {
+                        replyIndicator(replyingTo)
+                    }
+                    CommentComposer(draft: $draft, isFocused: $composerFocused, onSubmit: submitComment)
+                }
+            }
         }
         .background(Color.appSurfaceCard)
         .presentationDragIndicator(.visible)
         .presentationDetents([.fraction(0.85), .large])
         .presentationBackground(Color.appSurfaceCard)
         .preferredColorScheme(.dark)
+    }
+
+    private func replyIndicator(_ comment: PostComment) -> some View {
+        HStack(spacing: 8) {
+            Text("Replying to \(comment.author)")
+                .font(.appLabel(13))
+                .foregroundStyle(Color.appTextSecondary)
+
+            Spacer()
+
+            Button {
+                replyingTo = nil
+            } label: {
+                AppIconView(icon: .close, size: 14)
+                    .foregroundStyle(Color.appTextSecondary)
+                    .contentShape(Rectangle())
+            }
+            .buttonStyle(PressableButtonStyle())
+            .accessibilityLabel("Cancel reply")
+        }
+        .padding(.horizontal, 20)
+        .padding(.vertical, 10)
+        .background(Color.appBackground)
+        .overlay(alignment: .top) {
+            Rectangle()
+                .fill(Color.appOutline)
+                .frame(height: 1)
+        }
     }
 
     private var header: some View {
@@ -115,13 +164,44 @@ struct PostCommentsSheet: View {
         isSubmitting = true
         draft = ""
 
+        let replyTarget = replyingTo
+        replyingTo = nil
+
         Task {
             do {
-                let dto = try await CommunityService.shared.addComment(postId: postId, comment: text)
-                comments.append(PostComment(dto: dto))
+                if let replyTarget {
+                    let dto = try await CommunityService.shared.replyToComment(
+                        postId: postId,
+                        commentId: replyTarget.id,
+                        comment: text
+                    )
+                    let newReply = PostComment(dto: dto)
+                    if let parentIndex = comments.firstIndex(where: { $0.id == replyTarget.id }) {
+                        comments[parentIndex].replies.append(newReply)
+                    } else {
+                        for index in comments.indices
+                            where comments[index].replies.contains(where: { $0.id == replyTarget.id })
+                        {
+                            comments[index].replies.append(newReply)
+                            break
+                        }
+                    }
+                } else {
+                    let dto = try await CommunityService.shared.addComment(postId: postId, comment: text)
+                    comments.append(PostComment(dto: dto))
+                }
             } catch {}
             isSubmitting = false
         }
+    }
+
+    private func deleteComment(_ comment: PostComment) {
+        comments.removeAll { $0.id == comment.id }
+    }
+
+    private func deleteReply(_ reply: PostComment, parent: PostComment) {
+        guard let parentIndex = comments.firstIndex(where: { $0.id == parent.id }) else { return }
+        comments[parentIndex].replies.removeAll { $0.id == reply.id }
     }
 
     private func toggleLike(_ comment: PostComment, parent: PostComment? = nil) {
@@ -154,6 +234,7 @@ struct PostCommentsSheet: View {
     Color.appBackground
         .sheet(isPresented: .constant(true)) {
             PostCommentsSheet(postId: 1, comments: CommunityMockData.comments)
+                .environment(AuthStore())
         }
         .preferredColorScheme(.dark)
 }

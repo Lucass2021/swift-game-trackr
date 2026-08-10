@@ -5,7 +5,7 @@ struct ProfileView: View {
     var breakdown: [StatusCount] = ProfileMockData.breakdown
     var favorites: [LibraryEntry] = ProfileMockData.favorites
     var currentlyPlaying: [LibraryEntry] = ProfileMockData.currentlyPlaying
-    var activity: [ActivityEvent] = ProfileMockData.activity
+    var setups: [SetupItem] = ProfileMockData.setups
     var onGameSelect: () -> Void = {}
     var onStatusSelect: (LibraryStatus) -> Void = { _ in }
     var onEditProfile: () -> Void = {}
@@ -42,7 +42,9 @@ struct ProfileView: View {
                         .padding(.horizontal, 20)
                 }
 
-                section("Favorites") {
+                section("Favorites", actionTitle: "View all") {
+                    onGameSelect()
+                } content: {
                     ProfileFavoritesSection(favorites: favorites, onSelect: { _ in onGameSelect() })
                 }
 
@@ -60,9 +62,8 @@ struct ProfileView: View {
                     .padding(.horizontal, 20)
                 }
 
-                section("Recent activity") {
-                    ProfileActivitySection(events: activity)
-                        .padding(.horizontal, 20)
+                section("My Setup", actionTitle: "View all") {} content: {
+                    ProfileSetupSection(setups: setups)
                 }
             }
             .padding(.bottom, 32)

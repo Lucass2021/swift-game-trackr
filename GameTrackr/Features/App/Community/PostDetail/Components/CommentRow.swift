@@ -3,10 +3,19 @@ import SwiftUI
 struct CommentRow: View {
     let comment: PostComment
     var isReply = false
+    var isGuest = false
+    var currentUserId: Int?
     var onLike: () -> Void = {}
+    var onReply: () -> Void = {}
+    var onDelete: () -> Void = {}
 
     private var avatarSize: CGFloat {
         isReply ? 28 : 36
+    }
+
+    private var isOwnComment: Bool {
+        guard let currentUserId, let authorId = comment.authorId else { return false }
+        return authorId == currentUserId
     }
 
     var body: some View {
@@ -31,8 +40,13 @@ struct CommentRow: View {
 
                 HStack(spacing: 6) {
                     Text("\(comment.likes) likes")
-                    Text("·")
-                    Text("Reply")
+                    if !isGuest {
+                        Text("·")
+                        Button(action: onReply) {
+                            Text("Reply")
+                        }
+                        .buttonStyle(PressableButtonStyle())
+                    }
                 }
                 .font(.appLabel(12))
                 .foregroundStyle(Color.appTextSecondary)
@@ -40,13 +54,27 @@ struct CommentRow: View {
 
             Spacer(minLength: 8)
 
-            Button(action: onLike) {
-                AppIconView(icon: .like, filled: comment.isLiked, size: 16)
-                    .foregroundStyle(comment.isLiked ? Color.appPrimary : Color.appTextSecondary)
-                    .contentShape(Rectangle())
+            if !isGuest {
+                HStack(spacing: 8) {
+                    if isOwnComment {
+                        Button(action: onDelete) {
+                            AppIconView(icon: .trash, size: 16)
+                                .foregroundStyle(Color.appTextSecondary)
+                                .contentShape(Rectangle())
+                        }
+                        .buttonStyle(PressableButtonStyle())
+                        .accessibilityLabel("Delete comment")
+                    }
+
+                    Button(action: onLike) {
+                        AppIconView(icon: .like, filled: comment.isLiked, size: 16)
+                            .foregroundStyle(comment.isLiked ? Color.appPrimary : Color.appTextSecondary)
+                            .contentShape(Rectangle())
+                    }
+                    .buttonStyle(PressableButtonStyle())
+                    .accessibilityLabel(comment.isLiked ? "Unlike comment" : "Like comment")
+                }
             }
-            .buttonStyle(PressableButtonStyle())
-            .accessibilityLabel(comment.isLiked ? "Unlike comment" : "Like comment")
         }
         .padding(.leading, isReply ? 40 : 0)
     }

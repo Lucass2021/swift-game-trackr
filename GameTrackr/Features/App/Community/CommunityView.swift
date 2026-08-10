@@ -1,6 +1,7 @@
 import SwiftUI
 
 struct CommunityView: View {
+    @Environment(AuthStore.self) private var authStore
     @State private var viewModel = CommunityViewModel()
     @State private var segment: CommunitySegment = .myFeed
     @State private var feedFilter = CommunityFeedFilter.latest.rawValue
@@ -20,19 +21,31 @@ struct CommunityView: View {
                 case .myFeed:
                     feedContent
                 case .discover:
-                    DiscoverCommunitiesView(
-                        category: $category,
-                        communities: viewModel.communities,
-                        isLoadingMore: viewModel.communitiesPagination.isLoadingMore,
-                        canLoadMore: viewModel.communitiesPagination.canLoadMore,
-                        onSelect: { selectedCommunity = $0 },
-                        onJoin: { viewModel.toggleJoin($0) },
-                        onLoadMore: { Task { await viewModel.loadMoreCommunities() } }
-                    )
+                    if authStore.isGuest {
+                        Spacer()
+                        CommunityEmptyState(
+                            icon: .community,
+                            title: "Account required",
+                            message: "Create an account to discover\nand join communities.",
+                            actionTitle: "Create an account",
+                            action: { authStore.logout() }
+                        )
+                        Spacer()
+                    } else {
+                        DiscoverCommunitiesView(
+                            category: $category,
+                            communities: viewModel.communities,
+                            isLoadingMore: viewModel.communitiesPagination.isLoadingMore,
+                            canLoadMore: viewModel.communitiesPagination.canLoadMore,
+                            onSelect: { selectedCommunity = $0 },
+                            onJoin: { viewModel.toggleJoin($0) },
+                            onLoadMore: { Task { await viewModel.loadMoreCommunities() } }
+                        )
+                    }
                 }
             }
 
-            if segment == .myFeed {
+            if segment == .myFeed, !authStore.isGuest {
                 CreatePostButton(action: { showCreateTopic = true })
             }
         }
@@ -51,6 +64,8 @@ struct CommunityView: View {
                 {
                     selectedCommunity = community
                 }
+            }, onDelete: {
+                viewModel.feedPagination.removeAll { $0.id == post.id }
             })
         }
         .navigationDestination(item: $selectedCommunity) { community in
@@ -92,6 +107,7 @@ struct CommunityView: View {
                     ForEach(Array(viewModel.feed.enumerated()), id: \.element.id) { index, post in
                         CommunityPostCard(
                             post: post,
+                            isGuest: authStore.isGuest,
                             onSelect: { selectedPost = post },
                             onLike: { viewModel.toggleLike(post) },
                             onComment: { selectedPost = post },
@@ -101,14 +117,6 @@ struct CommunityView: View {
                             if index >= viewModel.feed.count - 3 {
                                 Task { await viewModel.loadMoreFeed() }
                             }
-                        }
-
-                        if index == 0, let suggested = viewModel.communities.first(where: { !$0.isJoined }) {
-                            SuggestedCommunityCard(
-                                community: suggested,
-                                onSelect: { selectedCommunity = suggested },
-                                onJoin: { viewModel.toggleJoin(suggested) }
-                            )
                         }
                     }
 

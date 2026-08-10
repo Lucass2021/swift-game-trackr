@@ -40,4 +40,8 @@ final class PaginationState<Item: Identifiable> {
     func firstIndex(where predicate: (Item) -> Bool) -> Int? {
         items.firstIndex(where: predicate)
     }
+
+    func removeAll(where predicate: (Item) -> Bool) {
+        items.removeAll(where: predicate)
+    }
 }

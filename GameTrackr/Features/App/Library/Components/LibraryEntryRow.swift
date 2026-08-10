@@ -2,6 +2,7 @@ import SwiftUI
 
 struct LibraryEntryRow: View {
     let entry: LibraryEntry
+    var onFavorite: (() -> Void)?
 
     var body: some View {
         HStack(spacing: 14) {
@@ -21,9 +22,21 @@ struct LibraryEntryRow: View {
 
             Spacer(minLength: 8)
 
-            Text("\(entry.hours)h")
-                .font(.appLabel(15))
-                .foregroundStyle(Color.appTextSecondary)
+            VStack(spacing: 10) {
+                if let onFavorite {
+                    Button(action: onFavorite) {
+                        AppIconView(icon: .like, filled: entry.isFavorite, size: 18)
+                            .foregroundStyle(entry.isFavorite ? Color.appPrimary : Color.appTextSecondary)
+                            .contentShape(Rectangle())
+                    }
+                    .buttonStyle(PressableButtonStyle())
+                    .accessibilityLabel(entry.isFavorite ? "Remove from favorites" : "Add to favorites")
+                }
+
+                Text("\(entry.hours)h")
+                    .font(.appLabel(15))
+                    .foregroundStyle(Color.appTextSecondary)
+            }
         }
         .padding(14)
         .frame(maxWidth: .infinity, alignment: .leading)

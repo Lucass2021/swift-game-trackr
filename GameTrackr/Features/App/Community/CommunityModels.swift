@@ -1,7 +1,7 @@
 import SwiftUI
 
 enum CommunitySegment: String, CaseIterable, Identifiable {
-    case myFeed = "My Feed"
+    case myFeed = "Feed"
     case discover = "Discover"
 
     var id: Self {

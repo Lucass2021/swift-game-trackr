@@ -3,6 +3,7 @@ import SwiftUI
 struct GameDetailView: View {
     var game: GameDetail = GameDetailMockData.game
 
+    @Environment(AuthStore.self) private var authStore
     @Environment(\.dismiss) private var dismiss
     @State private var showAddToLibrary = false
 
@@ -58,10 +59,12 @@ struct GameDetailView: View {
                 ForEach(game.genres, id: \.self) { GameGenreChip(text: $0) }
             }
 
-            PrimaryButton(title: "Add to library", icon: .addToLibrary) {
-                showAddToLibrary = true
+            if !authStore.isGuest {
+                PrimaryButton(title: "Add to library", icon: .addToLibrary) {
+                    showAddToLibrary = true
+                }
+                .padding(.top, 2)
             }
-            .padding(.top, 2)
         }
     }
 }

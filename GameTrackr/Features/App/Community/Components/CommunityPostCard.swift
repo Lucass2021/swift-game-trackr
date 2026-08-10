@@ -2,6 +2,7 @@ import SwiftUI
 
 struct CommunityPostCard: View {
     let post: CommunityPost
+    var isGuest = false
     var showsCommunityName = true
     var onSelect: () -> Void = {}
     var onLike: () -> Void = {}
@@ -100,26 +101,32 @@ struct CommunityPostCard: View {
 
     private var actions: some View {
         HStack(spacing: 20) {
-            action(
-                icon: .like,
-                label: post.isLiked ? "Unlike" : "Like",
-                filled: post.isLiked,
-                tint: post.isLiked ? .appPrimary : .appTextSecondary,
-                value: post.likes.abbreviated,
-                action: onLike
-            )
+            if !isGuest {
+                action(
+                    icon: .like,
+                    label: post.isLiked ? "Unlike" : "Like",
+                    filled: post.isLiked,
+                    tint: post.isLiked ? .appPrimary : .appTextSecondary,
+                    value: post.likes.abbreviated,
+                    action: onLike
+                )
+            }
             action(icon: .comment, label: "Comment", value: post.comments.abbreviated, action: onComment)
-            action(icon: .share, label: "Share", action: onShare)
+            if !isGuest {
+                action(icon: .share, label: "Share", action: onShare)
+            }
 
             Spacer()
 
-            action(
-                icon: .bookmark,
-                label: post.isBookmarked ? "Remove bookmark" : "Bookmark",
-                filled: post.isBookmarked,
-                tint: post.isBookmarked ? .appPrimary : .appTextSecondary,
-                action: onBookmark
-            )
+            if !isGuest {
+                action(
+                    icon: .bookmark,
+                    label: post.isBookmarked ? "Remove bookmark" : "Bookmark",
+                    filled: post.isBookmarked,
+                    tint: post.isBookmarked ? .appPrimary : .appTextSecondary,
+                    action: onBookmark
+                )
+            }
         }
     }
 

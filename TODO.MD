@@ -26,3 +26,11 @@
 - Most Anticipated (full list from Home)
 - Game Lists
 - Activity Feed
+
+
+# Implement 
+- https://youtu.be/In-QCYl06_Q?si=b7pouWVxatm475v4
+- View all (Featured section in community)
+- Setup section in profile screen
+- Remove ... from internal community screen
+- Check other users ...

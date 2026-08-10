@@ -4,6 +4,7 @@ struct CommunityDetailView: View {
     let community: Community
     var onPostSelect: (CommunityPost) -> Void = { _ in }
 
+    @Environment(AuthStore.self) private var authStore
     @Environment(\.dismiss) private var dismiss
     @State private var isJoined: Bool
     @State private var tab: CommunityDetailTab = .posts
@@ -49,7 +50,7 @@ struct CommunityDetailView: View {
                 await loadMembers()
             }
 
-            if tab == .posts, isJoined {
+            if tab == .posts, isJoined, !authStore.isGuest {
                 CreatePostButton(action: { showCreateTopic = true })
             }
         }
@@ -105,6 +106,7 @@ struct CommunityDetailView: View {
                     ForEach(Array(postsPagination.items.enumerated()), id: \.element.id) { index, post in
                         CommunityPostCard(
                             post: post,
+                            isGuest: authStore.isGuest,
                             showsCommunityName: false,
                             onSelect: { onPostSelect(post) },
                             onLike: { toggleLike(post) },
@@ -137,25 +139,28 @@ struct CommunityDetailView: View {
         }
     }
 
+    @ViewBuilder
     private var actions: some View {
-        HStack(spacing: 12) {
-            JoinButton(isJoined: isJoined, expanded: true) {
-                toggleJoin()
-            }
+        if !authStore.isGuest {
+            HStack(spacing: 12) {
+                JoinButton(isJoined: isJoined, expanded: true) {
+                    toggleJoin()
+                }
 
-            circleButton(icon: .notifications, label: "Community notifications")
+                circleButton(icon: .notifications, label: "Community notifications")
 
-            ShareLink(item: "Join the \(community.name) community on GameTrackr!") {
-                AppIconView(icon: .share, size: 20)
-                    .foregroundStyle(Color.appTextPrimary)
-                    .frame(width: 50, height: 50)
-                    .background(Circle().stroke(Color.appOutline, lineWidth: 1))
-                    .contentShape(Circle())
+                ShareLink(item: "Join the \(community.name) community on GameTrackr!") {
+                    AppIconView(icon: .share, size: 20)
+                        .foregroundStyle(Color.appTextPrimary)
+                        .frame(width: 50, height: 50)
+                        .background(Circle().stroke(Color.appOutline, lineWidth: 1))
+                        .contentShape(Circle())
+                }
+                .buttonStyle(PressableButtonStyle())
+                .accessibilityLabel("Share community")
             }
-            .buttonStyle(PressableButtonStyle())
-            .accessibilityLabel("Share community")
+            .padding(.horizontal, 20)
         }
-        .padding(.horizontal, 20)
     }
 
     private var showUserBinding: Binding<Bool> {

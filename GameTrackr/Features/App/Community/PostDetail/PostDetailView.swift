@@ -3,7 +3,9 @@ import SwiftUI
 struct PostDetailView: View {
     let post: CommunityPost
     var onCommunitySelect: () -> Void = {}
+    var onDelete: () -> Void = {}
 
+    @Environment(AuthStore.self) private var authStore
     @Environment(\.dismiss) private var dismiss
     @State private var isLiked: Bool
     @State private var likes: Int
@@ -13,21 +15,23 @@ struct PostDetailView: View {
     @State private var comments: [PostComment] = []
     @State private var commentsError = false
     @State private var selectedUser: UserProfile?
+    @State private var showDeleteAlert = false
 
-    init(post: CommunityPost, onCommunitySelect: @escaping () -> Void = {}) {
+    init(post: CommunityPost, onCommunitySelect: @escaping () -> Void = {}, onDelete: @escaping () -> Void = {}) {
         self.post = post
         self.onCommunitySelect = onCommunitySelect
+        self.onDelete = onDelete
         _isLiked = State(initialValue: post.isLiked)
         _likes = State(initialValue: post.likes)
         _isBookmarked = State(initialValue: post.isBookmarked)
     }
 
     private var authorProfile: UserProfile {
-        UserProfile(
-            handle: post.author,
-            avatarStart: post.avatarStart,
-            avatarEnd: post.avatarEnd
-        )
+        UserProfile(handle: post.author, avatarStart: post.avatarStart, avatarEnd: post.avatarEnd)
+    }
+
+    private var isAuthor: Bool {
+        authStore.currentUser?.id != nil && authStore.currentUser?.id == post.authorId
     }
 
     var body: some View {
@@ -46,6 +50,10 @@ struct PostDetailView: View {
                     }
 
                     engagementBar
+
+                    if authStore.isGuest {
+                        guestCard
+                    }
                 }
                 .padding(.horizontal, 20)
                 .padding(.top, 20)
@@ -58,12 +66,18 @@ struct PostDetailView: View {
         .navigationBarBackButtonHidden(true)
         .task { await loadComments() }
         .sheet(isPresented: $showComments) {
-            PostCommentsSheet(postId: post.id, comments: comments)
+            PostCommentsSheet(postId: post.id, comments: comments, isGuest: authStore.isGuest)
         }
         .navigationDestination(isPresented: showUserBinding) {
             if let selectedUser {
                 UserProfileView(user: selectedUser)
             }
+        }
+        .alert("Delete this post?", isPresented: $showDeleteAlert) {
+            Button("Delete", role: .destructive) {
+                deletePost()
+            }
+            Button("Cancel", role: .cancel) {}
         }
     }
 
@@ -100,6 +114,52 @@ struct PostDetailView: View {
         }
     }
 
+    private func deletePost() {
+        Task {
+            do {
+                _ = try await CommunityService.shared.deletePost(id: post.id)
+                onDelete()
+                dismiss()
+            } catch {}
+        }
+    }
+
+    private var guestCard: some View {
+        VStack(spacing: 12) {
+            Text("Want to join the conversation?")
+                .font(.appHeadline(18))
+                .foregroundStyle(Color.appTextPrimary)
+
+            Text("Create an account to like, comment, share, and follow other players.")
+                .font(.appBody(14))
+                .foregroundStyle(Color.appTextSecondary)
+                .multilineTextAlignment(.center)
+
+            Button(action: { authStore.logout() }, label: {
+                Text("Create an account")
+                    .font(.appLabel(14))
+                    .foregroundStyle(Color.appOnPrimary)
+                    .padding(.horizontal, 24)
+                    .padding(.vertical, 12)
+                    .background(Capsule().fill(Color.appPrimary))
+                    .contentShape(Capsule())
+            })
+            .buttonStyle(PressableButtonStyle())
+            .padding(.top, 4)
+        }
+        .padding(20)
+        .frame(maxWidth: .infinity)
+        .background(
+            RoundedRectangle(cornerRadius: 16, style: .continuous)
+                .fill(Color.appSurfaceCard)
+        )
+        .overlay(
+            RoundedRectangle(cornerRadius: 16, style: .continuous)
+                .stroke(Color.appOutline, lineWidth: 1)
+        )
+        .padding(.top, 8)
+    }
+
     private var topBar: some View {
         HStack(spacing: 0) {
             Button {
@@ -122,13 +182,32 @@ struct PostDetailView: View {
 
             Spacer()
 
-            Button {} label: {
-                AppIconView(icon: .overflow, size: 22)
-                    .foregroundStyle(Color.appTextPrimary)
-                    .frame(width: 40, height: 40)
-                    .contentShape(Rectangle())
+            if isAuthor {
+                Menu {
+                    Button(role: .destructive) {
+                        showDeleteAlert = true
+                    } label: {
+                        Label {
+                            Text("Delete post")
+                        } icon: {
+                            AppIconView(icon: .trash, size: 18)
+                        }
+                    }
+                } label: {
+                    AppIconView(icon: .overflow, size: 22)
+                        .foregroundStyle(Color.appTextPrimary)
+                        .frame(width: 40, height: 40)
+                        .contentShape(Rectangle())
+                }
+            } else {
+                Button {} label: {
+                    AppIconView(icon: .overflow, size: 22)
+                        .foregroundStyle(Color.appTextPrimary)
+                        .frame(width: 40, height: 40)
+                        .contentShape(Rectangle())
+                }
+                .buttonStyle(PressableButtonStyle())
             }
-            .buttonStyle(PressableButtonStyle())
         }
         .padding(.horizontal, 12)
         .padding(.vertical, 8)
@@ -164,19 +243,21 @@ struct PostDetailView: View {
 
             Spacer()
 
-            Button {
-                isFollowing.toggle()
-            } label: {
-                Text(isFollowing ? "Following" : "Follow")
-                    .font(.appLabel(14))
-                    .foregroundStyle(isFollowing ? Color.appOnPrimary : Color.appTextPrimary)
-                    .padding(.horizontal, 20)
-                    .padding(.vertical, 10)
-                    .background(Capsule().fill(isFollowing ? Color.appPrimary : Color.clear))
-                    .overlay(Capsule().stroke(isFollowing ? Color.clear : Color.appOutline, lineWidth: 1))
-                    .contentShape(Capsule())
+            if !authStore.isGuest {
+                Button {
+                    isFollowing.toggle()
+                } label: {
+                    Text(isFollowing ? "Following" : "Follow")
+                        .font(.appLabel(14))
+                        .foregroundStyle(isFollowing ? Color.appOnPrimary : Color.appTextPrimary)
+                        .padding(.horizontal, 20)
+                        .padding(.vertical, 10)
+                        .background(Capsule().fill(isFollowing ? Color.appPrimary : Color.clear))
+                        .overlay(Capsule().stroke(isFollowing ? Color.clear : Color.appOutline, lineWidth: 1))
+                        .contentShape(Capsule())
+                }
+                .buttonStyle(PressableButtonStyle())
             }
-            .buttonStyle(PressableButtonStyle())
         }
     }
 
@@ -234,37 +315,43 @@ struct PostDetailView: View {
 
     private var engagementBar: some View {
         HStack(spacing: 22) {
-            action(
-                icon: .like,
-                label: isLiked ? "Unlike" : "Like",
-                filled: isLiked,
-                tint: isLiked ? .appPrimary : .appTextSecondary,
-                value: likes.abbreviated
-            ) {
-                toggleLike()
+            if !authStore.isGuest {
+                action(
+                    icon: .like,
+                    label: isLiked ? "Unlike" : "Like",
+                    filled: isLiked,
+                    tint: isLiked ? .appPrimary : .appTextSecondary,
+                    value: likes.abbreviated
+                ) {
+                    toggleLike()
+                }
             }
 
             action(icon: .comment, label: "Comment", value: comments.count.abbreviated) {
                 showComments = true
             }
 
-            ShareLink(item: "Check out this discussion on GameTrackr: \"\(post.title)\"") {
-                AppIconView(icon: .share, size: 22)
-                    .foregroundStyle(Color.appTextSecondary)
-                    .contentShape(Rectangle())
+            if !authStore.isGuest {
+                ShareLink(item: "Check out this discussion on GameTrackr: \"\(post.title)\"") {
+                    AppIconView(icon: .share, size: 22)
+                        .foregroundStyle(Color.appTextSecondary)
+                        .contentShape(Rectangle())
+                }
+                .buttonStyle(PressableButtonStyle())
+                .accessibilityLabel("Share")
             }
-            .buttonStyle(PressableButtonStyle())
-            .accessibilityLabel("Share")
 
             Spacer()
 
-            action(
-                icon: .bookmark,
-                label: isBookmarked ? "Remove bookmark" : "Bookmark",
-                filled: isBookmarked,
-                tint: isBookmarked ? .appPrimary : .appTextSecondary
-            ) {
-                isBookmarked.toggle()
+            if !authStore.isGuest {
+                action(
+                    icon: .bookmark,
+                    label: isBookmarked ? "Remove bookmark" : "Bookmark",
+                    filled: isBookmarked,
+                    tint: isBookmarked ? .appPrimary : .appTextSecondary
+                ) {
+                    isBookmarked.toggle()
+                }
             }
         }
         .padding(.vertical, 16)

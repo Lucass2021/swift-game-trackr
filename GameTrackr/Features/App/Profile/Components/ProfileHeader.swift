@@ -3,6 +3,7 @@ import SwiftUI
 struct ProfileHeader: View {
     let profile: Profile
     var mode: ProfileHeaderMode = .own
+    var isGuest = false
     var onEdit: () -> Void = {}
     var shareText: String = ""
     var onAddFriend: () -> Void = {}
@@ -81,12 +82,14 @@ struct ProfileHeader: View {
             }
         case let .other(isFriend):
             HStack(spacing: 12) {
-                if isFriend {
-                    secondaryPill(icon: .check, title: "Friends", action: onAddFriend)
-                } else {
-                    primaryPill(icon: .addFriend, title: "Add friend", action: onAddFriend)
+                if !isGuest {
+                    if isFriend {
+                        secondaryPill(icon: .check, title: "Friends", action: onAddFriend)
+                    } else {
+                        primaryPill(icon: .addFriend, title: "Add friend", action: onAddFriend)
+                    }
+                    circleAction(icon: .envelope, label: "Send message", action: onMessage)
                 }
-                circleAction(icon: .envelope, label: "Send message", action: onMessage)
                 circleShareLink(label: "Share profile")
             }
         }
