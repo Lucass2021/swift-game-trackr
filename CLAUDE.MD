@@ -188,11 +188,38 @@ JSON request/response. Pagination via `?page=` + `?per_page=` returning Laravel-
 > currently exposes **Continue with Google** only — Apple / Steam / Discord are deferred.
 
 ### Games (discovery)
-- `GET /games/releases` — recent releases
-- `GET /games/upcoming` — most anticipated (with hype/date)
-- `GET /games/trending` — trending (server-computed from platform activity)
-- `GET /games/search?q=` — search the cached catalog
-- `GET /games/{slug}` — game detail
+> ✅ **PARTIALLY IMPLEMENTED (2026-08-19).** The backend now proxies IGDB via `IgdbService`
+> (Twitch OAuth credentials in the API's `.env`). Only the New Releases feed exists; the routes
+> below that are *not* in the verified list remain proposals.
+>
+> - `GET /home/new-releases?limit=` → `{ message, data: [game] }` — the Home slider.
+> - `GET /home/new-releases/all?page=&per_page=` → adds
+>   `meta: { page, per_page, total, last_page, has_more }` — the "View all" screen.
+> - `POST /igdb/auth` — **server-internal**, refreshes the Twitch token. Clients never call it.
+>
+> Both `/home/*` routes are **public** (outside `auth:api`), so guests get the real feed.
+>
+> **Decoding gotchas** (both clients hit all of these):
+> - The field is **`name`**, not `title`.
+> - `first_release_date` is a **Unix timestamp in seconds**, not ISO 8601.
+> - `meta` is **nested** and keyed `page` — unlike the flat Laravel `current_page` shape the
+>   community endpoints return. Map it onto the shared paginated model before paginating.
+> - IGDB **omits** absent keys instead of sending `null` (a game with no art has no `cover` key).
+> - Real platform slugs are `ps4--1`, `switch-2`, `series-x-s` — not the obvious spellings.
+> - The query has no category filter, so the feed is mostly obscure indie titles. See
+>   `TODO-BACKEND.MD`.
+>
+> **Cover placeholder semantics** (`GameCoverArt`, both clients). The three states are visually
+> distinct on purpose: **loading** is a flat neutral `appSurfaceCard` with no icon; **no artwork**
+> (missing `cover`, or the download failed) is the vivid palette gradient plus the brand icon;
+> **loaded** is the image. Never use the gradient as the loading state — it is indistinguishable
+> from real content and reads as fake data while the covers download.
+
+- `GET /games/releases` — recent releases *(superseded by `/home/new-releases`)*
+- `GET /games/upcoming` — most anticipated (with hype/date) *(⚠️ still missing — Most Anticipated is mock)*
+- `GET /games/trending` — trending (server-computed from platform activity) *(⚠️ still missing)*
+- `GET /games/search?q=` — search the cached catalog *(⚠️ still missing — Search filters loaded pages only)*
+- `GET /games/{slug}` — game detail *(⚠️ still missing — Game detail is fully mocked)*
 
 ### Library
 - `GET    /me/library?status=&platform=&sort=` — user's library, filterable
@@ -275,6 +302,14 @@ The whole-app flow the team drew (see `agents/app-flow.jpeg`). Applies to every 
 - **Tabs:** `Home` · `Library` · `Community` · `Profile`.
 - **Global header** (present across tabs): `Notifications` · `Search` · `Profile menu`.
 - **Home** → `New Releases` and `New Anticipated` (Most Anticipated) screens.
+  - Both "View all" targets reuse the **Search** screen with a scope. `New Releases` and the
+    header's magnifier show the real IGDB feed with infinite scroll; `New Anticipated` shows a
+    "not available yet" state until `GET /games/upcoming` exists.
+  - There is no "Can't find a game?" / *Explore Community* banner under the results — it was
+    removed 2026-08-19 because the list is now infinite, so a dead end below it made no sense.
+    The platform chips filter **only the pages already fetched**; when a filter empties the
+    result the clients pull a bounded number of extra pages before showing an empty state, and
+    never flash "no games found" while that is still in flight.
 - **Community** → `My Community` and `Discover new Communities`.
   - `My Community` → `Post details` → `Community details`.
   - `Discover new Communities` → `Community details`.
@@ -302,6 +337,8 @@ Mobile follows the same roadmap as the web app but consumes the shared API. Sugg
 1. **Auth** — welcome, login, sign up, forgot/reset password, (optional) email verify, social login. *(UI already designed in Stitch.)*
 2. **Personal library** — add games, set status, filter list, edit entry details. **This is the core — ship it first.**
 3. **Discovery / Home** — releases, upcoming, trending, search → game detail → add to library.
+   *New Releases shipped 2026-08-19 on both clients (real IGDB data + covers, infinite scroll on
+   "View all"). Upcoming, trending, search and game detail still wait on the endpoints above.*
 4. **Public profiles + stats + friends**.
 5. **Community** (forum-lite).
 6. **Messaging + realtime** (Reverb) + push notifications.

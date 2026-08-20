@@ -104,7 +104,7 @@ then layer discovery, friends, community, messaging, and collection.
 | 5 | Library: list with status filter, add game, edit entry | + 1 day |
 | 6 | Game search + detail → add to library | + 1 day |
 | 7 | Profile + stats + sign out | + half a day |
-| 8 | Discovery feeds (releases / upcoming / trending) | + 1 day |
+| 8 | Discovery feeds (releases / upcoming / trending) | + 1 day — **releases done 2026-08-19**; upcoming/trending blocked on the API |
 | 9 | Friends + public profiles | + 1 day |
 | 10 | Realtime messaging via Reverb + push notifications | + 2 days |
 | 11 | Community + physical collection (image upload) | + 2 days |
@@ -113,6 +113,36 @@ then layer discovery, friends, community, messaging, and collection.
 ---
 
 ## Progress log
+
+### 2026-08-19 — New Releases wired to the real IGDB feed (first discovery data)
+
+- **The first non-auth, non-community feature to leave mock data.** `GET /home/new-releases`
+  drives the Home slider and `GET /home/new-releases/all` drives the "View all" screen with real
+  pagination. Both routes are **public**, so a guest session sees real games — no token involved.
+- **New data layer:** `Models/GameDTOs.swift`, `Models/Game.swift` (domain), `Core/Network/GameService.swift`,
+  two `Endpoint` cases (the first with `requiresAuth: false` written explicitly — the enum's
+  `default` is `true`), plus `HomeViewModel` and `SearchViewModel`.
+- **`PaginatedGamesResponse.page`** is the seam that matters: it maps IGDB's nested
+  `meta { page, per_page, total, last_page, has_more }` onto the flat `PaginatedResponse` the
+  community endpoints return, so `PaginationState` powers both feeds unchanged.
+- **First remote images in the app.** `GameCoverArt` gained a `url:`. The image is an **`.overlay`
+  on the gradient**, not a sibling: overlay does not affect the parent's size, so `scaledToFill()`
+  gets clipped to the card instead of blowing the layout out. The gradient stays as the placeholder
+  and the brand icon hides itself once a cover paints — no load-state flag.
+- **One model for every game surface.** `NewRelease` and `SearchGame` collapsed into `Game`;
+  `SearchMockData` was deleted. `GamePlatform` moved out of the Search feature into `Models/`.
+- **A guessed contract bit me.** IGDB's platform slugs are `ps4--1`, `switch-2` and `series-x-s`,
+  not the obvious spellings. The abbreviation table silently fell back to the full platform name,
+  so nothing failed — it just rendered "PlayStation 4" instead of "PS4". Only looking at the real
+  response caught it. Fallbacks hide contract bugs from builds *and* from tests.
+- **Search screen reworked (same day).** The "Can't find a game?" banner is gone (a dead end under
+  an infinite list), and the platform chips no longer flash "No games found": filtering only sees
+  the pages already downloaded, so when a filter empties the result the view pulls up to 5 extra
+  pages behind a spinner before admitting a real miss.
+- **A `.task(id:)` foot-gun worth remembering.** The auto-fetch id first included
+  `viewModel.isLoadingMore`; that flag flips the instant the fetch starts, the id changes, and
+  SwiftUI **cancels the very task doing the fetching** — the spinner span forever. Never put state
+  the task itself mutates into its own `id`.
 
 ### 2026-08-10 — My Setup (first real device photos), Discover cleanup, overflow-menu audit
 

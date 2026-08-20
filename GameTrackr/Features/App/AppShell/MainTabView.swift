@@ -30,10 +30,7 @@ struct MainTabView: View {
             .background(Color.appBackground)
             .toolbar(.hidden, for: .navigationBar)
             .navigationDestination(item: $searchScope) { scope in
-                SearchView(scope: scope, onExploreCommunity: {
-                    searchScope = nil
-                    selection = .community
-                })
+                SearchView(scope: scope)
             }
             .navigationDestination(isPresented: $showNotifications) { NotificationsView() }
             .navigationDestination(isPresented: $showMenu) { ProfileMenuView(profile: $profile) }

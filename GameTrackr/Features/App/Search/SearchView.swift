@@ -2,14 +2,41 @@ import SwiftUI
 
 struct SearchView: View {
     var scope: SearchScope = .all
-    var onExploreCommunity: () -> Void = {}
 
     @Environment(\.dismiss) private var dismiss
     @State private var query = ""
     @State private var platform: GamePlatform?
     @State private var showGameDetail = false
-    @State private var pagination = MockPaginationState(allItems: SearchMockData.games, pageSize: 4)
+    @State private var viewModel = SearchViewModel()
     @FocusState private var searchFocused: Bool
+
+    private var hasFeed: Bool {
+        scope != .mostAnticipated
+    }
+
+    private var trimmedQuery: String {
+        query.trimmingCharacters(in: .whitespaces)
+    }
+
+    private var isFiltering: Bool {
+        platform != nil || !trimmedQuery.isEmpty
+    }
+
+    private var filteredGames: [Game] {
+        viewModel.games.filter { game in
+            let matchesPlatform = platform.map { game.platforms.contains($0) } ?? true
+            let matchesQuery = trimmedQuery.isEmpty || game.name.localizedCaseInsensitiveContains(trimmedQuery)
+            return matchesPlatform && matchesQuery
+        }
+    }
+
+    private var isStillSearching: Bool {
+        !viewModel.hasLoaded || viewModel.isLoading || (isFiltering && viewModel.canFetchMoreForFilter)
+    }
+
+    private var autoFetchKey: String {
+        "\(platform?.rawValue ?? "-")|\(trimmedQuery)|\(viewModel.games.count)"
+    }
 
     var body: some View {
         VStack(spacing: 0) {
@@ -25,25 +52,38 @@ struct SearchView: View {
         .background(Color.appBackground)
         .toolbar(.hidden, for: .navigationBar)
         .navigationBarBackButtonHidden(true)
+        .task {
+            guard hasFeed else { return }
+            await viewModel.loadNewReleases()
+        }
+        .task(id: autoFetchKey) {
+            guard hasFeed, isFiltering, filteredGames.isEmpty else { return }
+            guard viewModel.canFetchMoreForFilter, !viewModel.isLoadingMore else { return }
+            await viewModel.loadMoreForFilter()
+        }
+        .onChange(of: platform) { viewModel.resetFilterBudget() }
+        .onChange(of: trimmedQuery) { viewModel.resetFilterBudget() }
         .navigationDestination(isPresented: $showGameDetail) {
             GameDetailView()
         }
     }
 
-    private var filteredGames: [SearchGame] {
-        pagination.items.filter { game in
-            let matchesPlatform = platform.map { game.platforms.contains($0) } ?? true
-            let matchesQuery = query.trimmingCharacters(in: .whitespaces).isEmpty
-                || game.title.localizedCaseInsensitiveContains(query)
-            return matchesPlatform && matchesQuery
-        }
-    }
-
+    @ViewBuilder
     private var results: some View {
         let games = filteredGames
-        return ScrollView(showsIndicators: false) {
+
+        ScrollView(showsIndicators: false) {
             VStack(alignment: .leading, spacing: 24) {
-                if games.isEmpty {
+                if !hasFeed {
+                    SearchResultsEmptyState(
+                        title: "Not available yet",
+                        message: "The most anticipated feed is still\nwaiting on the backend."
+                    )
+                } else if games.isEmpty, isStillSearching {
+                    ProgressView()
+                        .frame(maxWidth: .infinity)
+                        .padding(.top, 60)
+                } else if games.isEmpty {
                     SearchResultsEmptyState(query: query) {
                         query = ""
                         platform = nil
@@ -52,9 +92,6 @@ struct SearchView: View {
                     sectionHeader(count: games.count)
                     grid(games)
                 }
-
-                ExploreCommunityCard(onExplore: onExploreCommunity)
-                    .padding(.horizontal, 20)
             }
             .padding(.top, 6)
             .padding(.bottom, 28)
@@ -63,7 +100,7 @@ struct SearchView: View {
     }
 
     private var sectionTitle: String {
-        if !query.isEmpty { return "Results" }
+        if !trimmedQuery.isEmpty { return "Results" }
         return scope.isFiltered ? scope.title : "Recent Releases"
     }
 
@@ -82,7 +119,7 @@ struct SearchView: View {
         .padding(.horizontal, 20)
     }
 
-    private func grid(_ games: [SearchGame]) -> some View {
+    private func grid(_ games: [Game]) -> some View {
         VStack(spacing: 0) {
             LazyVGrid(
                 columns: [
@@ -101,14 +138,14 @@ struct SearchView: View {
                     .buttonStyle(PressableButtonStyle())
                     .onAppear {
                         if index >= games.count - 2 {
-                            Task { await pagination.loadNextPage() }
+                            Task { await viewModel.loadMoreNewReleases() }
                         }
                     }
                 }
             }
             .padding(.horizontal, 20)
 
-            if pagination.isLoadingMore {
+            if viewModel.isLoadingMore {
                 LoadingMoreIndicator()
             }
         }

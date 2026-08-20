@@ -18,11 +18,12 @@ enum Endpoint {
     case verifyResetCode
     case resetPassword
 
+    case newReleases(limit: Int? = nil)
+    case allNewReleases(page: Int? = nil, perPage: Int? = nil)
+
     case communities(search: String? = nil, perPage: Int? = nil, page: Int? = nil)
     case joinedCommunities
     case community(id: Int)
-    case createCommunity
-    case deleteCommunity(id: Int)
     case joinCommunity(id: Int)
     case leaveCommunity(id: Int)
 
@@ -46,11 +47,11 @@ enum Endpoint {
         case .forgotPassword: "/auth/forgot-password"
         case .verifyResetCode: "/auth/verify-reset-code"
         case .resetPassword: "/auth/reset-password"
+        case .newReleases: "/home/new-releases"
+        case .allNewReleases: "/home/new-releases/all"
         case .communities: "/communities"
         case .joinedCommunities: "/communities/joined"
         case let .community(id): "/communities/\(id)"
-        case .createCommunity: "/communities"
-        case let .deleteCommunity(id): "/communities/\(id)"
         case let .joinCommunity(id): "/communities/join/\(id)"
         case let .leaveCommunity(id): "/communities/leave/\(id)"
         case .posts: "/posts"
@@ -70,12 +71,13 @@ enum Endpoint {
         switch self {
         case .register, .login, .refresh, .logout, .validateToken,
              .forgotPassword, .verifyResetCode, .resetPassword,
-             .createCommunity, .joinCommunity, .leaveCommunity,
+             .joinCommunity, .leaveCommunity,
              .createPost, .likePost, .commentOnPost, .replyToComment, .likeComment:
             .post
-        case .me, .communities, .joinedCommunities, .community, .posts, .post:
+        case .me, .communities, .joinedCommunities, .community, .posts, .post,
+             .newReleases, .allNewReleases:
             .get
-        case .deleteCommunity, .deletePost:
+        case .deletePost:
             .delete
         }
     }
@@ -83,7 +85,8 @@ enum Endpoint {
     var requiresAuth: Bool {
         switch self {
         case .register, .login, .refresh,
-             .forgotPassword, .verifyResetCode, .resetPassword:
+             .forgotPassword, .verifyResetCode, .resetPassword,
+             .newReleases, .allNewReleases:
             false
         default:
             true
@@ -92,6 +95,14 @@ enum Endpoint {
 
     var queryItems: [URLQueryItem]? {
         switch self {
+        case let .newReleases(limit):
+            guard let limit else { return nil }
+            return [.init(name: "limit", value: "\(limit)")]
+        case let .allNewReleases(page, perPage):
+            var items: [URLQueryItem] = []
+            if let page { items.append(.init(name: "page", value: "\(page)")) }
+            if let perPage { items.append(.init(name: "per_page", value: "\(perPage)")) }
+            return items.isEmpty ? nil : items
         case let .communities(search, perPage, page):
             var items: [URLQueryItem] = []
             if let search, !search.isEmpty { items.append(.init(name: "search", value: search)) }

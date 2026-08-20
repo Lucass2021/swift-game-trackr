@@ -1,16 +1,16 @@
 import SwiftUI
 
 struct SearchResultCard: View {
-    let game: SearchGame
+    let game: Game
 
     var body: some View {
         VStack(alignment: .leading, spacing: 10) {
-            GameCoverArt(start: game.coverStart, end: game.coverEnd)
+            GameCoverArt(start: game.coverStart, end: game.coverEnd, url: game.coverUrl)
                 .aspectRatio(0.72, contentMode: .fit)
                 .frame(maxWidth: .infinity)
 
             VStack(alignment: .leading, spacing: 3) {
-                Text(game.title)
+                Text(game.name)
                     .font(.appLabel(16))
                     .foregroundStyle(Color.appTextPrimary)
                     .lineLimit(1)
@@ -25,7 +25,7 @@ struct SearchResultCard: View {
 }
 
 #Preview {
-    SearchResultCard(game: SearchMockData.games[0])
+    SearchResultCard(game: HomeMockData.sampleGame)
         .frame(width: 180)
         .padding()
         .background(Color.appBackground)

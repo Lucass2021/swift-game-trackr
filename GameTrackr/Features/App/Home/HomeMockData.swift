@@ -1,13 +1,5 @@
 import SwiftUI
 
-struct NewRelease: Identifiable {
-    let id = UUID()
-    let title: String
-    let platforms: String
-    let coverStart: Color
-    let coverEnd: Color
-}
-
 struct AnticipatedGame: Identifiable {
     let id = UUID()
     let title: String
@@ -19,32 +11,13 @@ struct AnticipatedGame: Identifiable {
 }
 
 enum HomeMockData {
-    static let newReleases: [NewRelease] = [
-        NewRelease(
-            title: "Final Fantasy VII Rebirth",
-            platforms: "PS5",
-            coverStart: .coverEmeraldStart,
-            coverEnd: .coverEmeraldEnd
-        ),
-        NewRelease(
-            title: "Dragon's Dogma 2",
-            platforms: "PC, PS5, Xbox",
-            coverStart: .coverCrimsonStart,
-            coverEnd: .coverCrimsonEnd
-        ),
-        NewRelease(
-            title: "Rise of the Ronin",
-            platforms: "PS5",
-            coverStart: .coverIndigoStart,
-            coverEnd: .coverIndigoEnd
-        ),
-        NewRelease(
-            title: "Helldivers 2",
-            platforms: "PC, PS5",
-            coverStart: .coverAzureStart,
-            coverEnd: .coverAzureEnd
-        )
-    ]
+    static let sampleGame = Game(
+        id: 1,
+        name: "Final Fantasy VII Rebirth",
+        releaseDate: Date(timeIntervalSince1970: 1_709_251_200),
+        platformNames: ["PS5"],
+        platforms: [.playstation]
+    )
 
     static let mostAnticipated: [AnticipatedGame] = [
         AnticipatedGame(

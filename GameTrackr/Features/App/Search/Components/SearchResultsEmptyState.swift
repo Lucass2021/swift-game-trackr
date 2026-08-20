@@ -1,8 +1,10 @@
 import SwiftUI
 
 struct SearchResultsEmptyState: View {
-    let query: String
-    let onClear: () -> Void
+    var title = "No games found"
+    var message: String?
+    var query = ""
+    var onClear: (() -> Void)?
 
     var body: some View {
         VStack(spacing: 0) {
@@ -13,7 +15,7 @@ struct SearchResultsEmptyState: View {
                 .shadow(color: Color.appPrimary.opacity(0.25), radius: 30)
                 .subtleBounce()
 
-            Text("No games found")
+            Text(title)
                 .font(.appHeadline(24, weight: .heavy))
                 .foregroundStyle(Color.appTextPrimary)
                 .padding(.top, 26)
@@ -25,20 +27,23 @@ struct SearchResultsEmptyState: View {
                 .padding(.top, 10)
                 .padding(.horizontal, 24)
 
-            Button(action: onClear) {
-                Text("Clear search")
-                    .font(.appLabel(15))
-                    .foregroundStyle(Color.appPrimary)
-                    .contentShape(Rectangle())
+            if let onClear {
+                Button(action: onClear) {
+                    Text("Clear search")
+                        .font(.appLabel(15))
+                        .foregroundStyle(Color.appPrimary)
+                        .contentShape(Rectangle())
+                }
+                .buttonStyle(PressableButtonStyle())
+                .padding(.top, 22)
             }
-            .buttonStyle(PressableButtonStyle())
-            .padding(.top, 22)
         }
         .frame(maxWidth: .infinity)
         .padding(.top, 48)
     }
 
     private var subtitle: String {
+        if let message { return message }
         if query.isEmpty {
             return "No games match this filter. Try a different platform."
         }
