@@ -1,8 +1,6 @@
 import SwiftUI
 
 struct SearchResultsEmptyState: View {
-    var title = "No games found"
-    var message: String?
     var query = ""
     var onClear: (() -> Void)?
 
@@ -15,7 +13,7 @@ struct SearchResultsEmptyState: View {
                 .shadow(color: Color.appPrimary.opacity(0.25), radius: 30)
                 .subtleBounce()
 
-            Text(title)
+            Text("No games found")
                 .font(.appHeadline(24, weight: .heavy))
                 .foregroundStyle(Color.appTextPrimary)
                 .padding(.top, 26)
@@ -43,7 +41,6 @@ struct SearchResultsEmptyState: View {
     }
 
     private var subtitle: String {
-        if let message { return message }
         if query.isEmpty {
             return "No games match this filter. Try a different platform."
         }

@@ -7,9 +7,11 @@ final class SearchViewModel {
     private(set) var isLoading = false
     private(set) var hasLoaded = false
     private(set) var error: String?
+    private(set) var appliedSearch = ""
 
     private let service = GameService.shared
-    private var search: String?
+    private let cache = FeedCache()
+    private var scope: SearchScope = .all
     private var platform: GamePlatform?
     private var generation = 0
 
@@ -25,9 +27,21 @@ final class SearchViewModel {
         pagination.total
     }
 
-    func applyFilters(search: String, platform: GamePlatform?) async {
-        self.search = search.isEmpty ? nil : search
+    func applyFilters(scope: SearchScope, search: String, platform: GamePlatform?) async {
+        self.scope = scope
+        appliedSearch = search
         self.platform = platform
+        generation += 1
+
+        if let cached = cache.snapshot(for: key) {
+            pagination.restore(cached)
+            pagination.setLoading(false)
+            isLoading = false
+            hasLoaded = true
+            error = nil
+            return
+        }
+
         await load(reset: true)
     }
 
@@ -35,9 +49,12 @@ final class SearchViewModel {
         await load(reset: false)
     }
 
+    private var key: FeedKey {
+        FeedKey(scope: scope, search: appliedSearch.isEmpty ? nil : appliedSearch, platform: platform)
+    }
+
     private func load(reset: Bool) async {
         if reset {
-            generation += 1
             isLoading = true
             error = nil
             pagination.reset()
@@ -49,14 +66,16 @@ final class SearchViewModel {
         let requestGeneration = generation
 
         do {
-            let response = try await service.fetchAllNewReleases(
+            let response = try await service.fetchFeed(
+                scope,
                 page: pagination.currentPage + 1,
                 perPage: Self.perPage,
-                search: search,
+                search: appliedSearch.isEmpty ? nil : appliedSearch,
                 platform: platform
             )
             guard requestGeneration == generation else { return }
             pagination.append(response: response) { $0.map(Game.init(dto:)) }
+            cache.store(pagination.snapshot, for: key)
         } catch {
             guard requestGeneration == generation, !Task.isCancelled else { return }
             if reset { self.error = error.localizedDescription }

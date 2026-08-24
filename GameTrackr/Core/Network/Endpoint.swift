@@ -20,6 +20,8 @@ enum Endpoint {
 
     case newReleases(limit: Int? = nil)
     case allNewReleases(page: Int? = nil, perPage: Int? = nil, search: String? = nil, platforms: [String] = [])
+    case mostAnticipated(limit: Int? = nil)
+    case allMostAnticipated(page: Int? = nil, perPage: Int? = nil, search: String? = nil, platforms: [String] = [])
     case game(slug: String)
 
     case communities(search: String? = nil, perPage: Int? = nil, page: Int? = nil)
@@ -50,6 +52,8 @@ enum Endpoint {
         case .resetPassword: "/auth/reset-password"
         case .newReleases: "/home/new-releases"
         case .allNewReleases: "/home/new-releases/all"
+        case .mostAnticipated: "/home/most-anticipated"
+        case .allMostAnticipated: "/home/most-anticipated/all"
         case let .game(slug): "/games/\(slug)"
         case .communities: "/communities"
         case .joinedCommunities: "/communities/joined"
@@ -77,7 +81,8 @@ enum Endpoint {
              .createPost, .likePost, .commentOnPost, .replyToComment, .likeComment:
             .post
         case .me, .communities, .joinedCommunities, .community, .posts, .post,
-             .newReleases, .allNewReleases, .game:
+             .newReleases, .allNewReleases,
+             .mostAnticipated, .allMostAnticipated, .game:
             .get
         case .deletePost:
             .delete
@@ -88,7 +93,8 @@ enum Endpoint {
         switch self {
         case .register, .login, .refresh,
              .forgotPassword, .verifyResetCode, .resetPassword,
-             .newReleases, .allNewReleases, .game:
+             .newReleases, .allNewReleases,
+             .mostAnticipated, .allMostAnticipated, .game:
             false
         default:
             true
@@ -97,10 +103,11 @@ enum Endpoint {
 
     var queryItems: [URLQueryItem]? {
         switch self {
-        case let .newReleases(limit):
+        case let .newReleases(limit), let .mostAnticipated(limit):
             guard let limit else { return nil }
             return [.init(name: "limit", value: "\(limit)")]
-        case let .allNewReleases(page, perPage, search, platforms):
+        case let .allNewReleases(page, perPage, search, platforms),
+             let .allMostAnticipated(page, perPage, search, platforms):
             var items: [URLQueryItem] = []
             if let page { items.append(.init(name: "page", value: "\(page)")) }
             if let perPage { items.append(.init(name: "per_page", value: "\(perPage)")) }

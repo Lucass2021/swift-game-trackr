@@ -3,25 +3,26 @@ import Foundation
 struct GameService {
     static let shared = GameService()
 
-    func fetchNewReleases(limit: Int = 10) async throws -> [GameDTO] {
-        let response: GamesResponse = try await APIClient.shared.request(.newReleases(limit: limit))
+    func fetchSlider(_ scope: SearchScope, limit: Int = 10) async throws -> [GameDTO] {
+        let endpoint: Endpoint = scope == .mostAnticipated
+            ? .mostAnticipated(limit: limit)
+            : .newReleases(limit: limit)
+        let response: GamesResponse = try await APIClient.shared.request(endpoint)
         return response.data
     }
 
-    func fetchAllNewReleases(
+    func fetchFeed(
+        _ scope: SearchScope,
         page: Int,
         perPage: Int = 20,
         search: String? = nil,
         platform: GamePlatform? = nil
     ) async throws -> PaginatedResponse<GameDTO> {
-        let response: PaginatedGamesResponse = try await APIClient.shared.request(
-            .allNewReleases(
-                page: page,
-                perPage: perPage,
-                search: search,
-                platforms: platform?.igdbSlugs ?? []
-            )
-        )
+        let slugs = platform?.igdbSlugs ?? []
+        let endpoint: Endpoint = scope == .mostAnticipated
+            ? .allMostAnticipated(page: page, perPage: perPage, search: search, platforms: slugs)
+            : .allNewReleases(page: page, perPage: perPage, search: search, platforms: slugs)
+        let response: PaginatedGamesResponse = try await APIClient.shared.request(endpoint)
         return response.page
     }
 

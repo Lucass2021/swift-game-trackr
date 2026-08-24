@@ -12,10 +12,6 @@ struct SearchView: View {
     @State private var hasPendingFilter = false
     @FocusState private var searchFocused: Bool
 
-    private var hasFeed: Bool {
-        scope != .mostAnticipated
-    }
-
     private var trimmedQuery: String {
         query.trimmingCharacters(in: .whitespaces)
     }
@@ -43,13 +39,12 @@ struct SearchView: View {
         .toolbar(.hidden, for: .navigationBar)
         .navigationBarBackButtonHidden(true)
         .task(id: filterKey) {
-            guard hasFeed else { return }
-            if viewModel.hasLoaded {
+            if viewModel.hasLoaded, trimmedQuery != viewModel.appliedSearch {
                 hasPendingFilter = true
                 try? await Task.sleep(for: .milliseconds(300))
                 guard !Task.isCancelled else { return }
             }
-            await viewModel.applyFilters(search: trimmedQuery, platform: platform)
+            await viewModel.applyFilters(scope: scope, search: trimmedQuery, platform: platform)
             guard !Task.isCancelled else { return }
             hasPendingFilter = false
         }
@@ -62,18 +57,13 @@ struct SearchView: View {
     private var results: some View {
         let games = viewModel.games
 
-        if hasFeed, games.isEmpty, isStillSearching {
+        if games.isEmpty, isStillSearching {
             ProgressView()
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
         } else {
             ScrollView(showsIndicators: false) {
                 VStack(alignment: .leading, spacing: 24) {
-                    if !hasFeed {
-                        SearchResultsEmptyState(
-                            title: "Not available yet",
-                            message: "The most anticipated feed is still\nwaiting on the backend."
-                        )
-                    } else if games.isEmpty {
+                    if games.isEmpty {
                         SearchResultsEmptyState(query: query) {
                             query = ""
                             platform = nil

@@ -216,8 +216,9 @@ JSON request/response. Pagination via `?page=` + `?per_page=` returning Laravel-
 > from real content and reads as fake data while the covers download.
 
 - `GET /games/releases` — recent releases *(superseded by `/home/new-releases`)*
-- `GET /games/upcoming` — most anticipated *(superseded by `/home/most-anticipated` + `/all`, shipped
-  2026-08-24 on the backend; ⚠️ **both clients still show the mock slider** — not wired yet)*
+- `GET /games/upcoming` — most anticipated *(superseded by `/home/most-anticipated` + `/all`; ✅ wired
+  on both clients 2026-08-24 — same shapes and same `?search=`/`?platform[]=` params as new-releases,
+  only `sort hypes desc` + `first_release_date > now` differ)*
 - `GET /games/trending` — trending (server-computed from platform activity) *(⚠️ still missing)*
 - `GET /games/search?q=` — search the cached catalog *(superseded by the `?search=` param on the
   `/home/*` routes; both clients use it since 2026-08-24)*
@@ -326,16 +327,25 @@ The whole-app flow the team drew (see `agents/app-flow.jpeg`). Applies to every 
 - **Tabs:** `Home` · `Library` · `Community` · `Profile`.
 - **Global header** (present across tabs): `Notifications` · `Search` · `Profile menu`.
 - **Home** → `New Releases` and `New Anticipated` (Most Anticipated) screens.
-  - Both "View all" targets reuse the **Search** screen with a scope. `New Releases` and the
-    header's magnifier show the real IGDB feed with infinite scroll; `New Anticipated` shows a
-    "not available yet" state until `GET /games/upcoming` exists.
+  - Both sliders are real IGDB data since 2026-08-24 and both "View all" targets reuse the **Search**
+    screen with a scope — the scope picks the endpoint (`.mostAnticipated` → `/home/most-anticipated/all`,
+    anything else → `/home/new-releases/all`). Cards differ by intent: New Releases is a portrait cover,
+    Most Anticipated is a 260×150 landscape crop of the same portrait cover with a **year badge**
+    (`appPrimary` when dated, `appSecondary` when `TBA`). The old "not available yet" state is gone.
   - There is no "Can't find a game?" / *Explore Community* banner under the results — it was
     removed 2026-08-19 because the list is now infinite, so a dead end below it made no sense.
+    Feeds are cached in memory per `FeedKey(scope, search, platform)` for **5 minutes**
+    (`FeedCache` + `PaginationSnapshot`, mirrored on both clients). A key that is still fresh is
+    restored from the snapshot with **no request and no spinner**, so re-tapping a chip you already
+    visited and coming back from Game detail are both instant. `HomeFeed.load(force:)` follows the
+    same rule: the `.task` / `LaunchedEffect` on Home skips a refetch once loaded, and only
+    pull-to-refresh or the retry button pass `force`.
     The search field and the platform chips filter **server-side** since 2026-08-24 — both
     clients send `?search=` and repeated `?platform[]=` (IGDB slugs) to `/home/new-releases/all`
     and reset the pagination. The chips are platform *families*, so each one expands to its slug
-    list (`GamePlatform.igdbSlugs`, mirrored on iOS and Android); the query is debounced 300 ms
-    and stale responses are dropped by a generation counter. The result count in the header is
+    list (`GamePlatform.igdbSlugs`, mirrored on iOS and Android); the query is debounced 300 ms —
+    **only when the typed text changed**, never on a chip tap — and stale responses are dropped by a
+    generation counter plus a cancellation guard on both the view and the view model. The result count in the header is
     `meta.total`, not the number of rows loaded so far.
 - **Community** → `My Community` and `Discover new Communities`.
   - `My Community` → `Post details` → `Community details`.
@@ -364,8 +374,9 @@ Mobile follows the same roadmap as the web app but consumes the shared API. Sugg
 1. **Auth** — welcome, login, sign up, forgot/reset password, (optional) email verify, social login. *(UI already designed in Stitch.)*
 2. **Personal library** — add games, set status, filter list, edit entry details. **This is the core — ship it first.**
 3. **Discovery / Home** — releases, upcoming, trending, search → game detail → add to library.
-   *New Releases shipped 2026-08-19 on both clients (real IGDB data + covers, infinite scroll on
-   "View all"). Upcoming, trending, search and game detail still wait on the endpoints above.*
+   *Shipped on both clients: New Releases (2026-08-19), then server-side search/platform filters,
+   game detail and Most Anticipated (2026-08-24). Only **trending** still waits on an endpoint —
+   and "add to library" waits on the whole Library API (see below).*
 4. **Public profiles + stats + friends**.
 5. **Community** (forum-lite).
 6. **Messaging + realtime** (Reverb) + push notifications.

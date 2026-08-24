@@ -27,6 +27,17 @@ final class PaginationState<Item: Identifiable> {
         total = response.total
     }
 
+    func restore(_ snapshot: PaginationSnapshot<Item>) {
+        items = snapshot.items
+        currentPage = snapshot.currentPage
+        lastPage = snapshot.lastPage
+        total = snapshot.total
+    }
+
+    var snapshot: PaginationSnapshot<Item> {
+        PaginationSnapshot(items: items, currentPage: currentPage, lastPage: lastPage, total: total)
+    }
+
     func setLoading(_ value: Bool) {
         isLoadingMore = value
     }
@@ -47,4 +58,11 @@ final class PaginationState<Item: Identifiable> {
     func removeAll(where predicate: (Item) -> Bool) {
         items.removeAll(where: predicate)
     }
+}
+
+struct PaginationSnapshot<Item> {
+    let items: [Item]
+    let currentPage: Int
+    let lastPage: Int
+    let total: Int
 }
