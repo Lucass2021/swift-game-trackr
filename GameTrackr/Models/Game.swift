@@ -10,22 +10,15 @@ enum GamePlatform: String, CaseIterable, Identifiable {
         self
     }
 
-    init?(igdbSlug slug: String) {
-        if slug.hasPrefix("ps") {
-            self = .playstation
-        } else if slug.hasPrefix("xbox") || slug.hasPrefix("series") {
-            self = .xbox
-        } else if Self.nintendoPrefixes.contains(where: slug.hasPrefix) {
-            self = .nintendo
-        } else if Self.pcSlugs.contains(slug) {
-            self = .pc
-        } else {
-            return nil
+    var igdbSlugs: [String] {
+        switch self {
+        case .pc: ["win", "linux", "mac", "dos", "browser"]
+        case .playstation: ["ps", "ps2", "ps3", "ps4--1", "ps5", "psp", "psvita", "psvr", "psvr2"]
+        case .xbox: ["xbox", "xbox360", "xboxone", "series-x-s"]
+        case .nintendo:
+            ["nes", "snes", "n64", "ngc", "wii", "wiiu", "gb", "gbc", "gba", "nds", "3ds", "switch", "switch-2"]
         }
     }
-
-    private static let nintendoPrefixes = ["switch", "wii", "n64", "3ds", "nds", "nes", "snes", "gb", "gamecube"]
-    private static let pcSlugs: Set<String> = ["win", "linux", "mac", "dos", "browser"]
 }
 
 enum PlatformLabel {
@@ -79,7 +72,6 @@ struct Game: Identifiable, Hashable {
     let rating: Double?
     let coverUrl: String?
     let platformNames: [String]
-    let platforms: Set<GamePlatform>
     let coverStart: Color
     let coverEnd: Color
 
@@ -103,8 +95,7 @@ struct Game: Identifiable, Hashable {
         releaseDate: Date? = nil,
         rating: Double? = nil,
         coverUrl: String? = nil,
-        platformNames: [String] = [],
-        platforms: Set<GamePlatform> = []
+        platformNames: [String] = []
     ) {
         self.id = id
         self.name = name
@@ -114,7 +105,6 @@ struct Game: Identifiable, Hashable {
         self.rating = rating
         self.coverUrl = coverUrl
         self.platformNames = platformNames
-        self.platforms = platforms
         let colors = GradientPalette.pair(for: id)
         coverStart = colors.0
         coverEnd = colors.1
@@ -134,8 +124,7 @@ struct Game: Identifiable, Hashable {
             coverUrl: dto.cover?.url,
             platformNames: labels.reduce(into: []) { unique, label in
                 if !unique.contains(label) { unique.append(label) }
-            },
-            platforms: Set(dtoPlatforms.compactMap { $0.slug.flatMap(GamePlatform.init(igdbSlug:)) })
+            }
         )
     }
 }

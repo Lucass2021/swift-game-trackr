@@ -33,23 +33,7 @@ struct GameScreenshotsSection: View {
     }
 
     private func screenshotThumb(_ shot: GameScreenshot) -> some View {
-        RoundedRectangle(cornerRadius: 14, style: .continuous)
-            .fill(
-                LinearGradient(
-                    colors: [shot.start, shot.end],
-                    startPoint: .topLeading,
-                    endPoint: .bottomTrailing
-                )
-            )
-            .frame(width: 232, height: 132)
-            .overlay {
-                AppIconView(icon: .brand, size: 40)
-                    .foregroundStyle(Color.white.opacity(0.16))
-            }
-            .overlay(
-                RoundedRectangle(cornerRadius: 14, style: .continuous)
-                    .stroke(Color.appOutline, lineWidth: 1)
-            )
+        GameCoverArt(start: shot.start, end: shot.end, url: shot.url, width: 232, height: 132)
     }
 }
 
@@ -81,20 +65,14 @@ private struct ScreenshotPager: View {
 
             TabView(selection: $current) {
                 ForEach(Array(screenshots.enumerated()), id: \.offset) { index, shot in
-                    LinearGradient(
-                        colors: [shot.start, shot.end],
-                        startPoint: .topLeading,
-                        endPoint: .bottomTrailing
-                    )
-                    .aspectRatio(16.0 / 9.0, contentMode: .fit)
-                    .overlay {
-                        AppIconView(icon: .brand, size: 80)
-                            .foregroundStyle(Color.white.opacity(0.18))
-                    }
-                    .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
-                    .padding(.horizontal, 16)
-                    .onTapGesture { onClose() }
-                    .tag(index)
+                    Color.clear
+                        .aspectRatio(16.0 / 9.0, contentMode: .fit)
+                        .overlay {
+                            GameCoverArt(start: shot.start, end: shot.end, url: shot.url)
+                        }
+                        .padding(.horizontal, 16)
+                        .onTapGesture { onClose() }
+                        .tag(index)
                 }
             }
             .tabViewStyle(.page(indexDisplayMode: .always))

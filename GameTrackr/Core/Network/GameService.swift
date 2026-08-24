@@ -8,10 +8,25 @@ struct GameService {
         return response.data
     }
 
-    func fetchAllNewReleases(page: Int, perPage: Int = 20) async throws -> PaginatedResponse<GameDTO> {
+    func fetchAllNewReleases(
+        page: Int,
+        perPage: Int = 20,
+        search: String? = nil,
+        platform: GamePlatform? = nil
+    ) async throws -> PaginatedResponse<GameDTO> {
         let response: PaginatedGamesResponse = try await APIClient.shared.request(
-            .allNewReleases(page: page, perPage: perPage)
+            .allNewReleases(
+                page: page,
+                perPage: perPage,
+                search: search,
+                platforms: platform?.igdbSlugs ?? []
+            )
         )
         return response.page
+    }
+
+    func fetchGame(slug: String) async throws -> GameDetailDTO {
+        let response: GameDetailResponse = try await APIClient.shared.request(.game(slug: slug))
+        return response.data
     }
 }

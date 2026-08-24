@@ -6,6 +6,7 @@ struct MainTabView: View {
     @State private var showNotifications = false
     @State private var showMenu = false
     @State private var showGameDetail = false
+    @State private var detailSlug: String?
     @State private var showStats = false
     @State private var showEditProfile = false
     @State private var showSetup = false
@@ -38,21 +39,26 @@ struct MainTabView: View {
             .navigationDestination(isPresented: $showEditProfile) { EditProfileView(profile: $profile) }
             .navigationDestination(isPresented: $showSetup) { MySetupView(setups: $setups) }
             .navigationDestination(isPresented: $showGameDetail) {
-                GameDetailView()
+                GameDetailView(slug: detailSlug)
             }
         }
+    }
+
+    private func openGameDetail(slug: String?) {
+        detailSlug = slug
+        showGameDetail = true
     }
 
     @ViewBuilder
     private var content: some View {
         switch selection {
         case .home:
-            HomeView(onViewAll: { searchScope = $0 }, onGameSelect: { showGameDetail = true })
+            HomeView(onViewAll: { searchScope = $0 }, onGameSelect: { openGameDetail(slug: $0) })
         case .library:
             LibraryView(
                 filter: $libraryFilter,
                 onBrowseGames: { searchScope = .all },
-                onGameSelect: { showGameDetail = true }
+                onGameSelect: { openGameDetail(slug: nil) }
             )
         case .community:
             CommunityView()
@@ -60,7 +66,7 @@ struct MainTabView: View {
             ProfileView(
                 profile: profile,
                 setups: setups,
-                onGameSelect: { showGameDetail = true },
+                onGameSelect: { openGameDetail(slug: nil) },
                 onStatusSelect: { status in
                     libraryFilter = status
                     selection = .library

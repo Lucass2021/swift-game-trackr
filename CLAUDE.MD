@@ -216,12 +216,36 @@ JSON request/response. Pagination via `?page=` + `?per_page=` returning Laravel-
 > from real content and reads as fake data while the covers download.
 
 - `GET /games/releases` — recent releases *(superseded by `/home/new-releases`)*
-- `GET /games/upcoming` — most anticipated (with hype/date) *(⚠️ still missing — Most Anticipated is mock)*
+- `GET /games/upcoming` — most anticipated *(superseded by `/home/most-anticipated` + `/all`, shipped
+  2026-08-24 on the backend; ⚠️ **both clients still show the mock slider** — not wired yet)*
 - `GET /games/trending` — trending (server-computed from platform activity) *(⚠️ still missing)*
-- `GET /games/search?q=` — search the cached catalog *(⚠️ still missing — Search filters loaded pages only)*
-- `GET /games/{slug}` — game detail *(⚠️ still missing — Game detail is fully mocked)*
+- `GET /games/search?q=` — search the cached catalog *(superseded by the `?search=` param on the
+  `/home/*` routes; both clients use it since 2026-08-24)*
+- `GET /igdb/platforms` — platform list for the filter chips *(🔴 **backend bug**: the query filters
+  `where category = (1,5,6)` but IGDB v4 renamed that field to `platform_type`, so it always returns
+  `[]`. The chips stay hardcoded until it's fixed.)*
+
+> ✅ **`GET /games/{slug}` — SHIPPED on both clients 2026-08-24.** Public route, so guests can open it.
+> One request fills the whole screen: hero (first **screenshot**, then artwork, then cover — artworks
+> are sometimes solid black, so screenshots win), title, year, rating, platform chips, genres+themes
+> chips, real screenshots, `summary`, and a Specifications list (Developer / Publisher / Released /
+> Engine / Modes / Perspective — only the ones IGDB returns), rendered as **one full-width card per
+> row** on both clients; the old 2-column grid was dropped because the two platforms equalised row
+> heights differently. Notes:
+> - The rating is IGDB's **0–100** `total_rating` (→ `aggregated_rating` → `rating`); both clients
+>   divide by 10 and **hide the chip** when the game has none (unreleased titles have no rating).
+> - The **System Requirements** section was deleted from both clients — IGDB has no such data and it
+>   was pure invention. Don't reintroduce it without a real source.
+> - Unknown slug → **404 `{ message }`**, rendered as "Couldn't load this game."
+> - Screens reached from mock surfaces (Library, Profile favorites, Most Anticipated) pass **no slug**
+>   and keep rendering `GameDetailMockData`; only Home's New Releases and Search pass a real one.
 
 ### Library
+> 🔴 **NOTHING BELOW EXISTS.** Verified against `php artisan route:list` on 2026-08-24: the API has no
+> library route, controller, or model at all. The **Add to library** sheet on both clients is UI-only —
+> "Save to library" just dismisses, and nothing is stored anywhere (not even in memory). This is the
+> single biggest gap between the product description and the running backend.
+
 - `GET    /me/library?status=&platform=&sort=` — user's library, filterable
 - `POST   /me/library` — `{ game_id, status }` — add a game
 - `PATCH  /me/library/{id}` — update status, rating, hours, dates, review
@@ -307,9 +331,12 @@ The whole-app flow the team drew (see `agents/app-flow.jpeg`). Applies to every 
     "not available yet" state until `GET /games/upcoming` exists.
   - There is no "Can't find a game?" / *Explore Community* banner under the results — it was
     removed 2026-08-19 because the list is now infinite, so a dead end below it made no sense.
-    The platform chips filter **only the pages already fetched**; when a filter empties the
-    result the clients pull a bounded number of extra pages before showing an empty state, and
-    never flash "no games found" while that is still in flight.
+    The search field and the platform chips filter **server-side** since 2026-08-24 — both
+    clients send `?search=` and repeated `?platform[]=` (IGDB slugs) to `/home/new-releases/all`
+    and reset the pagination. The chips are platform *families*, so each one expands to its slug
+    list (`GamePlatform.igdbSlugs`, mirrored on iOS and Android); the query is debounced 300 ms
+    and stale responses are dropped by a generation counter. The result count in the header is
+    `meta.total`, not the number of rows loaded so far.
 - **Community** → `My Community` and `Discover new Communities`.
   - `My Community` → `Post details` → `Community details`.
   - `Discover new Communities` → `Community details`.

@@ -7,9 +7,11 @@ final class SearchViewModel {
     private(set) var isLoading = false
     private(set) var hasLoaded = false
     private(set) var error: String?
-    private(set) var filterFetches = 0
 
     private let service = GameService.shared
+    private var search: String?
+    private var platform: GamePlatform?
+    private var generation = 0
 
     var games: [Game] {
         pagination.items
@@ -19,32 +21,48 @@ final class SearchViewModel {
         pagination.isLoadingMore
     }
 
-    var canFetchMoreForFilter: Bool {
-        pagination.canLoadMore && filterFetches < Self.filterFetchBudget
+    var total: Int {
+        pagination.total
     }
 
-    func resetFilterBudget() {
-        filterFetches = 0
+    func applyFilters(search: String, platform: GamePlatform?) async {
+        self.search = search.isEmpty ? nil : search
+        self.platform = platform
+        await load(reset: true)
     }
 
-    func loadNewReleases(reset: Bool = true) async {
+    func loadMore() async {
+        await load(reset: false)
+    }
+
+    private func load(reset: Bool) async {
         if reset {
-            guard !isLoading else { return }
+            generation += 1
             isLoading = true
             error = nil
             pagination.reset()
-            pagination.setLoading(true)
         } else {
             guard pagination.canLoadMore else { return }
-            pagination.setLoading(true)
         }
+        pagination.setLoading(true)
+
+        let requestGeneration = generation
 
         do {
-            let response = try await service.fetchAllNewReleases(page: pagination.currentPage + 1, perPage: 20)
+            let response = try await service.fetchAllNewReleases(
+                page: pagination.currentPage + 1,
+                perPage: Self.perPage,
+                search: search,
+                platform: platform
+            )
+            guard requestGeneration == generation else { return }
             pagination.append(response: response) { $0.map(Game.init(dto:)) }
         } catch {
+            guard requestGeneration == generation, !Task.isCancelled else { return }
             if reset { self.error = error.localizedDescription }
         }
+
+        guard !Task.isCancelled else { return }
 
         if reset {
             isLoading = false
@@ -53,14 +71,5 @@ final class SearchViewModel {
         pagination.setLoading(false)
     }
 
-    func loadMoreNewReleases() async {
-        await loadNewReleases(reset: false)
-    }
-
-    func loadMoreForFilter() async {
-        filterFetches += 1
-        await loadMoreNewReleases()
-    }
-
-    private static let filterFetchBudget = 5
+    private static let perPage = 20
 }

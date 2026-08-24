@@ -7,7 +7,9 @@ struct SearchView: View {
     @State private var query = ""
     @State private var platform: GamePlatform?
     @State private var showGameDetail = false
+    @State private var detailSlug: String?
     @State private var viewModel = SearchViewModel()
+    @State private var hasPendingFilter = false
     @FocusState private var searchFocused: Bool
 
     private var hasFeed: Bool {
@@ -18,24 +20,12 @@ struct SearchView: View {
         query.trimmingCharacters(in: .whitespaces)
     }
 
-    private var isFiltering: Bool {
-        platform != nil || !trimmedQuery.isEmpty
-    }
-
-    private var filteredGames: [Game] {
-        viewModel.games.filter { game in
-            let matchesPlatform = platform.map { game.platforms.contains($0) } ?? true
-            let matchesQuery = trimmedQuery.isEmpty || game.name.localizedCaseInsensitiveContains(trimmedQuery)
-            return matchesPlatform && matchesQuery
-        }
-    }
-
     private var isStillSearching: Bool {
-        !viewModel.hasLoaded || viewModel.isLoading || (isFiltering && viewModel.canFetchMoreForFilter)
+        !viewModel.hasLoaded || viewModel.isLoading || hasPendingFilter
     }
 
-    private var autoFetchKey: String {
-        "\(platform?.rawValue ?? "-")|\(trimmedQuery)|\(viewModel.games.count)"
+    private var filterKey: String {
+        "\(platform?.rawValue ?? "-")|\(trimmedQuery)"
     }
 
     var body: some View {
@@ -52,51 +42,52 @@ struct SearchView: View {
         .background(Color.appBackground)
         .toolbar(.hidden, for: .navigationBar)
         .navigationBarBackButtonHidden(true)
-        .task {
+        .task(id: filterKey) {
             guard hasFeed else { return }
-            await viewModel.loadNewReleases()
+            if viewModel.hasLoaded {
+                hasPendingFilter = true
+                try? await Task.sleep(for: .milliseconds(300))
+                guard !Task.isCancelled else { return }
+            }
+            await viewModel.applyFilters(search: trimmedQuery, platform: platform)
+            guard !Task.isCancelled else { return }
+            hasPendingFilter = false
         }
-        .task(id: autoFetchKey) {
-            guard hasFeed, isFiltering, filteredGames.isEmpty else { return }
-            guard viewModel.canFetchMoreForFilter, !viewModel.isLoadingMore else { return }
-            await viewModel.loadMoreForFilter()
-        }
-        .onChange(of: platform) { viewModel.resetFilterBudget() }
-        .onChange(of: trimmedQuery) { viewModel.resetFilterBudget() }
         .navigationDestination(isPresented: $showGameDetail) {
-            GameDetailView()
+            GameDetailView(slug: detailSlug)
         }
     }
 
     @ViewBuilder
     private var results: some View {
-        let games = filteredGames
+        let games = viewModel.games
 
-        ScrollView(showsIndicators: false) {
-            VStack(alignment: .leading, spacing: 24) {
-                if !hasFeed {
-                    SearchResultsEmptyState(
-                        title: "Not available yet",
-                        message: "The most anticipated feed is still\nwaiting on the backend."
-                    )
-                } else if games.isEmpty, isStillSearching {
-                    ProgressView()
-                        .frame(maxWidth: .infinity)
-                        .padding(.top, 60)
-                } else if games.isEmpty {
-                    SearchResultsEmptyState(query: query) {
-                        query = ""
-                        platform = nil
+        if hasFeed, games.isEmpty, isStillSearching {
+            ProgressView()
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+        } else {
+            ScrollView(showsIndicators: false) {
+                VStack(alignment: .leading, spacing: 24) {
+                    if !hasFeed {
+                        SearchResultsEmptyState(
+                            title: "Not available yet",
+                            message: "The most anticipated feed is still\nwaiting on the backend."
+                        )
+                    } else if games.isEmpty {
+                        SearchResultsEmptyState(query: query) {
+                            query = ""
+                            platform = nil
+                        }
+                    } else {
+                        sectionHeader(count: viewModel.total)
+                        grid(games)
                     }
-                } else {
-                    sectionHeader(count: games.count)
-                    grid(games)
                 }
+                .padding(.top, 6)
+                .padding(.bottom, 28)
             }
-            .padding(.top, 6)
-            .padding(.bottom, 28)
+            .scrollDismissesKeyboard(.interactively)
         }
-        .scrollDismissesKeyboard(.interactively)
     }
 
     private var sectionTitle: String {
@@ -131,6 +122,7 @@ struct SearchView: View {
             ) {
                 ForEach(Array(games.enumerated()), id: \.element.id) { index, game in
                     Button {
+                        detailSlug = game.slug
                         showGameDetail = true
                     } label: {
                         SearchResultCard(game: game)
@@ -138,7 +130,7 @@ struct SearchView: View {
                     .buttonStyle(PressableButtonStyle())
                     .onAppear {
                         if index >= games.count - 2 {
-                            Task { await viewModel.loadMoreNewReleases() }
+                            Task { await viewModel.loadMore() }
                         }
                     }
                 }

@@ -9,6 +9,7 @@ enum GameDetailMockData {
         genres: ["Action RPG", "Open World", "Cyberpunk"],
         coverStart: .coverVioletStart,
         coverEnd: .coverVioletEnd,
+        heroURL: nil,
         screenshots: [
             GameScreenshot(start: .coverIndigoStart, end: .coverIndigoEnd),
             GameScreenshot(start: .coverCyanStart, end: .coverCyanEnd),
@@ -24,28 +25,8 @@ enum GameDetailMockData {
         specs: [
             GameSpec(label: "Developer", value: "Void Interactive"),
             GameSpec(label: "Publisher", value: "Nova Games"),
-            GameSpec(label: "Storage", value: "85.4 GB"),
-            GameSpec(label: "Language", value: "English, +12 more")
-        ],
-        systemRequirements: [
-            SystemRequirementTier(
-                name: "Minimum",
-                items: [
-                    GameSpec(label: "OS", value: "Windows 10 64-bit"),
-                    GameSpec(label: "CPU", value: "Intel Core i5-8400"),
-                    GameSpec(label: "GPU", value: "NVIDIA GTX 1060 6GB"),
-                    GameSpec(label: "Memory", value: "12 GB RAM")
-                ]
-            ),
-            SystemRequirementTier(
-                name: "Recommended",
-                items: [
-                    GameSpec(label: "OS", value: "Windows 11 64-bit"),
-                    GameSpec(label: "CPU", value: "Intel Core i7-12700K"),
-                    GameSpec(label: "GPU", value: "NVIDIA RTX 3070 8GB"),
-                    GameSpec(label: "Memory", value: "16 GB RAM")
-                ]
-            )
+            GameSpec(label: "Released", value: "Mar 14, 2024"),
+            GameSpec(label: "Modes", value: "Single player, Co-operative")
         ]
     )
 }

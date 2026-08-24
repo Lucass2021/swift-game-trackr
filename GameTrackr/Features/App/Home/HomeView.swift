@@ -2,7 +2,7 @@ import SwiftUI
 
 struct HomeView: View {
     var onViewAll: (SearchScope) -> Void = { _ in }
-    var onGameSelect: () -> Void = {}
+    var onGameSelect: (String?) -> Void = { _ in }
 
     @State private var viewModel = HomeViewModel()
 
@@ -45,7 +45,7 @@ struct HomeView: View {
             ScrollView(.horizontal, showsIndicators: false) {
                 HStack(alignment: .top, spacing: 14) {
                     ForEach(viewModel.newReleases) { game in
-                        Button(action: onGameSelect) {
+                        Button { onGameSelect(game.slug) } label: {
                             NewReleaseCard(game: game)
                         }
                         .buttonStyle(PressableButtonStyle())
@@ -63,7 +63,7 @@ struct HomeView: View {
             ScrollView(.horizontal, showsIndicators: false) {
                 HStack(alignment: .top, spacing: 14) {
                     ForEach(HomeMockData.mostAnticipated) { game in
-                        Button(action: onGameSelect) {
+                        Button { onGameSelect(nil) } label: {
                             AnticipatedCard(game: game)
                         }
                         .buttonStyle(PressableButtonStyle())

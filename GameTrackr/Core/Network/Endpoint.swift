@@ -19,7 +19,8 @@ enum Endpoint {
     case resetPassword
 
     case newReleases(limit: Int? = nil)
-    case allNewReleases(page: Int? = nil, perPage: Int? = nil)
+    case allNewReleases(page: Int? = nil, perPage: Int? = nil, search: String? = nil, platforms: [String] = [])
+    case game(slug: String)
 
     case communities(search: String? = nil, perPage: Int? = nil, page: Int? = nil)
     case joinedCommunities
@@ -49,6 +50,7 @@ enum Endpoint {
         case .resetPassword: "/auth/reset-password"
         case .newReleases: "/home/new-releases"
         case .allNewReleases: "/home/new-releases/all"
+        case let .game(slug): "/games/\(slug)"
         case .communities: "/communities"
         case .joinedCommunities: "/communities/joined"
         case let .community(id): "/communities/\(id)"
@@ -75,7 +77,7 @@ enum Endpoint {
              .createPost, .likePost, .commentOnPost, .replyToComment, .likeComment:
             .post
         case .me, .communities, .joinedCommunities, .community, .posts, .post,
-             .newReleases, .allNewReleases:
+             .newReleases, .allNewReleases, .game:
             .get
         case .deletePost:
             .delete
@@ -86,7 +88,7 @@ enum Endpoint {
         switch self {
         case .register, .login, .refresh,
              .forgotPassword, .verifyResetCode, .resetPassword,
-             .newReleases, .allNewReleases:
+             .newReleases, .allNewReleases, .game:
             false
         default:
             true
@@ -98,10 +100,12 @@ enum Endpoint {
         case let .newReleases(limit):
             guard let limit else { return nil }
             return [.init(name: "limit", value: "\(limit)")]
-        case let .allNewReleases(page, perPage):
+        case let .allNewReleases(page, perPage, search, platforms):
             var items: [URLQueryItem] = []
             if let page { items.append(.init(name: "page", value: "\(page)")) }
             if let perPage { items.append(.init(name: "per_page", value: "\(perPage)")) }
+            if let search, !search.isEmpty { items.append(.init(name: "search", value: search)) }
+            items.append(contentsOf: platforms.map { URLQueryItem(name: "platform[]", value: $0) })
             return items.isEmpty ? nil : items
         case let .communities(search, perPage, page):
             var items: [URLQueryItem] = []

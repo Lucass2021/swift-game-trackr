@@ -7,6 +7,7 @@ final class PaginationState<Item: Identifiable> {
     private(set) var isLoadingMore = false
     private(set) var currentPage = 0
     private(set) var lastPage = 1
+    private(set) var total = 0
 
     var canLoadMore: Bool {
         currentPage < lastPage && !isLoadingMore
@@ -16,12 +17,14 @@ final class PaginationState<Item: Identifiable> {
         items = []
         currentPage = 0
         lastPage = 1
+        total = 0
     }
 
     func append<D: Decodable>(response: PaginatedResponse<D>, transform: ([D]) -> [Item]) {
         items.append(contentsOf: transform(response.data))
         currentPage = response.currentPage
         lastPage = response.lastPage
+        total = response.total
     }
 
     func setLoading(_ value: Bool) {
