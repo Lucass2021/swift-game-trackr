@@ -2,6 +2,7 @@ import Foundation
 
 enum APIError: LocalizedError {
     case unauthorized
+    case forbidden(String)
     case notFound
     case badRequest(String)
     case conflict(String)
@@ -26,6 +27,8 @@ enum APIError: LocalizedError {
         switch self {
         case .unauthorized:
             return "Invalid email or password."
+        case .forbidden:
+            return "You don't have permission to do that."
         case .notFound:
             return "Account not found."
         case let .badRequest(message):

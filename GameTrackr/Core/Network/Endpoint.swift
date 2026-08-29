@@ -27,6 +27,8 @@ enum Endpoint {
     case communities(search: String? = nil, perPage: Int? = nil, page: Int? = nil)
     case joinedCommunities
     case community(id: Int)
+    case createCommunity
+    case deleteCommunity(id: Int)
     case joinCommunity(id: Int)
     case leaveCommunity(id: Int)
 
@@ -58,6 +60,8 @@ enum Endpoint {
         case .communities: "/communities"
         case .joinedCommunities: "/communities/joined"
         case let .community(id): "/communities/\(id)"
+        case .createCommunity: "/communities"
+        case let .deleteCommunity(id): "/communities/\(id)"
         case let .joinCommunity(id): "/communities/join/\(id)"
         case let .leaveCommunity(id): "/communities/leave/\(id)"
         case .posts: "/posts"
@@ -77,14 +81,14 @@ enum Endpoint {
         switch self {
         case .register, .login, .refresh, .logout, .validateToken,
              .forgotPassword, .verifyResetCode, .resetPassword,
-             .joinCommunity, .leaveCommunity,
+             .joinCommunity, .leaveCommunity, .createCommunity,
              .createPost, .likePost, .commentOnPost, .replyToComment, .likeComment:
             .post
         case .me, .communities, .joinedCommunities, .community, .posts, .post,
              .newReleases, .allNewReleases,
              .mostAnticipated, .allMostAnticipated, .game:
             .get
-        case .deletePost:
+        case .deletePost, .deleteCommunity:
             .delete
         }
     }

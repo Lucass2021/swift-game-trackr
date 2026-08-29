@@ -2,6 +2,8 @@ import SwiftUI
 
 struct CommunityAboutSection: View {
     let community: Community
+    var isOwner = false
+    var onDelete: () -> Void = {}
 
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
@@ -25,6 +27,38 @@ struct CommunityAboutSection: View {
                 RoundedRectangle(cornerRadius: 16, style: .continuous)
                     .stroke(Color.appOutline, lineWidth: 1)
             )
+
+            if isOwner {
+                Button(action: onDelete) {
+                    HStack(spacing: 12) {
+                        AppIconView(icon: .trash, size: 18)
+                            .foregroundStyle(Color.appTertiary)
+
+                        Text("Delete community")
+                            .font(.appLabel(15))
+                            .foregroundStyle(Color.appTertiary)
+
+                        Spacer()
+                    }
+                    .padding(.horizontal, 16)
+                    .padding(.vertical, 15)
+                    .frame(maxWidth: .infinity)
+                    .background(
+                        RoundedRectangle(cornerRadius: 16, style: .continuous)
+                            .fill(Color.appSurfaceCard)
+                    )
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 16, style: .continuous)
+                            .stroke(Color.appOutline, lineWidth: 1)
+                    )
+                    .contentShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
+                }
+                .buttonStyle(PressableButtonStyle())
+
+                Text("Only you can see this — you created this community.")
+                    .font(.appBody(13))
+                    .foregroundStyle(Color.appTextSecondary)
+            }
         }
         .padding(.horizontal, 20)
         .padding(.top, 4)

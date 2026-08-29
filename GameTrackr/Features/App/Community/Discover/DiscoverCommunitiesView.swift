@@ -3,6 +3,7 @@ import SwiftUI
 struct DiscoverCommunitiesView: View {
     @Binding var category: String
     let communities: [Community]
+    var currentUserId: Int?
     var isLoadingMore = false
     var canLoadMore = false
     var onSelect: (Community) -> Void = { _ in }
@@ -18,6 +19,10 @@ struct DiscoverCommunitiesView: View {
                 || community.name.localizedCaseInsensitiveContains(query)
             return matchesCategory && matchesQuery
         }
+    }
+
+    private func isOwner(of community: Community) -> Bool {
+        currentUserId != nil && community.authorId == currentUserId
     }
 
     var body: some View {
@@ -54,6 +59,7 @@ struct DiscoverCommunitiesView: View {
             ForEach(Array(filtered.enumerated()), id: \.element.id) { index, community in
                 CommunityRow(
                     community: community,
+                    isOwner: isOwner(of: community),
                     onSelect: { onSelect(community) },
                     onJoin: { onJoin(community) }
                 )

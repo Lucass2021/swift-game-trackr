@@ -17,6 +17,18 @@ struct CommunityService {
         try await APIClient.shared.request(.community(id: id))
     }
 
+    func createCommunity(title: String, description: String) async throws -> CommunityDTO {
+        let body = CreateCommunityRequest(title: title, description: description)
+        let response: CreateCommunityResponse = try await APIClient.shared.request(
+            .createCommunity, body: body
+        )
+        return response.community
+    }
+
+    func deleteCommunity(id: Int) async throws -> MessageResponse {
+        try await APIClient.shared.request(.deleteCommunity(id: id))
+    }
+
     func join(communityId: Int) async throws -> MessageResponse {
         try await APIClient.shared.request(.joinCommunity(id: communityId))
     }

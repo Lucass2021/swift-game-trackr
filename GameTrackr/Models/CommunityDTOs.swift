@@ -111,6 +111,11 @@ struct CreateCommunityResponse: Decodable {
     let message: String
 }
 
+struct CreateCommunityRequest: Encodable {
+    let title: String
+    let description: String
+}
+
 struct CreatePostRequest: Encodable {
     let title: String
     let description: String?

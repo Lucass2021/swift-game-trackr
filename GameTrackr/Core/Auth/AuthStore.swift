@@ -39,8 +39,10 @@ class AuthStore {
     func validate() async {
         guard isAuthenticated else { return }
         do {
-            let response: ValidateResponse = try await APIClient.shared.request(.validateToken)
+            let response: ValidateResponse = try await APIClient.shared.request(.me)
             currentUser = response.user
+        } catch APIError.unauthorized {
+            logout()
         } catch {}
     }
 

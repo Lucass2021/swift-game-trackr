@@ -2,6 +2,7 @@ import SwiftUI
 
 struct CreatePostButton: View {
     let action: () -> Void
+    var accessibilityLabel = "Create post"
 
     var body: some View {
         Button(action: action) {
@@ -15,7 +16,7 @@ struct CreatePostButton: View {
         .buttonStyle(PressableButtonStyle())
         .padding(.trailing, 20)
         .padding(.bottom, 20)
-        .accessibilityLabel("Create post")
+        .accessibilityLabel(accessibilityLabel)
     }
 }
 

@@ -56,14 +56,6 @@ enum PlatformLabel {
 }
 
 struct Game: Identifiable, Hashable {
-    static func == (lhs: Game, rhs: Game) -> Bool {
-        lhs.id == rhs.id
-    }
-
-    func hash(into hasher: inout Hasher) {
-        hasher.combine(id)
-    }
-
     let id: Int
     let name: String
     let slug: String

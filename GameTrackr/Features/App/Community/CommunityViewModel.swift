@@ -148,12 +148,23 @@ final class CommunityViewModel {
         }
     }
 
-    func toggleJoin(_ community: Community) {
-        if community.isJoined {
-            leaveCommunity(community)
-        } else {
-            joinCommunity(community)
-        }
+    func createCommunity(name: String, description: String) async throws -> Community {
+        let dto = try await service.createCommunity(title: name, description: description)
+        let created = Community(
+            id: dto.id,
+            name: dto.title,
+            authorId: dto.authorId,
+            memberCount: 1,
+            description: dto.description ?? "",
+            isJoined: true
+        )
+        communitiesPagination.insert(created, at: 0)
+        return created
+    }
+
+    func removeCommunity(id: Int) {
+        communitiesPagination.removeAll { $0.id == id }
+        feedPagination.removeAll { $0.communityId == id }
     }
 
     func createPost(title: String, body: String, communityId: Int) async -> CommunityPost? {

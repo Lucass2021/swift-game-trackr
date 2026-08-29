@@ -33,7 +33,11 @@ actor APIClient {
     }
 
     func request<T: Decodable>(_ endpoint: Endpoint, body: Encodable? = nil) async throws -> T {
-        let token = endpoint.requiresAuth ? KeychainHelper.getToken() : nil
+        var token = endpoint.requiresAuth ? KeychainHelper.getToken() : nil
+
+        if let current = token, JWT.isExpired(current) {
+            token = try await refreshToken()
+        }
 
         do {
             return try await perform(endpoint, body: body, token: token)
@@ -117,6 +121,11 @@ actor APIClient {
         let body = try? decoder.decode(LaravelErrorBody.self, from: data)
 
         switch statusCode {
+        case 401:
+            if let message = body?.error, !message.isEmpty {
+                return .forbidden(message)
+            }
+            return .unauthorized
         case 400:
             return .badRequest(body?.firstMessage ?? "Invalid request.")
         case 422:

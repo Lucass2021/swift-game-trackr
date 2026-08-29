@@ -2,6 +2,7 @@ import SwiftUI
 
 struct CommunityRow: View {
     let community: Community
+    var isOwner = false
     var onSelect: () -> Void = {}
     var onJoin: () -> Void = {}
 
@@ -33,7 +34,7 @@ struct CommunityRow: View {
             }
             .buttonStyle(PressableButtonStyle())
 
-            JoinButton(isJoined: community.isJoined, action: onJoin)
+            JoinButton(isJoined: community.isJoined, isEnabled: !isOwner, action: onJoin)
         }
         .padding(.horizontal, 20)
         .padding(.vertical, 14)

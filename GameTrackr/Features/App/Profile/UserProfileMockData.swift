@@ -7,14 +7,6 @@ struct UserProfile: Identifiable, Hashable {
     let avatarStart: Color
     let avatarEnd: Color
     var isFriend: Bool = false
-
-    static func == (lhs: UserProfile, rhs: UserProfile) -> Bool {
-        lhs.id == rhs.id
-    }
-
-    func hash(into hasher: inout Hasher) {
-        hasher.combine(id)
-    }
 }
 
 extension UserProfile {

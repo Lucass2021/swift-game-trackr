@@ -30,16 +30,9 @@ enum CommunityDetailTab: String, CaseIterable, Identifiable {
 }
 
 struct Community: Identifiable, Hashable {
-    static func == (lhs: Community, rhs: Community) -> Bool {
-        lhs.id == rhs.id
-    }
-
-    func hash(into hasher: inout Hasher) {
-        hasher.combine(id)
-    }
-
     let id: Int
     let name: String
+    let authorId: Int?
     let category: String
     let memberCount: Int
     let postCount: Int
@@ -71,6 +64,7 @@ struct Community: Identifiable, Hashable {
     init(
         id: Int,
         name: String,
+        authorId: Int? = nil,
         category: String = "General",
         memberCount: Int = 0,
         postCount: Int = 0,
@@ -84,6 +78,7 @@ struct Community: Identifiable, Hashable {
     ) {
         self.id = id
         self.name = name
+        self.authorId = authorId
         self.category = category
         self.memberCount = memberCount
         self.postCount = postCount
@@ -103,6 +98,7 @@ struct Community: Identifiable, Hashable {
         self.init(
             id: dto.id,
             name: dto.title,
+            authorId: dto.authorId,
             memberCount: dto.members?.count ?? 0,
             description: dto.description ?? "",
             isJoined: dto.isMember ?? false,
@@ -113,14 +109,6 @@ struct Community: Identifiable, Hashable {
 }
 
 struct CommunityPost: Identifiable, Hashable {
-    static func == (lhs: CommunityPost, rhs: CommunityPost) -> Bool {
-        lhs.id == rhs.id
-    }
-
-    func hash(into hasher: inout Hasher) {
-        hasher.combine(id)
-    }
-
     let id: Int
     let author: String
     let authorId: Int?
@@ -219,14 +207,6 @@ struct CommunityPost: Identifiable, Hashable {
 }
 
 struct CommunityMember: Identifiable, Hashable {
-    static func == (lhs: CommunityMember, rhs: CommunityMember) -> Bool {
-        lhs.id == rhs.id
-    }
-
-    func hash(into hasher: inout Hasher) {
-        hasher.combine(id)
-    }
-
     let id: Int
     let author: String
     let role: String
@@ -262,14 +242,6 @@ struct CommunityMember: Identifiable, Hashable {
 }
 
 struct PostComment: Identifiable, Hashable {
-    static func == (lhs: PostComment, rhs: PostComment) -> Bool {
-        lhs.id == rhs.id
-    }
-
-    func hash(into hasher: inout Hasher) {
-        hasher.combine(id)
-    }
-
     let id: Int
     let author: String
     let authorId: Int?

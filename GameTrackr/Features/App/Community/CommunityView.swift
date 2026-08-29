@@ -9,6 +9,8 @@ struct CommunityView: View {
     @State private var selectedPost: CommunityPost?
     @State private var selectedCommunity: Community?
     @State private var showCreateTopic = false
+    @State private var showCreateCommunity = false
+    @State private var communityToLeave: Community?
 
     var body: some View {
         ZStack(alignment: .bottomTrailing) {
@@ -35,18 +37,33 @@ struct CommunityView: View {
                         DiscoverCommunitiesView(
                             category: $category,
                             communities: viewModel.communities,
+                            currentUserId: authStore.currentUser?.id,
                             isLoadingMore: viewModel.communitiesPagination.isLoadingMore,
                             canLoadMore: viewModel.communitiesPagination.canLoadMore,
                             onSelect: { selectedCommunity = $0 },
-                            onJoin: { viewModel.toggleJoin($0) },
+                            onJoin: { community in
+                                if community.isJoined {
+                                    communityToLeave = community
+                                } else {
+                                    viewModel.joinCommunity(community)
+                                }
+                            },
                             onLoadMore: { Task { await viewModel.loadMoreCommunities() } }
                         )
                     }
                 }
             }
 
-            if segment == .myFeed, !authStore.isGuest {
-                CreatePostButton(action: { showCreateTopic = true })
+            if !authStore.isGuest {
+                switch segment {
+                case .myFeed:
+                    CreatePostButton(action: { showCreateTopic = true })
+                case .discover:
+                    CreatePostButton(
+                        action: { showCreateCommunity = true },
+                        accessibilityLabel: "Create community"
+                    )
+                }
             }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -55,6 +72,9 @@ struct CommunityView: View {
         .task { await viewModel.loadCommunities() }
         .fullScreenCover(isPresented: $showCreateTopic) {
             CreateTopicView(viewModel: viewModel)
+        }
+        .fullScreenCover(isPresented: $showCreateCommunity) {
+            CreateCommunityView(viewModel: viewModel, onCreated: { selectedCommunity = $0 })
         }
         .navigationDestination(item: $selectedPost) { post in
             PostDetailView(post: post, onCommunitySelect: {
@@ -69,8 +89,29 @@ struct CommunityView: View {
             })
         }
         .navigationDestination(item: $selectedCommunity) { community in
-            CommunityDetailView(community: community, onPostSelect: { selectedPost = $0 })
+            CommunityDetailView(
+                community: community,
+                onPostSelect: { selectedPost = $0 },
+                onDelete: { viewModel.removeCommunity(id: community.id) }
+            )
         }
+        .alert(
+            "Leave this community?",
+            isPresented: leaveAlertBinding,
+            presenting: communityToLeave
+        ) { community in
+            Button("Leave", role: .destructive) { viewModel.leaveCommunity(community) }
+            Button("Cancel", role: .cancel) {}
+        } message: { _ in
+            Text("You'll stop seeing its posts in your feed. You can join again anytime.")
+        }
+    }
+
+    private var leaveAlertBinding: Binding<Bool> {
+        Binding(
+            get: { communityToLeave != nil },
+            set: { if !$0 { communityToLeave = nil } }
+        )
     }
 
     @ViewBuilder

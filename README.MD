@@ -14,9 +14,6 @@ business logic.
 |------|--------------|
 | `CLAUDE.MD` | **Shared** product + API contract. Identical in the Android repo — edit both together |
 | `agents/PROJECT_GOALS.ios.md` | iOS stack, architecture, milestones, and the progress log |
-| `agents/api-integration-status.md` | Which endpoints exist, which are wired, which are missing |
-| `agents/missing-screens.md` | Screen-by-screen parity checklist against Android |
-| `agents/testing-community-integration.md` | How to run the backend and test the live Community/Posts integration |
 | `TODO.MD` | Backlog |
 
 ## Stack
@@ -47,10 +44,15 @@ cd ~/Projetos/game-trackr-api && docker compose up -d
 ```
 
 The simulator shares the Mac's network, so `http://localhost:8000/api` works with no extra config.
-See `agents/testing-community-integration.md` for the full walkthrough.
+
+⚠️ `JWT_TTL` is unset in the API's `.env` and `config/jwt.php` defaults it to **1 minute**, so local
+sessions expire almost immediately. That is the environment, not the app — see the refresh notes in
+`agents/PROJECT_GOALS.ios.md`.
 
 ## Current state
 
-Auth and Community/Posts talk to the real API. Everything else — Home/discovery, Library, Stats,
-Notifications, Achievements, My Setup — renders from **mock data**, because those endpoints don't
-exist yet. `agents/api-integration-status.md` is the authority on which is which.
+Auth, **Home/discovery** (New Releases, Most Anticipated, server-side search + platform filters,
+game detail) and **Community/Posts** — including creating and deleting a community — talk to the
+real API. Library, Stats, Notifications, Achievements and My Setup still render from **mock data**,
+because those endpoints don't exist yet: there is no `/me/library` route at all, and `/me/collection`
+was never built. `CLAUDE.MD` marks each route with its real status.

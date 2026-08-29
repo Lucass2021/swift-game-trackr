@@ -58,9 +58,22 @@ then layer discovery, friends, community, messaging, and collection.
 - Logout clears tokens from the Keychain.
 
 ### Automatic token refresh
-- An `APIClient` that detects `401` and (if the backend uses refresh tokens) calls the refresh
-  endpoint, with a queue/actor guard so parallel requests trigger a **single** refresh.
-- If refresh fails, route to login. If the backend uses long-lived tokens, just route to login on `401`.
+- An `APIClient` actor that detects `401` and calls `POST /auth/refresh` with the *current* token,
+  with a single-flight guard (`refreshTask`) so parallel requests trigger **one** refresh.
+- If refresh fails, route to login.
+- **Reacting to `401` is not enough on this backend** (learned 2026-08-25). Two traps:
+  - *Public routes personalise from the token and answer `200`.* `GET /communities` fills
+    `is_member` from `auth()->id()` while sitting outside `auth:api`, so an expired token yields
+    `is_member: false` for everything — a joined community renders as "Join" and no `401` ever
+    arrives to trigger a refresh. `APIClient` therefore checks `JWT.isExpired` and refreshes
+    **before** sending, not only after failing.
+  - *Not every `401` is about the token.* A controller denying an action answers
+    `401 { error: … }` while the auth middleware answers `401 { message: "Unauthenticated." }`.
+    Branch on the body: the first maps to `APIError.forbidden` (no refresh — rotating a good token
+    and retrying can never help), the second to `APIError.unauthorized` (refresh + retry).
+- Bootstrap the session with **`GET /profile/me`**, never `POST /auth/validate` — the latter is
+  outside `auth:api` and hands an expired token `200 { "user": null }`, leaving `AuthStore` in a
+  silent "authenticated but nobody" state that hides every `currentUser`-gated control.
 
 ### Networking
 - Centralized layer with `URLSession`; an `Endpoint` enum and typed `APIError`.
@@ -107,12 +120,70 @@ then layer discovery, friends, community, messaging, and collection.
 | 8 | Discovery feeds (releases / upcoming / trending) | + 1 day — **releases done 2026-08-19**; upcoming/trending blocked on the API |
 | 9 | Friends + public profiles | + 1 day |
 | 10 | Realtime messaging via Reverb + push notifications | + 2 days |
-| 11 | Community + physical collection (image upload) | + 2 days |
+| 11 | Community + physical collection (image upload) | + 2 days — **community create/delete done 2026-08-25**; collection still local-only |
 | 12 | Polish: states, animations, app icon, CI | + 1 day |
 
 ---
 
 ## Progress log
+
+### 2026-08-25 — Create/delete community, and the two `401` traps behind it
+
+**Feature.** The last two unwired community routes shipped: `POST /communities` and
+`DELETE /communities/{id}`.
+
+- New `Features/App/Community/CreateCommunity/` — `CreateCommunityView` + `CreateCommunityModel`,
+  presented as a `fullScreenCover` from the `+` FAB, which now lives on **both** segments and
+  changes intent with the segment (`Feed` → New post, `Discover` → New community). Creating one
+  inserts it at the top of the list and pushes straight into its detail, already joined.
+- Delete lives on `CommunityDetailView`, owner-only (`community.authorId == authStore.currentUser?.id`).
+  `Community` gained `authorId` for that check.
+- `Endpoint` gained `.createCommunity` / `.deleteCommunity`; `CommunityService` the two calls;
+  `CommunityDTOs` a `CreateCommunityRequest`.
+
+**Backend quirks that shaped the UI.** `store` runs `str_replace(' ', '', $title)` but computes the
+`slug` from the raw text *first* — which makes the slug a perfect probe for what the client actually
+sent. So the client sends a **handle** (typed name minus whitespace) and shows it live under the
+field: "Listed as `RetroShmupClub`". And `CommunityRequest` has no `unique` rule though the column
+does, so a duplicate name is a **500 with raw SQL**, mapped to "That name may already be taken."
+
+**Do not filter a `TextField` as the user types.** The first version stripped spaces in the binding;
+SwiftUI *keeps* input the binding rejects (the state doesn't change, so nothing is pushed back to the
+field), and deferring the correction with `Task { @MainActor }` races the keyboard and **eats
+characters** — "Pixel Art Fans" became `PixelA`. `didSet` on an `@Observable` property doesn't help
+either. Compute the handle instead and let the user type freely.
+
+**UX correction.** The overflow `…` was too hard to find: it reused the outlined circle style while
+the Back button beside it is a filled translucent circle, so it disappeared into the banner gradient.
+Both now share the same treatment, and the real affordance is a labelled **"Delete community"** row
+at the bottom of the **About** tab (`CommunityAboutSection`, owner-only, with "Only you can see
+this"). A bare glyph is not an affordance for a destructive action.
+
+**The bug under the bug.** Chasing "the delete button never appears" led to `AuthStore.validate()`
+calling `POST /auth/validate` — a route outside `auth:api` that answers an expired token with
+`200 { "user": null }`. `ValidateResponse.user` was non-optional, so decoding failed, `catch {}`
+swallowed it, and `currentUser` stayed **nil for the whole session** — every owner-only control
+hidden, silently. Switched to `GET /profile/me` (behind `auth:api`, answers a real `401`), and added
+the proactive-refresh and `forbidden`-vs-`unauthorized` rules described under *Automatic token
+refresh*. New `Core/Network/JWT.swift` decodes `exp` client-side.
+
+**Verified** end-to-end on the simulator against the local API, including with a deliberately expired
+token: the Discover list keeps the right `Joined` state and the owner controls appear. Note
+`JWT_TTL` is **1 minute** locally (`config/jwt.php` defaults to 1, `.env` doesn't set it), which is
+why these traps fire constantly here.
+
+### 2026-08-24 — Game detail, Most Anticipated, server-side search and the feed cache
+
+Shipped in `41275a2` and `f7d5aee`. `GET /games/{slug}` fills the whole detail screen from one
+request (hero picks screenshot → artwork → cover, since artworks are sometimes solid black), and the
+Specifications list renders one full-width card per row. `GET /home/most-anticipated` (+ `/all`)
+reuses the Search screen with a scope, with a landscape card and a year badge. Search and the
+platform chips now filter **server-side** via `?search=` and repeated `?platform[]=`, debounced
+300 ms only when the typed text changed, with a generation counter dropping stale responses. Feeds
+are cached in memory per `FeedKey(scope, search, platform)` for 5 minutes (`FeedCache` +
+`PaginationSnapshot`), so re-tapping a chip or coming back from a detail screen is instant. The
+System Requirements section was deleted — IGDB has no such data and it was invention.
+
 
 ### 2026-08-19 — New Releases wired to the real IGDB feed (first discovery data)
 

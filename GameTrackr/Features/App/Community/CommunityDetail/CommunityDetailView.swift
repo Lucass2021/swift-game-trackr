@@ -3,6 +3,7 @@ import SwiftUI
 struct CommunityDetailView: View {
     let community: Community
     var onPostSelect: (CommunityPost) -> Void = { _ in }
+    var onDelete: () -> Void = {}
 
     @Environment(AuthStore.self) private var authStore
     @Environment(\.dismiss) private var dismiss
@@ -14,11 +15,23 @@ struct CommunityDetailView: View {
     @State private var selectedUser: UserProfile?
     @State private var viewModel = CommunityViewModel()
     @State private var postsError = false
+    @State private var showDeleteAlert = false
+    @State private var showLeaveAlert = false
+    @State private var deleteError: String?
 
-    init(community: Community, onPostSelect: @escaping (CommunityPost) -> Void = { _ in }) {
+    init(
+        community: Community,
+        onPostSelect: @escaping (CommunityPost) -> Void = { _ in },
+        onDelete: @escaping () -> Void = {}
+    ) {
         self.community = community
         self.onPostSelect = onPostSelect
+        self.onDelete = onDelete
         _isJoined = State(initialValue: community.isJoined)
+    }
+
+    private var isOwner: Bool {
+        community.authorId != nil && community.authorId == authStore.currentUser?.id
     }
 
     var body: some View {
@@ -72,6 +85,29 @@ struct CommunityDetailView: View {
             floatingButton(icon: .back, label: "Back") { dismiss() }
                 .padding(.leading, 16)
         }
+        .overlay(alignment: .topTrailing) {
+            if isOwner {
+                ownerMenu
+                    .padding(.trailing, 16)
+            }
+        }
+        .alert("Leave this community?", isPresented: $showLeaveAlert) {
+            Button("Leave", role: .destructive) { setJoined(false) }
+            Button("Cancel", role: .cancel) {}
+        } message: {
+            Text("You'll stop seeing its posts in your feed. You can join again anytime.")
+        }
+        .alert("Delete this community?", isPresented: $showDeleteAlert) {
+            Button("Delete", role: .destructive) { deleteCommunity() }
+            Button("Cancel", role: .cancel) {}
+        } message: {
+            Text("This removes the community and every post inside it. This can't be undone.")
+        }
+        .alert("Couldn't delete", isPresented: deleteErrorBinding) {
+            Button("OK", role: .cancel) { deleteError = nil }
+        } message: {
+            Text(deleteError ?? "")
+        }
         .ignoresSafeArea(edges: .top)
     }
 
@@ -123,7 +159,11 @@ struct CommunityDetailView: View {
                 .padding(.horizontal, 20)
             }
         case .about:
-            CommunityAboutSection(community: community)
+            CommunityAboutSection(
+                community: community,
+                isOwner: isOwner,
+                onDelete: { showDeleteAlert = true }
+            )
         case .members:
             CommunityMembersSection(members: members, onSelect: { member in
                 selectedUser = UserProfile(
@@ -139,8 +179,12 @@ struct CommunityDetailView: View {
     private var actions: some View {
         if !authStore.isGuest {
             HStack(spacing: 12) {
-                JoinButton(isJoined: isJoined, expanded: true) {
-                    toggleJoin()
+                JoinButton(isJoined: isJoined, expanded: true, isEnabled: !isOwner) {
+                    if isJoined {
+                        showLeaveAlert = true
+                    } else {
+                        setJoined(true)
+                    }
                 }
 
                 circleButton(icon: .notifications, label: "Community notifications")
@@ -156,6 +200,49 @@ struct CommunityDetailView: View {
                 .accessibilityLabel("Share community")
             }
             .padding(.horizontal, 20)
+        }
+    }
+
+    private var ownerMenu: some View {
+        Menu {
+            Button(role: .destructive) {
+                showDeleteAlert = true
+            } label: {
+                Label {
+                    Text("Delete community")
+                } icon: {
+                    AppIconView(icon: .trash, size: 18)
+                }
+            }
+        } label: {
+            AppIconView(icon: .overflow, size: 20)
+                .foregroundStyle(Color.appTextPrimary)
+                .frame(width: 40, height: 40)
+                .background(Circle().fill(Color.appBackground.opacity(0.55)))
+                .contentShape(Circle())
+        }
+        .padding(.top, 60)
+        .accessibilityLabel("More options")
+    }
+
+    private var deleteErrorBinding: Binding<Bool> {
+        Binding(
+            get: { deleteError != nil },
+            set: { if !$0 { deleteError = nil } }
+        )
+    }
+
+    private func deleteCommunity() {
+        Task {
+            do {
+                _ = try await CommunityService.shared.deleteCommunity(id: community.id)
+                onDelete()
+                dismiss()
+            } catch APIError.forbidden {
+                deleteError = "Only the community owner can delete it."
+            } catch {
+                deleteError = error.userMessage(fallback: "Couldn't delete this community.")
+            }
         }
     }
 
@@ -195,17 +282,17 @@ struct CommunityDetailView: View {
         } catch {}
     }
 
-    private func toggleJoin() {
-        isJoined.toggle()
+    private func setJoined(_ joined: Bool) {
+        isJoined = joined
         Task {
             do {
-                if isJoined {
+                if joined {
                     _ = try await CommunityService.shared.join(communityId: community.id)
                 } else {
                     _ = try await CommunityService.shared.leave(communityId: community.id)
                 }
             } catch {
-                isJoined.toggle()
+                isJoined = !joined
             }
         }
     }
