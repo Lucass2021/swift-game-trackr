@@ -236,8 +236,13 @@ JSON request/response. Pagination via `?page=` + `?per_page=` returning Laravel-
   on both clients 2026-08-24 — same shapes and same `?search=`/`?platform[]=` params as new-releases,
   only `sort hypes desc` + `first_release_date > now` differ)*
 - `GET /games/trending` — trending (server-computed from platform activity) *(⚠️ still missing)*
-- `GET /games/search?q=` — search the cached catalog *(superseded by the `?search=` param on the
-  `/home/*` routes; both clients use it since 2026-08-24)*
+- `GET /games/search` — global catalog search *(✅ **wired on both clients 2026-09-05.** Public,
+  paginated with the same nested `meta` as the `/home/*` routes and the same `?search=`/`?platform[]=`
+  params, so it decodes into the existing paginated model unchanged. Base filter is
+  `name != null & cover != null`, sorted `total_rating_count desc` — so with no query it is the
+  **popular** list (GTA V, Witcher 3, Portal 2…), not recent releases; the Search header therefore
+  reads "Popular" instead of the old "Recent Releases". The **magnifying glass in the global header**
+  (scope `.all`) uses this route; the two Home "View all" targets keep their feed endpoints.)*
 - `GET /platforms` — platform list for the filter chips *(✅ **fixed and wired on both clients
   2026-09-05.** The old `category = (1,5,6)` filter always returned `[]` because IGDB v4 renamed the
   field to `platform_type`; the backend now falls back to a curated `POPULAR_PLATFORM_IDS` list and
@@ -393,7 +398,7 @@ The whole-app flow the team drew (see `agents/app-flow.jpeg`). Applies to every 
 - **Home** → `New Releases` and `New Anticipated` (Most Anticipated) screens.
   - Both sliders are real IGDB data since 2026-08-24 and both "View all" targets reuse the **Search**
     screen with a scope — the scope picks the endpoint (`.mostAnticipated` → `/home/most-anticipated/all`,
-    anything else → `/home/new-releases/all`). Cards differ by intent: New Releases is a portrait cover,
+    `.newReleases` → `/home/new-releases/all`, `.all` → `/games/search`, the whole catalog). Cards differ by intent: New Releases is a portrait cover,
     Most Anticipated is a **larger 170×227 portrait** of the same cover with a **year badge**
     (`appPrimary` when dated, `appSecondary` when `TBA`). It was a 260×150 landscape crop until
     2026-09-05 — the feed payload carries **only `cover`** (portrait 3:4), so a landscape box could

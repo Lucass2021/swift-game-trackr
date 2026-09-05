@@ -85,7 +85,7 @@ struct SearchView: View {
 
     private var sectionTitle: String {
         if !trimmedQuery.isEmpty { return "Results" }
-        return scope.isFiltered ? scope.title : "Recent Releases"
+        return scope.isFiltered ? scope.title : "Popular"
     }
 
     private func sectionHeader(count: Int) -> some View {

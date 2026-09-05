@@ -24,6 +24,7 @@ enum Endpoint {
     case mostAnticipated(limit: Int? = nil)
     case allMostAnticipated(page: Int? = nil, perPage: Int? = nil, search: String? = nil, platforms: [String] = [])
     case game(slug: String)
+    case searchGames(page: Int? = nil, perPage: Int? = nil, search: String? = nil, platforms: [String] = [])
     case platforms
 
     case communities(search: String? = nil, perPage: Int? = nil, page: Int? = nil)
@@ -60,6 +61,7 @@ enum Endpoint {
         case .mostAnticipated: "/home/most-anticipated"
         case .allMostAnticipated: "/home/most-anticipated/all"
         case let .game(slug): "/games/\(slug)"
+        case .searchGames: "/games/search"
         case .platforms: "/platforms"
         case .communities: "/communities"
         case .joinedCommunities: "/communities/joined"
@@ -90,7 +92,7 @@ enum Endpoint {
             .post
         case .me, .profileColors, .communities, .joinedCommunities, .community, .posts, .post,
              .newReleases, .allNewReleases,
-             .mostAnticipated, .allMostAnticipated, .game, .platforms:
+             .mostAnticipated, .allMostAnticipated, .game, .platforms, .searchGames:
             .get
         case .deletePost, .deleteCommunity:
             .delete
@@ -104,7 +106,7 @@ enum Endpoint {
         case .register, .login, .refresh,
              .forgotPassword, .verifyResetCode, .resetPassword,
              .newReleases, .allNewReleases,
-             .mostAnticipated, .allMostAnticipated, .game, .platforms:
+             .mostAnticipated, .allMostAnticipated, .game, .platforms, .searchGames:
             false
         default:
             true
@@ -117,7 +119,8 @@ enum Endpoint {
             guard let limit else { return nil }
             return [.init(name: "limit", value: "\(limit)")]
         case let .allNewReleases(page, perPage, search, platforms),
-             let .allMostAnticipated(page, perPage, search, platforms):
+             let .allMostAnticipated(page, perPage, search, platforms),
+             let .searchGames(page, perPage, search, platforms):
             var items: [URLQueryItem] = []
             if let page { items.append(.init(name: "page", value: "\(page)")) }
             if let perPage { items.append(.init(name: "per_page", value: "\(perPage)")) }

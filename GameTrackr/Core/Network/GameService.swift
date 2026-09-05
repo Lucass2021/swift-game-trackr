@@ -19,9 +19,14 @@ struct GameService {
         platform: GamePlatform? = nil
     ) async throws -> PaginatedResponse<GameDTO> {
         let slugs = platform.map { [$0.slug] } ?? []
-        let endpoint: Endpoint = scope == .mostAnticipated
-            ? .allMostAnticipated(page: page, perPage: perPage, search: search, platforms: slugs)
-            : .allNewReleases(page: page, perPage: perPage, search: search, platforms: slugs)
+        let endpoint: Endpoint = switch scope {
+        case .mostAnticipated:
+            .allMostAnticipated(page: page, perPage: perPage, search: search, platforms: slugs)
+        case .newReleases:
+            .allNewReleases(page: page, perPage: perPage, search: search, platforms: slugs)
+        case .all:
+            .searchGames(page: page, perPage: perPage, search: search, platforms: slugs)
+        }
         let response: PaginatedGamesResponse = try await APIClient.shared.request(endpoint)
         return response.page
     }
