@@ -21,14 +21,14 @@ struct SearchView: View {
     }
 
     private var filterKey: String {
-        "\(platform?.rawValue ?? "-")|\(trimmedQuery)"
+        "\(platform?.slug ?? "-")|\(trimmedQuery)"
     }
 
     var body: some View {
         VStack(spacing: 0) {
             SearchTopBar(query: $query, isFocused: $searchFocused, onBack: { dismiss() })
 
-            SearchFilterChips(selection: $platform)
+            SearchFilterChips(platforms: viewModel.platforms, selection: $platform)
                 .padding(.top, 2)
                 .padding(.bottom, 14)
 
@@ -38,6 +38,9 @@ struct SearchView: View {
         .background(Color.appBackground)
         .toolbar(.hidden, for: .navigationBar)
         .navigationBarBackButtonHidden(true)
+        .task {
+            await viewModel.loadPlatforms()
+        }
         .task(id: filterKey) {
             if viewModel.hasLoaded, trimmedQuery != viewModel.appliedSearch {
                 hasPendingFilter = true

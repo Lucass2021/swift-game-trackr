@@ -34,6 +34,11 @@ struct GamesResponse: Decodable {
     let data: [GameDTO]
 }
 
+struct PlatformsResponse: Decodable {
+    let message: String?
+    let data: [GamePlatformDTO]
+}
+
 struct GamesMeta: Decodable {
     let page: Int
     let perPage: Int

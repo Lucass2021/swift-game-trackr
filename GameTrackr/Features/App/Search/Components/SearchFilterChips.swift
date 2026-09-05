@@ -1,6 +1,7 @@
 import SwiftUI
 
 struct SearchFilterChips: View {
+    let platforms: [GamePlatform]
     @Binding var selection: GamePlatform?
 
     var body: some View {
@@ -8,8 +9,8 @@ struct SearchFilterChips: View {
             HStack(spacing: 10) {
                 chip(title: "All", isSelected: selection == nil) { selection = nil }
 
-                ForEach(GamePlatform.allCases) { platform in
-                    chip(title: platform.rawValue, isSelected: selection == platform) {
+                ForEach(platforms) { platform in
+                    chip(title: platform.label, isSelected: selection == platform) {
                         selection = platform
                     }
                 }
@@ -35,7 +36,14 @@ struct SearchFilterChips: View {
 
 #Preview {
     @Previewable @State var selection: GamePlatform?
-    SearchFilterChips(selection: $selection)
-        .background(Color.appBackground)
-        .preferredColorScheme(.dark)
+    SearchFilterChips(
+        platforms: [
+            GamePlatform(id: 6, slug: "win", name: "PC (Microsoft Windows)"),
+            GamePlatform(id: 167, slug: "ps5", name: "PlayStation 5"),
+            GamePlatform(id: 169, slug: "series-x-s", name: "Xbox Series X|S")
+        ],
+        selection: $selection
+    )
+    .background(Color.appBackground)
+    .preferredColorScheme(.dark)
 }

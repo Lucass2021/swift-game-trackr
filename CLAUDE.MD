@@ -238,9 +238,13 @@ JSON request/response. Pagination via `?page=` + `?per_page=` returning Laravel-
 - `GET /games/trending` — trending (server-computed from platform activity) *(⚠️ still missing)*
 - `GET /games/search?q=` — search the cached catalog *(superseded by the `?search=` param on the
   `/home/*` routes; both clients use it since 2026-08-24)*
-- `GET /igdb/platforms` — platform list for the filter chips *(🔴 **backend bug**: the query filters
-  `where category = (1,5,6)` but IGDB v4 renamed that field to `platform_type`, so it always returns
-  `[]`. The chips stay hardcoded until it's fixed.)*
+- `GET /platforms` — platform list for the filter chips *(✅ **fixed and wired on both clients
+  2026-09-05.** The old `category = (1,5,6)` filter always returned `[]` because IGDB v4 renamed the
+  field to `platform_type`; the backend now falls back to a curated `POPULAR_PLATFORM_IDS` list and
+  answers 6 platforms — Switch, PC, PS4, PS5, Xbox One, Series X|S — each with `slug`, `abbreviation`
+  and `platform_logo`. `?all=true` returns 200 raw IGDB rows including junk like Amiga and Apple II,
+  and Xbox has **no `platform_family`**, so grouping by family server-side is not viable. Also
+  exposed at the older `GET /igdb/platforms`.)*
 
 > ✅ **`GET /games/{slug}` — SHIPPED on both clients 2026-08-24.** Public route, so guests can open it.
 > One request fills the whole screen: hero (first **screenshot**, then artwork, then cover — artworks
@@ -375,8 +379,11 @@ The whole-app flow the team drew (see `agents/app-flow.jpeg`). Applies to every 
   - Both sliders are real IGDB data since 2026-08-24 and both "View all" targets reuse the **Search**
     screen with a scope — the scope picks the endpoint (`.mostAnticipated` → `/home/most-anticipated/all`,
     anything else → `/home/new-releases/all`). Cards differ by intent: New Releases is a portrait cover,
-    Most Anticipated is a 260×150 landscape crop of the same portrait cover with a **year badge**
-    (`appPrimary` when dated, `appSecondary` when `TBA`). The old "not available yet" state is gone.
+    Most Anticipated is a **larger 170×227 portrait** of the same cover with a **year badge**
+    (`appPrimary` when dated, `appSecondary` when `TBA`). It was a 260×150 landscape crop until
+    2026-09-05 — the feed payload carries **only `cover`** (portrait 3:4), so a landscape box could
+    only ever crop it, and titles like Fable lost half the art. Don't reintroduce the landscape card
+    unless the endpoint starts returning `artworks`/`screenshots`. The old "not available yet" state is gone.
   - There is no "Can't find a game?" / *Explore Community* banner under the results — it was
     removed 2026-08-19 because the list is now infinite, so a dead end below it made no sense.
     Feeds are cached in memory per `FeedKey(scope, search, platform)` for **5 minutes**
@@ -387,8 +394,11 @@ The whole-app flow the team drew (see `agents/app-flow.jpeg`). Applies to every 
     pull-to-refresh or the retry button pass `force`.
     The search field and the platform chips filter **server-side** since 2026-08-24 — both
     clients send `?search=` and repeated `?platform[]=` (IGDB slugs) to `/home/new-releases/all`
-    and reset the pagination. The chips are platform *families*, so each one expands to its slug
-    list (`GamePlatform.igdbSlugs`, mirrored on iOS and Android); the query is debounced 300 ms —
+    and reset the pagination. The chips come from **`GET /platforms`** since 2026-09-05 — each chip is one
+    real platform and filters by its own slug, so there is no hardcoded platform data left on either
+    client (`GamePlatform` is a plain `{id, slug, name}` decoded from the API, and the request
+    failing just renders no chips). The trade-off: the backend's curated list is 6 entries, so
+    PS3/Switch 2 are not filterable until it grows. The query is debounced 300 ms —
     **only when the typed text changed**, never on a chip tap — and stale responses are dropped by a
     generation counter plus a cancellation guard on both the view and the view model. The result count in the header is
     `meta.total`, not the number of rows loaded so far.

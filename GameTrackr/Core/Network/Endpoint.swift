@@ -22,6 +22,7 @@ enum Endpoint {
     case mostAnticipated(limit: Int? = nil)
     case allMostAnticipated(page: Int? = nil, perPage: Int? = nil, search: String? = nil, platforms: [String] = [])
     case game(slug: String)
+    case platforms
 
     case communities(search: String? = nil, perPage: Int? = nil, page: Int? = nil)
     case joinedCommunities
@@ -55,6 +56,7 @@ enum Endpoint {
         case .mostAnticipated: "/home/most-anticipated"
         case .allMostAnticipated: "/home/most-anticipated/all"
         case let .game(slug): "/games/\(slug)"
+        case .platforms: "/platforms"
         case .communities: "/communities"
         case .joinedCommunities: "/communities/joined"
         case let .community(id): "/communities/\(id)"
@@ -84,7 +86,7 @@ enum Endpoint {
             .post
         case .me, .communities, .joinedCommunities, .community, .posts, .post,
              .newReleases, .allNewReleases,
-             .mostAnticipated, .allMostAnticipated, .game:
+             .mostAnticipated, .allMostAnticipated, .game, .platforms:
             .get
         case .deletePost, .deleteCommunity:
             .delete
@@ -96,7 +98,7 @@ enum Endpoint {
         case .register, .login, .refresh,
              .forgotPassword, .verifyResetCode, .resetPassword,
              .newReleases, .allNewReleases,
-             .mostAnticipated, .allMostAnticipated, .game:
+             .mostAnticipated, .allMostAnticipated, .game, .platforms:
             false
         default:
             true

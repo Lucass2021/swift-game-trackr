@@ -3,7 +3,7 @@ import SwiftUI
 struct AnticipatedCard: View {
     let game: Game
 
-    private let cardWidth: CGFloat = 260
+    private let cardWidth: CGFloat = 170
 
     private var badgeColor: Color {
         game.releaseDate == nil ? .appSecondary : .appPrimary
@@ -16,7 +16,7 @@ struct AnticipatedCard: View {
                 end: game.coverEnd,
                 url: game.coverUrl,
                 width: cardWidth,
-                height: 150
+                height: 227
             )
             .overlay(alignment: .bottomLeading) {
                 Text(game.year)

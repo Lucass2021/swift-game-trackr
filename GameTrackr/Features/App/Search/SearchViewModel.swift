@@ -8,6 +8,7 @@ final class SearchViewModel {
     private(set) var hasLoaded = false
     private(set) var error: String?
     private(set) var appliedSearch = ""
+    private(set) var platforms: [GamePlatform] = []
 
     private let service = GameService.shared
     private let cache = FeedCache()
@@ -25,6 +26,11 @@ final class SearchViewModel {
 
     var total: Int {
         pagination.total
+    }
+
+    func loadPlatforms() async {
+        guard platforms.isEmpty else { return }
+        platforms = await (try? service.fetchPlatforms()) ?? []
     }
 
     func applyFilters(scope: SearchScope, search: String, platform: GamePlatform?) async {

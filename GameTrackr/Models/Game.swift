@@ -1,23 +1,23 @@
 import SwiftUI
 
-enum GamePlatform: String, CaseIterable, Identifiable {
-    case pc = "PC"
-    case playstation = "PlayStation"
-    case xbox = "Xbox"
-    case nintendo = "Nintendo"
+struct GamePlatform: Identifiable, Hashable {
+    let id: Int
+    let slug: String
+    let name: String
 
-    var id: Self {
-        self
+    var label: String {
+        PlatformLabel.short(slug: slug, name: name) ?? name
     }
 
-    var igdbSlugs: [String] {
-        switch self {
-        case .pc: ["win", "linux", "mac", "dos", "browser"]
-        case .playstation: ["ps", "ps2", "ps3", "ps4--1", "ps5", "psp", "psvita", "psvr", "psvr2"]
-        case .xbox: ["xbox", "xbox360", "xboxone", "series-x-s"]
-        case .nintendo:
-            ["nes", "snes", "n64", "ngc", "wii", "wiiu", "gb", "gbc", "gba", "nds", "3ds", "switch", "switch-2"]
-        }
+    init(id: Int, slug: String, name: String) {
+        self.id = id
+        self.slug = slug
+        self.name = name
+    }
+
+    init?(dto: GamePlatformDTO) {
+        guard let id = dto.id, let slug = dto.slug, let name = dto.name else { return nil }
+        self.init(id: id, slug: slug, name: name)
     }
 }
 
