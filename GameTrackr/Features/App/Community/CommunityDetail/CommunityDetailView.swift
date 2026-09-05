@@ -235,7 +235,7 @@ struct CommunityDetailView: View {
     private func deleteCommunity() {
         Task {
             do {
-                _ = try await CommunityService.shared.deleteCommunity(id: community.id)
+                _ = try await CommunityService.live.deleteCommunity(id: community.id)
                 onDelete()
                 dismiss()
             } catch APIError.forbidden {
@@ -265,7 +265,7 @@ struct CommunityDetailView: View {
         let nextPage = postsPagination.currentPage + 1
 
         do {
-            let response = try await CommunityService.shared.fetchPosts(
+            let response = try await CommunityService.live.fetchPosts(
                 communityId: community.id, perPage: 30, page: nextPage
             )
             postsPagination.append(response: response) { $0.map { CommunityPost(dto: $0) } }
@@ -277,7 +277,7 @@ struct CommunityDetailView: View {
 
     private func loadMembers() async {
         do {
-            let dto = try await CommunityService.shared.fetchCommunity(id: community.id)
+            let dto = try await CommunityService.live.fetchCommunity(id: community.id)
             members = dto.members?.map { CommunityMember(dto: $0) } ?? []
         } catch {}
     }
@@ -287,9 +287,9 @@ struct CommunityDetailView: View {
         Task {
             do {
                 if joined {
-                    _ = try await CommunityService.shared.join(communityId: community.id)
+                    _ = try await CommunityService.live.join(communityId: community.id)
                 } else {
-                    _ = try await CommunityService.shared.leave(communityId: community.id)
+                    _ = try await CommunityService.live.leave(communityId: community.id)
                 }
             } catch {
                 isJoined = !joined
@@ -331,7 +331,7 @@ struct CommunityDetailView: View {
 
         Task {
             do {
-                let response = try await CommunityService.shared.toggleLike(postId: post.id)
+                let response = try await CommunityService.live.toggleLike(postId: post.id)
                 if let idx = postsPagination.items.firstIndex(where: { $0.id == post.id }) {
                     var item = postsPagination.items[idx]
                     item.isLiked = response.isLiked

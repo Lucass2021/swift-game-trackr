@@ -112,11 +112,11 @@ then layer discovery, friends, community, messaging, and collection.
 | --- | --- | --- |
 | 1 | Xcode project, MVVM folders, `KeychainHelper`, `.xcconfig` config | a few hours |
 | 2 | Networking: `URLSession` + `Codable` + `Endpoint` + `APIError` | half a day |
-| 3 | Auth screens wired to real API (login, register, token persistence) | a weekend |
+| 3 | Auth screens wired to real API (login, register, token persistence) | a weekend — **Google sign-in added 2026-09-05** |
 | 4 | Token refresh with single-flight guard (if backend uses refresh) | + half a day |
 | 5 | Library: list with status filter, add game, edit entry | + 1 day |
-| 6 | Game search + detail → add to library | + 1 day |
-| 7 | Profile + stats + sign out | + half a day |
+| 6 | Game search + detail → add to library | + 1 day — **global search + detail done 2026-09-05**; "add to library" blocked on the Library API |
+| 7 | Profile + stats + sign out | + half a day — **edit profile persists 2026-09-05** (name/username/color); stats still mock |
 | 8 | Discovery feeds (releases / upcoming / trending) | + 1 day — **releases done 2026-08-19**; upcoming/trending blocked on the API |
 | 9 | Friends + public profiles | + 1 day |
 | 10 | Realtime messaging via Reverb + push notifications | + 2 days |
@@ -126,6 +126,58 @@ then layer discovery, friends, community, messaging, and collection.
 ---
 
 ## Progress log
+
+### 2026-09-05 — Google sign-in, API-driven platform chips and colors, global search
+
+Five things shipped, and after them **every route the API exposes is wired**. What is left is not
+unwired — it does not exist server-side (Library, My Setup, friends, messaging, notifications, feed).
+
+**Google sign-in (`/auth/google/redirect` → `gametrackr://auth/callback`).** The backend owns the
+whole OAuth dance; the client only opens a browser and catches a JWT off the callback URL. Then
+`GET /profile/me` turns that token into a session, and a failure clears the token instead of leaving
+a half-session behind.
+
+The parameter matters: the backend reads `state` / `platform` / `is_mobile`, **not `client`**. Both
+apps sent `?client=mobile` at first, which fell through to the `web` branch and redirected to the Vue
+frontend — the deep link never reached the app. Sending `?platform=mobile` is what makes the callback
+come back as `gametrackr://`.
+
+**`GET /platforms` → the filter chips.** The route used to answer `[]` (it filtered on `category`,
+renamed to `platform_type` in IGDB v4); the backend now falls back to a curated list of 6. The chips
+went from 4 hardcoded *families* to whatever the API returns, so **no platform data is hardcoded in
+either client any more** — `GamePlatform` is a plain `{id, slug, name}` decoded from the response,
+and a failed request simply renders no chips (no local fallback, on purpose). The cost: the curated
+list has no `switch-2` or `ps3`, so those are not filterable until the backend adds them.
+
+**Most Anticipated cards stopped cropping.** They were a 260×150 landscape box holding a 3:4 portrait
+cover, so titles like Fable lost half the art. The feed payload carries **only `cover`** — there is
+no landscape asset to switch to — so the card became a 170×227 portrait, larger than New Releases and
+still marked by the year badge. Any height would only have chosen *how much* to crop.
+
+**`PATCH /profile` + `GET /profile/colors` — the first user data the app actually persists.**
+`Profile` now stores `avatarHex` and *computes* `avatarStart`/`avatarEnd` (hex darkened 28%), because
+the API sends **one hex per color**, not a gradient pair. The selected swatch is matched by hex
+string, not by index or enum: the current color arrives from `/profile/me` and the list from
+`/profile/colors`, two independent responses whose only shared value is the hex. `bio` and
+`visibility` stay mock — the API has no column for either.
+
+The old `AvatarPalette` (7 named gradients) turned out to also paint the **My Setup** cards; deleting
+it broke the build. It was renamed `SetupPalette` and moved into the setup feature, which is what it
+had actually been doing.
+
+**`GET /games/search` — the magnifying glass in the global header.** Search used to reuse
+`/home/new-releases/all?search=`, so it could only find games inside the recent-releases slice.
+It now hits the whole catalog: 315k games, Elden Ring and Skyrim included. With an empty query the
+route sorts by `total_rating_count desc`, so the header reads **"Popular"** — calling it "Recent
+Releases" would have described the wrong list. The two Home "View all" targets keep their feed
+endpoints.
+
+**Verified** end-to-end on simulator and emulator against the local API, including cross-device:
+saving Emerald on iOS wrote `#10B981` and the Android profile opened green; changing it to Amber on
+Android wrote `#F59E0B`.
+
+**Environment note.** `JWT_TTL=60` was added to the API's `.env` — it was unset, and `config/jwt.php`
+defaults it to **1 minute**, which made every local session look like it dropped at random.
 
 ### 2026-08-25 — Create/delete community, and the two `401` traps behind it
 

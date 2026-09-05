@@ -36,7 +36,7 @@ struct CreateTopicView: View {
         .preferredColorScheme(.dark)
         .task {
             do {
-                let response = try await CommunityService.shared.fetchJoinedCommunities()
+                let response = try await CommunityService.live.fetchJoinedCommunities()
                 joinedCommunities = response.data.map { Community(dto: $0) }
             } catch {}
         }

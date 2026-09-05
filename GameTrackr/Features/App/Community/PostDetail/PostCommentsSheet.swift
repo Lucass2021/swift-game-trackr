@@ -170,7 +170,7 @@ struct PostCommentsSheet: View {
         Task {
             do {
                 if let replyTarget {
-                    let dto = try await CommunityService.shared.replyToComment(
+                    let dto = try await CommunityService.live.replyToComment(
                         postId: postId,
                         commentId: replyTarget.id,
                         comment: text
@@ -187,7 +187,7 @@ struct PostCommentsSheet: View {
                         }
                     }
                 } else {
-                    let dto = try await CommunityService.shared.addComment(postId: postId, comment: text)
+                    let dto = try await CommunityService.live.addComment(postId: postId, comment: text)
                     comments.append(PostComment(dto: dto))
                 }
             } catch {}
@@ -221,7 +221,7 @@ struct PostCommentsSheet: View {
 
         Task {
             do {
-                _ = try await CommunityService.shared.toggleCommentLike(
+                _ = try await CommunityService.live.toggleCommentLike(
                     postId: postId,
                     commentId: comment.id
                 )

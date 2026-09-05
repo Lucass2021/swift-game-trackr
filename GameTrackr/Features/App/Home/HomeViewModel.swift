@@ -34,15 +34,21 @@ final class HomeViewModel {
     let newReleases = HomeFeed()
     let mostAnticipated = HomeFeed()
 
-    private let service = GameService.shared
+    private let service: GameServicing
+
+    init(service: GameServicing = GameService.live) {
+        self.service = service
+    }
 
     func loadAll(force: Bool = false) async {
         async let releases: Void = newReleases.load(force: force) {
-            try await service.fetchSlider(.newReleases)
+            try await service.fetchSlider(.newReleases, limit: Self.sliderLimit)
         }
         async let anticipated: Void = mostAnticipated.load(force: force) {
-            try await service.fetchSlider(.mostAnticipated)
+            try await service.fetchSlider(.mostAnticipated, limit: Self.sliderLimit)
         }
         _ = await (releases, anticipated)
     }
+
+    private static let sliderLimit = 10
 }

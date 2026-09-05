@@ -7,7 +7,11 @@ final class GameDetailViewModel {
     private(set) var isLoading = false
     private(set) var failed = false
 
-    private let service = GameService.shared
+    private let service: GameServicing
+
+    init(service: GameServicing = GameService.live) {
+        self.service = service
+    }
 
     func load(slug: String) async {
         guard !isLoading else { return }

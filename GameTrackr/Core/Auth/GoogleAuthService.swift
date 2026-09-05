@@ -19,7 +19,12 @@ enum GoogleAuthError: LocalizedError {
 }
 
 @MainActor
-final class GoogleAuthService: NSObject {
+protocol GoogleAuthenticating {
+    func signIn() async throws -> String
+}
+
+@MainActor
+final class GoogleAuthService: NSObject, GoogleAuthenticating {
     static let shared = GoogleAuthService()
 
     static let callbackScheme = "gametrackr"

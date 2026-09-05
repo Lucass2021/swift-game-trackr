@@ -16,16 +16,23 @@ private struct LaravelErrorBody: Decodable {
 actor APIClient {
     static let shared = APIClient()
 
-    private nonisolated let baseURL = Config.baseURL
+    private nonisolated let baseURL: String
     private let session: URLSession
+    private let tokenStorage: TokenStorage
     private let encoder = JSONEncoder()
     private let decoder = JSONDecoder()
 
     private var refreshTask: Task<String, Error>?
     private var onRefreshFailure: (@Sendable () -> Void)?
 
-    init(session: URLSession = .shared) {
+    init(
+        session: URLSession = .shared,
+        tokenStorage: TokenStorage = KeychainTokenStorage(),
+        baseURL: String = Config.baseURL
+    ) {
         self.session = session
+        self.tokenStorage = tokenStorage
+        self.baseURL = baseURL
     }
 
     func setRefreshFailureHandler(_ handler: @escaping @Sendable () -> Void) {
@@ -33,7 +40,7 @@ actor APIClient {
     }
 
     func request<T: Decodable>(_ endpoint: Endpoint, body: Encodable? = nil) async throws -> T {
-        var token = endpoint.requiresAuth ? KeychainHelper.getToken() : nil
+        var token = endpoint.requiresAuth ? tokenStorage.get() : nil
 
         if let current = token, JWT.isExpired(current) {
             token = try await refreshToken()
@@ -54,11 +61,11 @@ actor APIClient {
         }
 
         let task = Task<String, Error> {
-            guard let current = KeychainHelper.getToken() else {
+            guard let current = tokenStorage.get() else {
                 throw APIError.unauthorized
             }
             let response: RefreshResponse = try await self.perform(.refresh, body: nil, token: current)
-            KeychainHelper.saveToken(response.token)
+            tokenStorage.save(response.token)
             return response.token
         }
         refreshTask = task

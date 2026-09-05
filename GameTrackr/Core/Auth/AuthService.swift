@@ -12,6 +12,12 @@ protocol AuthServicing: Sendable {
 struct AuthService: AuthServicing {
     static let live = AuthService()
 
+    private let client: APIClient
+
+    init(client: APIClient = .shared) {
+        self.client = client
+    }
+
     func register(
         name: String,
         email: String,
@@ -24,22 +30,22 @@ struct AuthService: AuthServicing {
             password: password,
             passwordConfirmation: passwordConfirmation
         )
-        return try await APIClient.shared.request(.register, body: body)
+        return try await client.request(.register, body: body)
     }
 
     func login(email: String, password: String) async throws -> AuthResponse {
         let body = LoginRequest(email: email, password: password)
-        return try await APIClient.shared.request(.login, body: body)
+        return try await client.request(.login, body: body)
     }
 
     func forgotPassword(email: String) async throws {
         let body = ForgotPasswordRequest(email: email)
-        let _: MessageResponse = try await APIClient.shared.request(.forgotPassword, body: body)
+        let _: MessageResponse = try await client.request(.forgotPassword, body: body)
     }
 
     func verifyResetCode(email: String, code: String) async throws {
         let body = VerifyResetCodeRequest(email: email, code: code)
-        let _: MessageResponse = try await APIClient.shared.request(.verifyResetCode, body: body)
+        let _: MessageResponse = try await client.request(.verifyResetCode, body: body)
     }
 
     func resetPassword(email: String, code: String, newPassword: String) async throws {
@@ -49,6 +55,6 @@ struct AuthService: AuthServicing {
             password: newPassword,
             passwordConfirmation: newPassword
         )
-        let _: MessageResponse = try await APIClient.shared.request(.resetPassword, body: body)
+        let _: MessageResponse = try await client.request(.resetPassword, body: body)
     }
 }

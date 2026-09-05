@@ -16,9 +16,14 @@ class RegisterViewModel {
     private var pendingUser: User?
 
     private let service: AuthServicing
+    private let googleAuth: GoogleAuthenticating
 
-    init(service: AuthServicing = AuthService.live) {
+    init(
+        service: AuthServicing = AuthService.live,
+        googleAuth: GoogleAuthenticating = GoogleAuthService.shared
+    ) {
         self.service = service
+        self.googleAuth = googleAuth
     }
 
     var nameError: String? {
@@ -85,7 +90,7 @@ class RegisterViewModel {
         isLoading = true
         defer { isLoading = false }
         do {
-            let token = try await GoogleAuthService.shared.signIn()
+            let token = try await googleAuth.signIn()
             try await authStore.completeSocialSignIn(token: token)
         } catch GoogleAuthError.cancelled {
         } catch {

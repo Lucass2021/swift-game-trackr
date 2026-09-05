@@ -10,11 +10,16 @@ final class SearchViewModel {
     private(set) var appliedSearch = ""
     private(set) var platforms: [GamePlatform] = []
 
-    private let service = GameService.shared
-    private let cache = FeedCache()
+    private let service: GameServicing
+    private let cache: FeedCache
     private var scope: SearchScope = .all
     private var platform: GamePlatform?
     private var generation = 0
+
+    init(service: GameServicing = GameService.live, cache: FeedCache = FeedCache()) {
+        self.service = service
+        self.cache = cache
+    }
 
     var games: [Game] {
         pagination.items

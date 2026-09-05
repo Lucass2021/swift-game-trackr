@@ -91,7 +91,7 @@ struct PostDetailView: View {
     private func loadComments() async {
         commentsError = false
         do {
-            let dto = try await CommunityService.shared.fetchPost(id: post.id)
+            let dto = try await CommunityService.live.fetchPost(id: post.id)
             comments = dto.comments?.map { PostComment(dto: $0) } ?? []
         } catch {
             commentsError = true
@@ -104,7 +104,7 @@ struct PostDetailView: View {
 
         Task {
             do {
-                let response = try await CommunityService.shared.toggleLike(postId: post.id)
+                let response = try await CommunityService.live.toggleLike(postId: post.id)
                 isLiked = response.isLiked
                 likes = response.likes
             } catch {
@@ -117,7 +117,7 @@ struct PostDetailView: View {
     private func deletePost() {
         Task {
             do {
-                _ = try await CommunityService.shared.deletePost(id: post.id)
+                _ = try await CommunityService.live.deletePost(id: post.id)
                 onDelete()
                 dismiss()
             } catch {}

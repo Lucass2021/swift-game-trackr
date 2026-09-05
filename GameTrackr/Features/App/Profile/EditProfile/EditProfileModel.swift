@@ -20,10 +20,11 @@ final class EditProfileModel {
     var errorMessage: String?
 
     private let original: Profile
-    private let service = ProfileService.shared
+    private let service: ProfileServicing
 
-    init(profile: Profile) {
+    init(profile: Profile, service: ProfileServicing = ProfileService.live) {
         original = profile
+        self.service = service
         name = profile.name
         username = String(profile.username.drop { $0 == "@" })
         bio = profile.bio

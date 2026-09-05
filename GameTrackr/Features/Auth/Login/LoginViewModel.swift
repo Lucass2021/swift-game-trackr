@@ -10,9 +10,14 @@ class LoginViewModel {
     private var submitted = false
 
     private let service: AuthServicing
+    private let googleAuth: GoogleAuthenticating
 
-    init(service: AuthServicing = AuthService.live) {
+    init(
+        service: AuthServicing = AuthService.live,
+        googleAuth: GoogleAuthenticating = GoogleAuthService.shared
+    ) {
         self.service = service
+        self.googleAuth = googleAuth
     }
 
     var emailError: String? {
@@ -46,7 +51,7 @@ class LoginViewModel {
         isLoading = true
         defer { isLoading = false }
         do {
-            let token = try await GoogleAuthService.shared.signIn()
+            let token = try await googleAuth.signIn()
             try await authStore.completeSocialSignIn(token: token)
         } catch GoogleAuthError.cancelled {
         } catch {

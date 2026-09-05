@@ -18,7 +18,11 @@ final class CommunityViewModel {
         communitiesPagination.items
     }
 
-    private let service = CommunityService.shared
+    private let service: CommunityServicing
+
+    init(service: CommunityServicing = CommunityService.live) {
+        self.service = service
+    }
 
     func loadFeed(reset: Bool = true) async {
         if reset {
@@ -34,7 +38,7 @@ final class CommunityViewModel {
         let nextPage = feedPagination.currentPage + 1
 
         do {
-            let response = try await service.fetchPosts(perPage: 20, page: nextPage)
+            let response = try await service.fetchPosts(search: nil, communityId: nil, perPage: 20, page: nextPage)
             feedPagination.append(response: response) { $0.map { CommunityPost(dto: $0) } }
         } catch {
             if reset { feedError = error.localizedDescription }

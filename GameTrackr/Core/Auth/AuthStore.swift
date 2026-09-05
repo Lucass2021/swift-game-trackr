@@ -25,10 +25,15 @@ class AuthStore {
         state != .unauthenticated
     }
 
-    init() {
-        state = KeychainHelper.getToken() != nil ? .authenticated : .unauthenticated
-        Task { [weak self] in
-            await APIClient.shared.setRefreshFailureHandler { [weak self] in
+    private let client: APIClient
+    private let tokenStorage: TokenStorage
+
+    init(client: APIClient = .shared, tokenStorage: TokenStorage = KeychainTokenStorage()) {
+        self.client = client
+        self.tokenStorage = tokenStorage
+        state = tokenStorage.get() != nil ? .authenticated : .unauthenticated
+        Task {
+            await client.setRefreshFailureHandler { [weak self] in
                 Task { @MainActor [weak self] in
                     self?.logout()
                 }
@@ -39,7 +44,7 @@ class AuthStore {
     func validate() async {
         guard isAuthenticated else { return }
         do {
-            let response: ValidateResponse = try await APIClient.shared.request(.me)
+            let response: ValidateResponse = try await client.request(.me)
             currentUser = response.user
         } catch APIError.unauthorized {
             logout()
@@ -47,12 +52,12 @@ class AuthStore {
     }
 
     func completeSocialSignIn(token: String) async throws {
-        KeychainHelper.saveToken(token)
+        tokenStorage.save(token)
         do {
-            let response: ValidateResponse = try await APIClient.shared.request(.me)
+            let response: ValidateResponse = try await client.request(.me)
             authenticate(token: token, user: response.user)
         } catch {
-            KeychainHelper.clearToken()
+            tokenStorage.clear()
             throw error
         }
     }
@@ -68,14 +73,14 @@ class AuthStore {
     }
 
     func authenticate(token: String, user: User) {
-        KeychainHelper.saveToken(token)
+        tokenStorage.save(token)
         currentUser = user
         state = .authenticated
         isResetFlowActive = false
     }
 
     func logout() {
-        KeychainHelper.clearToken()
+        tokenStorage.clear()
         currentUser = nil
         state = .unauthenticated
         isResetFlowActive = false
