@@ -46,6 +46,17 @@ class AuthStore {
         } catch {}
     }
 
+    func completeSocialSignIn(token: String) async throws {
+        KeychainHelper.saveToken(token)
+        do {
+            let response: ValidateResponse = try await APIClient.shared.request(.me)
+            authenticate(token: token, user: response.user)
+        } catch {
+            KeychainHelper.clearToken()
+            throw error
+        }
+    }
+
     func continueAsGuest() {
         currentUser = nil
         state = .guest

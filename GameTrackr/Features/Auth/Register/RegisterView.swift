@@ -35,9 +35,11 @@ struct RegisterView: View {
             .padding(.top, 24)
             .staggeredAppear(4)
 
-            SocialLoginSection(action: { viewModel.signUpGoogle() })
-                .padding(.top, 28)
-                .staggeredAppear(5)
+            SocialLoginSection(action: {
+                Task { await viewModel.signInWithGoogle(authStore: authStore) }
+            })
+            .padding(.top, 28)
+            .staggeredAppear(5)
         }
         .toolbar(.hidden, for: .navigationBar)
         .navigationDestination(isPresented: $showLogin) {

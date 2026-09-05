@@ -81,8 +81,16 @@ class RegisterViewModel {
         authStore.authenticate(token: pendingToken, user: pendingUser)
     }
 
-    func signUpGoogle() {
-        print("Sign up with Google")
+    func signInWithGoogle(authStore: AuthStore) async {
+        isLoading = true
+        defer { isLoading = false }
+        do {
+            let token = try await GoogleAuthService.shared.signIn()
+            try await authStore.completeSocialSignIn(token: token)
+        } catch GoogleAuthError.cancelled {
+        } catch {
+            errorMessage = error.userMessage()
+        }
     }
 
     func clear() {

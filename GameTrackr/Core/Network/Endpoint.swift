@@ -12,7 +12,6 @@ enum Endpoint {
     case login
     case refresh
     case logout
-    case validateToken
     case me
     case forgotPassword
     case verifyResetCode
@@ -47,7 +46,6 @@ enum Endpoint {
         case .login: "/auth/login"
         case .refresh: "/auth/refresh"
         case .logout: "/auth/logout"
-        case .validateToken: "/auth/validate"
         case .me: "/profile/me"
         case .forgotPassword: "/auth/forgot-password"
         case .verifyResetCode: "/auth/verify-reset-code"
@@ -79,7 +77,7 @@ enum Endpoint {
 
     var method: HTTPMethod {
         switch self {
-        case .register, .login, .refresh, .logout, .validateToken,
+        case .register, .login, .refresh, .logout,
              .forgotPassword, .verifyResetCode, .resetPassword,
              .joinCommunity, .leaveCommunity, .createCommunity,
              .createPost, .likePost, .commentOnPost, .replyToComment, .likeComment:
