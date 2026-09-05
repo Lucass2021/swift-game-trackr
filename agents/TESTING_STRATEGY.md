@@ -105,7 +105,12 @@ Exclude all of the above from the coverage metric, or the number lies.
 
 ## Coverage
 
-- Measure with `xcodebuild -enableCodeCoverage YES`, report via `xccov`.
+- Run `./scripts/coverage.sh` — it runs the unit target with `-enableCodeCoverage YES` and prints
+  both the per-target summary and a `Core/` + ViewModel breakdown via `xccov`. The scheme is not
+  shared in the repo, so the flag lives in the script rather than in scheme settings.
+- ⚠️ **The global iOS percentage is not comparable to Android's Kover number.** `xccov` has no
+  filter, so all 189 Views are in the denominator; Kover excludes `@Composable`. Compare the
+  per-file `Core/` and ViewModel rows instead.
 - **Phase 1 and 2: measure, don't gate.** Get a real number first.
 - Gate only once it's stable, and gate by area, not globally:
   - `Core/` (Network, Auth, Pagination, Models) → **90%**
@@ -135,12 +140,29 @@ iOS has weaker tooling than Android here. Keep it small and honest.
 
 ---
 
+## Baseline measured 2026-09-05 (23 tests, Phase 0 only)
+
+| Area | Line coverage |
+| --- | --- |
+| `Core/Network/JWT.swift` | 100% |
+| `Core/Pagination/FeedCache.swift` | 100% |
+| `Core/Network/APIClient.swift` | 79.7% |
+| `Core/Network/Endpoint.swift` | 78.7% |
+| `Features/App/Home/HomeViewModel.swift` | 100% |
+| `Features/Auth/Login/LoginViewModel.swift` | 84.0% |
+| `Core/Network/APIError.swift` | 42.1% |
+| `Core/Pagination/PaginationState.swift` | 0% |
+| every other ViewModel | 0% |
+| whole app target (Views included) | 5.7% |
+
+`PaginationState` at 0% is the most urgent gap — it is where the page-1 duplication bug lived.
+
 ## Roadmap
 
 | Phase | What | Status |
 | --- | --- | --- |
 | **0** | Dependency injection so ViewModels/services are constructible with fakes | ✅ done 2026-09-05 |
-| 1 | Layer 1 tests + coverage measurement (no gate) | |
+| 1 | Layer 1 tests + coverage measurement (no gate) | ▶ tooling in place 2026-09-05 |
 | 2 | Benchmark baseline recorded in `agents/BASELINE.md` | |
 | 3 | Layers 2 and 3 (ViewModels + contract/fixtures) | |
 | 4 | Layer 4 snapshots of shared components | |
