@@ -57,6 +57,10 @@ class AuthStore {
         }
     }
 
+    func updateUser(_ user: User) {
+        currentUser = user
+    }
+
     func continueAsGuest() {
         currentUser = nil
         state = .guest

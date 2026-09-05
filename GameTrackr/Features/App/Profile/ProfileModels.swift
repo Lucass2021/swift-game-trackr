@@ -1,14 +1,30 @@
 import SwiftUI
 
 struct Profile {
-    let name: String
-    let username: String
+    var name: String
+    var username: String
     let bio: String
     let joinedAt: String
-    let avatarStart: Color
-    let avatarEnd: Color
+    var avatarHex: String
     let stats: ProfileStats
     var visibility: ProfileVisibility = .publicProfile
+
+    var avatarStart: Color {
+        Color(hex: avatarHex)
+    }
+
+    var avatarEnd: Color {
+        Color(hex: avatarHex).darkened(by: 0.28)
+    }
+
+    func applying(_ user: User?) -> Profile {
+        guard let user else { return self }
+        var copy = self
+        copy.name = user.name
+        if let username = user.username { copy.username = "@\(username)" }
+        if let color = user.profileColor { copy.avatarHex = color }
+        return copy
+    }
 }
 
 enum ProfileVisibility: String, CaseIterable, Identifiable {

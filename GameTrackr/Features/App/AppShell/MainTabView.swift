@@ -11,6 +11,7 @@ struct MainTabView: View {
     @State private var showEditProfile = false
     @State private var showSetup = false
     @State private var libraryFilter: LibraryStatus?
+    @Environment(AuthStore.self) private var authStore
     @State private var profile = ProfileMockData.profile
     @State private var setups: [SetupItem] = []
 
@@ -40,6 +41,9 @@ struct MainTabView: View {
             .navigationDestination(isPresented: $showSetup) { MySetupView(setups: $setups) }
             .navigationDestination(isPresented: $showGameDetail) {
                 GameDetailView(slug: detailSlug)
+            }
+            .task(id: authStore.currentUser?.id) {
+                profile = profile.applying(authStore.currentUser)
             }
         }
     }

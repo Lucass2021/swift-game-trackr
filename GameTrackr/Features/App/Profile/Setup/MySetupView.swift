@@ -123,7 +123,7 @@ struct MySetupView: View {
     }
 
     private func startNewSetup() {
-        let palettes = AvatarPalette.allCases
+        let palettes = SetupPalette.allCases
         draft = SetupItem(
             title: "",
             description: "",

@@ -6,8 +6,7 @@ enum ProfileMockData {
         username: "@lucasdias",
         bio: "Backlog eterno, platina ocasional. RPGs de turno e speedruns de fim de semana.",
         joinedAt: "Joined March 2024",
-        avatarStart: .coverVioletStart,
-        avatarEnd: .coverVioletEnd,
+        avatarHex: "#8B5CF6",
         stats: ProfileStats(totalGames: 142, hours: 1248, platinum: 21)
     )
 

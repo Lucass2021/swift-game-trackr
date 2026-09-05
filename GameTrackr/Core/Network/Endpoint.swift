@@ -13,6 +13,8 @@ enum Endpoint {
     case refresh
     case logout
     case me
+    case updateProfile
+    case profileColors
     case forgotPassword
     case verifyResetCode
     case resetPassword
@@ -48,6 +50,8 @@ enum Endpoint {
         case .refresh: "/auth/refresh"
         case .logout: "/auth/logout"
         case .me: "/profile/me"
+        case .updateProfile: "/profile"
+        case .profileColors: "/profile/colors"
         case .forgotPassword: "/auth/forgot-password"
         case .verifyResetCode: "/auth/verify-reset-code"
         case .resetPassword: "/auth/reset-password"
@@ -84,12 +88,14 @@ enum Endpoint {
              .joinCommunity, .leaveCommunity, .createCommunity,
              .createPost, .likePost, .commentOnPost, .replyToComment, .likeComment:
             .post
-        case .me, .communities, .joinedCommunities, .community, .posts, .post,
+        case .me, .profileColors, .communities, .joinedCommunities, .community, .posts, .post,
              .newReleases, .allNewReleases,
              .mostAnticipated, .allMostAnticipated, .game, .platforms:
             .get
         case .deletePost, .deleteCommunity:
             .delete
+        case .updateProfile:
+            .patch
         }
     }
 

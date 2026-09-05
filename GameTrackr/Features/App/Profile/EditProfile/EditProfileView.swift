@@ -4,6 +4,7 @@ struct EditProfileView: View {
     @Binding var profile: Profile
 
     @Environment(\.dismiss) private var dismiss
+    @Environment(AuthStore.self) private var authStore
 
     @State private var model: EditProfileModel
     @State private var showDiscardConfirm = false
@@ -28,6 +29,10 @@ struct EditProfileView: View {
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background(Color.appBackground)
         .toolbar(.hidden, for: .navigationBar)
+        .task {
+            await model.loadColors()
+        }
+        .toast(message: $model.errorMessage)
         .alert("Discard your changes?", isPresented: $showDiscardConfirm) {
             Button("Keep editing", role: .cancel) {}
             Button("Discard", role: .destructive) { dismiss() }
@@ -58,10 +63,11 @@ struct EditProfileView: View {
                     .padding(.horizontal, 20)
                     .frame(height: 38)
                     .background(Capsule().fill(Color.appPrimary))
-                    .opacity(model.canSave ? 1 : 0.45)
+                    .opacity(model.canSave && !model.isSaving ? 1 : 0.45)
                     .contentShape(Capsule())
             }
             .buttonStyle(PressableButtonStyle())
+            .disabled(model.isSaving)
         }
         .padding(.horizontal, 16)
         .padding(.vertical, 12)
@@ -73,7 +79,7 @@ struct EditProfileView: View {
                 preview
 
                 field("Avatar") {
-                    AvatarPalettePicker(selection: $model.palette)
+                    AvatarColorPicker(colors: model.colors, selection: $model.avatarHex)
                 }
 
                 field("Display name", error: model.visibleError(model.nameError)) {
@@ -153,7 +159,11 @@ struct EditProfileView: View {
 
     private var preview: some View {
         HStack(spacing: 14) {
-            CommunityAvatar(start: model.palette.start, end: model.palette.end, size: 64)
+            CommunityAvatar(
+                start: Color(hex: model.avatarHex),
+                end: Color(hex: model.avatarHex).darkened(by: 0.28),
+                size: 64
+            )
 
             VStack(alignment: .leading, spacing: 3) {
                 Text(model.previewName)
@@ -172,7 +182,7 @@ struct EditProfileView: View {
         .padding(16)
         .frame(maxWidth: .infinity)
         .background(Color.appSurfaceCard, in: RoundedRectangle(cornerRadius: 16, style: .continuous))
-        .animation(.easeOut(duration: 0.2), value: model.palette)
+        .animation(.easeOut(duration: 0.2), value: model.avatarHex)
     }
 
     private var bioCounter: String? {
@@ -218,9 +228,12 @@ struct EditProfileView: View {
 
     private func save() {
         focusedField = nil
-        guard let updated = model.save() else { return }
-        profile = updated
-        dismiss()
+        Task {
+            guard let (updated, user) = await model.save() else { return }
+            profile = updated
+            authStore.updateUser(user)
+            dismiss()
+        }
     }
 }
 
@@ -229,5 +242,6 @@ struct EditProfileView: View {
     NavigationStack {
         EditProfileView(profile: $profile)
     }
+    .environment(AuthStore())
     .preferredColorScheme(.dark)
 }

@@ -34,8 +34,7 @@ enum UserProfileMockData {
             username: user.username,
             bio: "Co-op enjoyer and lore hunter. Always down for a raid night or a slow-burn RPG.",
             joinedAt: "Joined January 2024",
-            avatarStart: user.avatarStart,
-            avatarEnd: user.avatarEnd,
+            avatarHex: user.avatarStart.hexString,
             stats: ProfileStats(totalGames: 87, hours: 934, platinum: 12)
         )
     }

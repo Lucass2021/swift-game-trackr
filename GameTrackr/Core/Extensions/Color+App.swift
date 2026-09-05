@@ -32,10 +32,11 @@ extension Color {
 
 extension Color {
     init(hex: String) {
+        let value = hex.hasPrefix("#") ? String(hex.dropFirst()) : hex
         var int: UInt64 = 0
-        Scanner(string: hex).scanHexInt64(&int)
+        Scanner(string: value).scanHexInt64(&int)
         let red, green, blue, alpha: UInt64
-        switch hex.count {
+        switch value.count {
         case 8:
             (red, green, blue, alpha) = (int >> 24 & 0xFF, int >> 16 & 0xFF, int >> 8 & 0xFF, int & 0xFF)
         default:

@@ -5,14 +5,14 @@ struct SetupItem: Identifiable, Equatable {
     var title: String
     var description: String
     var photos: [SetupPhoto]
-    var palette: AvatarPalette
+    var palette: SetupPalette
 
     init(
         id: UUID = UUID(),
         title: String,
         description: String,
         photos: [SetupPhoto] = [],
-        palette: AvatarPalette = .indigo
+        palette: SetupPalette = .indigo
     ) {
         self.id = id
         self.title = title

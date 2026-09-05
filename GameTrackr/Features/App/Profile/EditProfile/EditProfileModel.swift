@@ -12,18 +12,22 @@ final class EditProfileModel {
     var name: String
     var username: String
     var bio: String
-    var palette: AvatarPalette
+    var avatarHex: String
     var visibility: ProfileVisibility
     private(set) var hasAttemptedSave = false
+    private(set) var colors: [ProfileColor] = []
+    private(set) var isSaving = false
+    var errorMessage: String?
 
     private let original: Profile
+    private let service = ProfileService.shared
 
     init(profile: Profile) {
         original = profile
         name = profile.name
         username = String(profile.username.drop { $0 == "@" })
         bio = profile.bio
-        palette = AvatarPalette.matching(start: profile.avatarStart, end: profile.avatarEnd)
+        avatarHex = profile.avatarHex
         visibility = profile.visibility
     }
 
@@ -74,7 +78,7 @@ final class EditProfileModel {
         trimmedName != original.name
             || formattedUsername != original.username
             || trimmedBio != original.bio
-            || palette != AvatarPalette.matching(start: original.avatarStart, end: original.avatarEnd)
+            || avatarHex != original.avatarHex
             || visibility != original.visibility
     }
 
@@ -94,19 +98,41 @@ final class EditProfileModel {
         hasAttemptedSave ? error : nil
     }
 
-    func save() -> Profile? {
-        hasAttemptedSave = true
-        guard canSave else { return nil }
+    func loadColors() async {
+        guard colors.isEmpty else { return }
+        colors = await (try? service.fetchColors()) ?? []
+    }
 
-        return Profile(
+    func save() async -> (Profile, User)? {
+        hasAttemptedSave = true
+        guard canSave, !isSaving else { return nil }
+
+        isSaving = true
+        errorMessage = nil
+        defer { isSaving = false }
+
+        let user: User
+        do {
+            user = try await service.update(
+                name: trimmedName,
+                username: trimmedUsername,
+                profileColor: avatarHex
+            )
+        } catch {
+            errorMessage = error.userMessage()
+            return nil
+        }
+
+        let profile = Profile(
             name: trimmedName,
             username: formattedUsername,
             bio: trimmedBio,
             joinedAt: original.joinedAt,
-            avatarStart: palette.start,
-            avatarEnd: palette.end,
+            avatarHex: avatarHex,
             stats: original.stats,
             visibility: visibility
-        )
+        ).applying(user)
+
+        return (profile, user)
     }
 }

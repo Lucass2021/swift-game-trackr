@@ -1,13 +1,14 @@
 import SwiftUI
 
-struct AvatarPalettePicker: View {
-    @Binding var selection: AvatarPalette
+struct AvatarColorPicker: View {
+    let colors: [ProfileColor]
+    @Binding var selection: String
 
     var body: some View {
         ScrollView(.horizontal, showsIndicators: false) {
             HStack(spacing: 12) {
-                ForEach(AvatarPalette.allCases) { palette in
-                    swatch(palette)
+                ForEach(colors) { color in
+                    swatch(color)
                 }
             }
             .padding(.horizontal, 2)
@@ -15,16 +16,16 @@ struct AvatarPalettePicker: View {
         }
     }
 
-    private func swatch(_ palette: AvatarPalette) -> some View {
-        let isSelected = palette == selection
+    private func swatch(_ profileColor: ProfileColor) -> some View {
+        let isSelected = profileColor.hex.caseInsensitiveCompare(selection) == .orderedSame
 
         return Button {
-            selection = palette
+            selection = profileColor.hex
         } label: {
             Circle()
                 .fill(
                     LinearGradient(
-                        colors: [palette.start, palette.end],
+                        colors: [profileColor.color, profileColor.color.darkened(by: 0.28)],
                         startPoint: .topLeading,
                         endPoint: .bottomTrailing
                     )
@@ -46,15 +47,22 @@ struct AvatarPalettePicker: View {
                 .contentShape(Circle())
         }
         .buttonStyle(PressableButtonStyle())
-        .accessibilityLabel(palette.title)
+        .accessibilityLabel(profileColor.name)
         .accessibilityAddTraits(isSelected ? [.isSelected] : [])
     }
 }
 
 #Preview {
-    @Previewable @State var selection: AvatarPalette = .violet
-    AvatarPalettePicker(selection: $selection)
-        .padding()
-        .background(Color.appBackground)
-        .preferredColorScheme(.dark)
+    @Previewable @State var selection = "#8B5CF6"
+    AvatarColorPicker(
+        colors: [
+            ProfileColor(key: "purple", name: "Purple", hex: "#8B5CF6"),
+            ProfileColor(key: "emerald", name: "Emerald", hex: "#10B981"),
+            ProfileColor(key: "amber", name: "Amber", hex: "#F59E0B")
+        ],
+        selection: $selection
+    )
+    .padding()
+    .background(Color.appBackground)
+    .preferredColorScheme(.dark)
 }

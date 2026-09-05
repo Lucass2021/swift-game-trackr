@@ -1,6 +1,6 @@
 import SwiftUI
 
-enum AvatarPalette: String, CaseIterable, Identifiable {
+enum SetupPalette: String, CaseIterable, Identifiable {
     case violet
     case emerald
     case crimson
@@ -39,9 +39,5 @@ enum AvatarPalette: String, CaseIterable, Identifiable {
         case .cyan: .coverCyanEnd
         case .pine: .coverPineEnd
         }
-    }
-
-    static func matching(start: Color, end: Color) -> AvatarPalette {
-        allCases.first { $0.start == start && $0.end == end } ?? .violet
     }
 }

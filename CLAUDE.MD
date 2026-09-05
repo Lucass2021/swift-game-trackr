@@ -274,6 +274,21 @@ JSON request/response. Pagination via `?page=` + `?per_page=` returning Laravel-
 - `GET    /me/stats` — aggregated stats (totals, platinum rate, by genre/platform/year)
 
 ### Profiles & friends
+> ✅ **`PATCH /profile` + `GET /profile/colors` — SHIPPED on both clients 2026-09-05.** The Edit
+> profile screen now persists. Notes:
+> - `PATCH /profile` (auth) takes `{ name, username, profile_color }` — all `sometimes|required`,
+>   `username` unique — and answers `{ message, user }`. Send the username **without** the `@`.
+> - `GET /profile/colors` (auth) returns 12 curated `{ key, name, hex }`. **A single hex per color**,
+>   not a gradient pair: both clients derive the avatar/banner gradient as `hex → hex darkened 28%`,
+>   so `Profile` stores `avatarHex` and computes `avatarStart`/`avatarEnd`.
+> - `username` and `profile_color` are **auto-generated at registration** (slugified name, random
+>   color), so every user has them before ever opening the screen.
+> - 🔴 **`bio` and `visibility` stay mock** — the API has no column for either. They are the two
+>   fields on that screen that still do not survive an app restart.
+> - The old hardcoded `AvatarPalette` (7 named gradients) was **renamed to `SetupPalette`** and moved
+>   to the setup feature on both clients — it is still the local palette for My Setup cards, which
+>   has nothing to do with the profile color.
+
 - `GET  /users/{username}` — public profile + public library
 - `GET  /users/{username}/stats`
 - `POST /friends/requests` — `{ user_id }`
