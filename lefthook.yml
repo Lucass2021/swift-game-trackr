@@ -8,3 +8,6 @@ pre-commit:
     lint:
       glob: "*.swift"
       run: swiftlint lint --quiet --strict {staged_files}
+    test:
+      glob: "*.swift"
+      run: ./scripts/test.sh

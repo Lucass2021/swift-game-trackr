@@ -131,3 +131,26 @@ enum TestData {
         AuthResponse(token: token, user: user(), message: nil)
     }
 }
+
+struct FakeProfileService: ProfileServicing {
+    var colors: [ProfileColor] = []
+    var updated: User?
+    var failure: APIError?
+
+    func fetchColors() async throws -> [ProfileColor] {
+        if let failure { throw failure }
+        return colors
+    }
+
+    func update(name: String, username: String, profileColor: String) async throws -> User {
+        if let failure { throw failure }
+        return updated ?? User(
+            id: 1,
+            name: name,
+            email: "lucas@example.com",
+            avatarUrl: nil,
+            username: username,
+            profileColor: profileColor
+        )
+    }
+}

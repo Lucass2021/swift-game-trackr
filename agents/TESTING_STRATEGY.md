@@ -103,6 +103,15 @@ Exclude all of the above from the coverage metric, or the number lies.
 
 ---
 
+## Running the tests
+
+- `./scripts/test.sh` runs the unit target and prints one line on success; on failure it prints the
+  failing cases and the path to the full log. `TEST_DESTINATION` overrides the simulator.
+- **Lefthook runs it on every commit that touches a `.swift` file** (`pre-commit`, after
+  `swiftformat` and `swiftlint`), so a red suite blocks the commit. Use `git commit --no-verify`
+  only when you know the failure is unrelated.
+- `./scripts/coverage.sh` is the same run with `-enableCodeCoverage YES` plus the `xccov` report.
+
 ## Coverage
 
 - Run `./scripts/coverage.sh` — it runs the unit target with `-enableCodeCoverage YES` and prints
@@ -155,14 +164,69 @@ iOS has weaker tooling than Android here. Keep it small and honest.
 | every other ViewModel | 0% |
 | whole app target (Views included) | 5.7% |
 
-`PaginationState` at 0% is the most urgent gap — it is where the page-1 duplication bug lived.
+`PaginationState` at 0% was the most urgent gap — it is where the page-1 duplication bug lived.
+
+## Baseline measured 2026-09-06 (90 tests, Phase 1)
+
+Layer 1 landed: JWT, `APIError`, `PaginationState`, the DTO → domain mappings, and the three
+validation models. The whole suite still runs in well under a second.
+
+| Area | 2026-09-05 | 2026-09-06 |
+| --- | --- | --- |
+| `Core/Pagination/PaginationState.swift` | 0% | **100%** |
+| `Core/Pagination/FeedCache.swift` | 100% | 100% |
+| `Core/Network/JWT.swift` | 100% | 100% |
+| `Core/Network/APIError.swift` | 42.1% | **94.7%** |
+| `Core/Network/APIClient.swift` | 79.7% | 80.5% |
+| `Core/Network/Endpoint.swift` | 78.7% | 78.7% |
+| `Features/App/Home/HomeViewModel.swift` | 100% | 100% |
+| `Features/Auth/Login/LoginViewModel.swift` | 84.0% | 84.0% |
+| `Features/Auth/Register/RegisterViewModel.swift` | 0% | **62.8%** |
+| `Features/App/Profile/EditProfile/EditProfileModel.swift` | 0% | **69.4%** |
+| whole app target (189 Views included) | 5.7% | 7.3% |
+
+`Game`, `GameDetail` and `CreateCommunityModel` do not appear in the table because `xccov` folds
+them into files that are mostly `View` code; their mapping paths are covered by
+`Models/GameMappingTests.swift` and `Features/CreateCommunityModelTests.swift`.
+
+**Still at 0% after Phase 1** — all of them Layer 2/3 work, not Layer 1:
+`CommunityViewModel`, `SearchViewModel`, `ForgotPassword` / `ResetPassword` / `VerifyResetCode`
+view models, and `CommunityService`.
+
+### What Phase 1 added
+
+```
+GameTrackrTests/
+  Support/
+    TestJWT.swift                base64url token builder (unpadded, like the real backend's)
+  Core/
+    JWTTests.swift               leeway, malformed input, unpadded base64url, missing exp
+    APIErrorTests.swift          status-code mapping + every errorDescription branch
+    PaginationStateTests.swift   canLoadMore, append, reset, restore, the index guards
+  Models/
+    GameMappingTests.swift       missing IGDB keys, Unix timestamps, platform slugs,
+                                 both paginated shapes, GameDetail hero/rating/specs
+  Features/
+    RegisterViewModelTests.swift    errors only after submit, every field rule
+    EditProfileModelTests.swift     username charset + limits, hasChanges, previews
+    CreateCommunityModelTests.swift the whitespace-stripped handle the backend stores
+```
+
+Three things worth remembering when adding more:
+
+- **`Calendar.current` makes `year` timezone-dependent.** Pick a timestamp in the middle of the
+  year (`1_655_294_400` — 15 Jun 2022 12:00 UTC) so no timezone can shift it into another year.
+- **`Game.year` and `GameDetail.year` are strings, not dates.** Assert `"TBA"` explicitly; a nil
+  `releaseDate` is the case IGDB actually sends for unannounced games.
+- **`CreateCommunityModel.nameError` validates the *handle*, not the typed name.** `"a b"` is three
+  characters typed and two stored, so it must fail. That asymmetry is the whole point of the model.
 
 ## Roadmap
 
 | Phase | What | Status |
 | --- | --- | --- |
 | **0** | Dependency injection so ViewModels/services are constructible with fakes | ✅ done 2026-09-05 |
-| 1 | Layer 1 tests + coverage measurement (no gate) | ▶ tooling in place 2026-09-05 |
+| 1 | Layer 1 tests + coverage measurement (no gate) | ✅ done 2026-09-06 — 90 tests |
 | 2 | Benchmark baseline recorded in `agents/BASELINE.md` | |
 | 3 | Layers 2 and 3 (ViewModels + contract/fixtures) | |
 | 4 | Layer 4 snapshots of shared components | |
