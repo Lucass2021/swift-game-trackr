@@ -13,7 +13,18 @@
 # Navigation and app shell
 # Review community best practices
 # Native features for UX (widgets, push notifications, shortcuts)
-# Reusable styles (Modifier / ViewModifier)
+- Home screen widget "playing now" (WidgetKit)
+- Push notifications for likes and comments (APNs, needs API support)
+- App Intents, Shortcuts and Spotlight
+- Live Activities
+- Haptics
+# Reusable styles (ViewModifier)
 # Component organization rule
 # System design review
+- Image cache (SwiftUI AsyncImage has no disk cache)
+- Feed cache TTL
+- Offline mode (SwiftData)
+- Token refresh
+- Pagination
+- Centralized error mapping
 # Design system parity between apps
