@@ -28,3 +28,5 @@
 - Pagination
 - Centralized error mapping
 # Design system parity between apps
+# Mocks A: Fake repositories for screens without API (phase 3)
+# Mocks B: Previews use MockData sample objects (phase 3)
