@@ -35,3 +35,6 @@ fastlane/test_output
 
 ## Local environment overrides (like .env) — holds the per-machine API URL
 Config/Local.xcconfig
+
+# Local session notes
+sessions/
