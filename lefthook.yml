@@ -11,3 +11,6 @@ pre-commit:
     file-length:
       glob: "*.swift"
       run: ./scripts/check-file-length.sh {staged_files}
+    test:
+      glob: "*.swift"
+      run: ./scripts/test.sh

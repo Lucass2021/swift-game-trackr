@@ -1,9 +1,11 @@
 import Foundation
 
 enum JWT {
-    static func isExpired(_ token: String, leeway: TimeInterval = 10) -> Bool {
+    private static let expiryLeeway: TimeInterval = 10
+
+    static func isExpired(_ token: String, leeway: TimeInterval = expiryLeeway, now: Date = Date()) -> Bool {
         guard let expiry = expiry(of: token) else { return false }
-        return expiry.timeIntervalSinceNow <= leeway
+        return expiry.timeIntervalSince(now) <= leeway
     }
 
     private static func expiry(of token: String) -> Date? {
