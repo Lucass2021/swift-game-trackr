@@ -29,7 +29,11 @@ struct AuthService: AuthServicing {
 
     func login(email: String, password: String) async throws -> AuthResponse {
         let body = LoginRequest(email: email, password: password)
-        return try await APIClient.shared.request(.login, body: body)
+        do {
+            return try await APIClient.shared.request(.login, body: body)
+        } catch APIError.forbidden {
+            throw APIError.unauthorized
+        }
     }
 
     func forgotPassword(email: String) async throws {
