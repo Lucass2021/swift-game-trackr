@@ -11,3 +11,9 @@
 # Data layer: repositories and constructor injection
 # Screen by screen MVVM refactor with previews and tests
 # Navigation and app shell
+# Review community best practices
+# Native features for UX (widgets, push notifications, shortcuts)
+# Reusable styles (Modifier / ViewModifier)
+# Component organization rule
+# System design review
+# Design system parity between apps
