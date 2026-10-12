@@ -23,9 +23,5 @@ final class FeedCache {
         entries[key] = (snapshot, Date())
     }
 
-    func invalidate() {
-        entries.removeAll()
-    }
-
     private static let timeToLive: TimeInterval = 5 * 60
 }

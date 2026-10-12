@@ -8,10 +8,6 @@ final class HomeFeed {
     private(set) var hasLoaded = false
     private(set) var failed = false
 
-    var isEmptyAndSettled: Bool {
-        games.isEmpty && hasLoaded && !isLoading
-    }
-
     fileprivate func load(force: Bool, _ fetch: () async throws -> [GameDTO]) async {
         guard !isLoading, force || !hasLoaded || games.isEmpty else { return }
         isLoading = true
