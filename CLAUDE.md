@@ -38,6 +38,7 @@
 ## Do not add comments
 ## All text must be in English: code, UI strings, commits, CLAUDE.md, TODO.MD, sessions/ and any other .md file
 ## Avoid magic numbers; use named constants (private enum Constants with static let, or shared spacing/time tokens)
+## Use the theme tokens Spacing, Radius and Durations (Core/Theme); off-scale values round to the nearest token (ties round down); one-off sizes become named private constants in their file
 ## Avoid hardcoded colors like Color(hex: "#E36E1C"); add missing colors to Core/Extensions/Color+App.swift
 
 ## API
