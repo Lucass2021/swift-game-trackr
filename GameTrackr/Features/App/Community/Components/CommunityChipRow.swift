@@ -35,7 +35,7 @@ struct CommunityChipRow: View {
 
 #Preview {
     @Previewable @State var selection = "All"
-    CommunityChipRow(titles: CommunityMockData.categories, selection: $selection)
+    CommunityChipRow(titles: CommunityOptions.categories, selection: $selection)
         .padding(.vertical)
         .background(Color.appBackground)
         .preferredColorScheme(.dark)

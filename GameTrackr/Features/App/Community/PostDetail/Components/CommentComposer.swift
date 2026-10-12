@@ -9,7 +9,7 @@ struct CommentComposer: View {
         VStack(spacing: 12) {
             ScrollView(.horizontal, showsIndicators: false) {
                 HStack(spacing: 18) {
-                    ForEach(CommunityMockData.quickReactions, id: \.self) { reaction in
+                    ForEach(CommunityOptions.quickReactions, id: \.self) { reaction in
                         Button {
                             draft += reaction
                         } label: {

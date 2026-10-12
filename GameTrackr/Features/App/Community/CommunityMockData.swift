@@ -168,8 +168,6 @@ enum CommunityMockData {
         )
     ]
 
-    static let categories = ["All", "RPG", "FPS", "Indie", "Retro", "Speedrun", "Tech"]
-
     static let detailCommunity = Community(
         id: 201,
         name: "RPG Speedrunners",
@@ -328,6 +326,4 @@ enum CommunityMockData {
             avatarEnd: .coverCyanEnd
         )
     ]
-
-    static let quickReactions = ["❤️", "🙌", "🔥", "👏", "😢", "😍"]
 }

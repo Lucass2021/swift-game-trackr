@@ -31,7 +31,7 @@ struct DiscoverCommunitiesView: View {
                 CommunitySearchField(query: $query)
                     .padding(.horizontal, 20)
 
-                CommunityChipRow(titles: CommunityMockData.categories, selection: $category)
+                CommunityChipRow(titles: CommunityOptions.categories, selection: $category)
 
                 if filtered.isEmpty {
                     CommunityEmptyState(
