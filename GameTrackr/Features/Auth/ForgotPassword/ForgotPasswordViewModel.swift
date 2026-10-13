@@ -9,10 +9,10 @@ class ForgotPasswordViewModel {
     var showVerifyCode = false
     private var submitted = false
 
-    private let service: AuthServicing
+    private let repository: AuthRepository
 
-    init(service: AuthServicing = AuthService.live) {
-        self.service = service
+    init(repository: AuthRepository = RemoteAuthRepository()) {
+        self.repository = repository
     }
 
     var emailError: String? {
@@ -28,7 +28,7 @@ class ForgotPasswordViewModel {
         isLoading = true
         defer { isLoading = false }
         do {
-            try await service.forgotPassword(email: email)
+            try await repository.forgotPassword(email: email)
             showVerifyCode = true
         } catch {
             errorMessage = error.userMessage()

@@ -12,13 +12,12 @@ class RegisterViewModel {
     var errorMessage: String?
     var showSuccess = false
     private var submitted = false
-    private var pendingToken: String?
     private var pendingUser: User?
 
-    private let service: AuthServicing
+    private let repository: AuthRepository
 
-    init(service: AuthServicing = AuthService.live) {
-        self.service = service
+    init(repository: AuthRepository = RemoteAuthRepository()) {
+        self.repository = repository
     }
 
     var nameError: String? {
@@ -62,14 +61,12 @@ class RegisterViewModel {
         isLoading = true
         defer { isLoading = false }
         do {
-            let response = try await service.register(
+            pendingUser = try await repository.register(
                 name: name,
                 email: email,
                 password: password,
                 passwordConfirmation: confirmPassword
             )
-            pendingToken = response.token
-            pendingUser = response.user
             showSuccess = true
         } catch {
             errorMessage = error.userMessage()
@@ -77,8 +74,8 @@ class RegisterViewModel {
     }
 
     func completeRegistration(authStore: AuthStore) {
-        guard let pendingToken, let pendingUser else { return }
-        authStore.authenticate(token: pendingToken, user: pendingUser)
+        guard let pendingUser else { return }
+        authStore.authenticate(user: pendingUser)
     }
 
     func signInWithGoogle(authStore: AuthStore) async {
@@ -86,7 +83,8 @@ class RegisterViewModel {
         defer { isLoading = false }
         do {
             let token = try await GoogleAuthService.shared.signIn()
-            try await authStore.completeSocialSignIn(token: token)
+            let user = try await repository.signInWithGoogle(token: token)
+            authStore.authenticate(user: user)
         } catch GoogleAuthError.cancelled {
         } catch {
             errorMessage = error.userMessage()

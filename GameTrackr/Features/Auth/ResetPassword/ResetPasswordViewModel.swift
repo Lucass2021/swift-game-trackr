@@ -12,12 +12,12 @@ class ResetPasswordViewModel {
     var showSuccess = false
     private var submitted = false
 
-    private let service: AuthServicing
+    private let repository: AuthRepository
 
-    init(email: String, code: String, service: AuthServicing = AuthService.live) {
+    init(email: String, code: String, repository: AuthRepository = RemoteAuthRepository()) {
         self.email = email
         self.code = code
-        self.service = service
+        self.repository = repository
     }
 
     var passwordError: String? {
@@ -39,7 +39,7 @@ class ResetPasswordViewModel {
         isLoading = true
         defer { isLoading = false }
         do {
-            try await service.resetPassword(email: email, code: code, newPassword: password)
+            try await repository.resetPassword(email: email, code: code, newPassword: password)
             showSuccess = true
         } catch {
             errorMessage = error.userMessage()
@@ -50,8 +50,8 @@ class ResetPasswordViewModel {
         isLoading = true
         defer { isLoading = false }
         do {
-            let response = try await service.login(email: email, password: password)
-            authStore.authenticate(token: response.token, user: response.user)
+            let user = try await repository.login(email: email, password: password)
+            authStore.authenticate(user: user)
         } catch {
             errorMessage = error.userMessage()
         }

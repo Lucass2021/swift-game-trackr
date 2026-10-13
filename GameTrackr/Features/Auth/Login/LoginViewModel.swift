@@ -9,10 +9,10 @@ class LoginViewModel {
     var errorMessage: String?
     private var submitted = false
 
-    private let service: AuthServicing
+    private let repository: AuthRepository
 
-    init(service: AuthServicing = AuthService.live) {
-        self.service = service
+    init(repository: AuthRepository = RemoteAuthRepository()) {
+        self.repository = repository
     }
 
     var emailError: String? {
@@ -35,8 +35,8 @@ class LoginViewModel {
         isLoading = true
         defer { isLoading = false }
         do {
-            let response = try await service.login(email: email, password: password)
-            authStore.authenticate(token: response.token, user: response.user)
+            let user = try await repository.login(email: email, password: password)
+            authStore.authenticate(user: user)
         } catch {
             errorMessage = error.userMessage()
         }
@@ -47,7 +47,8 @@ class LoginViewModel {
         defer { isLoading = false }
         do {
             let token = try await GoogleAuthService.shared.signIn()
-            try await authStore.completeSocialSignIn(token: token)
+            let user = try await repository.signInWithGoogle(token: token)
+            authStore.authenticate(user: user)
         } catch GoogleAuthError.cancelled {
         } catch {
             errorMessage = error.userMessage()

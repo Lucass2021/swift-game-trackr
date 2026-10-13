@@ -14,6 +14,7 @@ class AuthStore {
     var isResetFlowActive = false
 
     private let tokenStore: TokenStore
+    private let repository: AuthRepository
 
     var isAuthenticated: Bool {
         state == .authenticated
@@ -27,8 +28,9 @@ class AuthStore {
         state != .unauthenticated
     }
 
-    init(tokenStore: TokenStore = KeychainTokenStore()) {
+    init(tokenStore: TokenStore = KeychainTokenStore(), repository: AuthRepository = RemoteAuthRepository()) {
         self.tokenStore = tokenStore
+        self.repository = repository
         state = tokenStore.get() != nil ? .authenticated : .unauthenticated
         Task { [weak self] in
             await APIClient.shared.setRefreshFailureHandler { [weak self] in
@@ -42,22 +44,10 @@ class AuthStore {
     func validate() async {
         guard isAuthenticated else { return }
         do {
-            let response: ValidateResponse = try await APIClient.shared.request(.me)
-            currentUser = response.user
+            currentUser = try await repository.validate()
         } catch APIError.unauthorized {
             logout()
         } catch {}
-    }
-
-    func completeSocialSignIn(token: String) async throws {
-        tokenStore.save(token)
-        do {
-            let response: ValidateResponse = try await APIClient.shared.request(.me)
-            authenticate(token: token, user: response.user)
-        } catch {
-            tokenStore.clear()
-            throw error
-        }
     }
 
     func updateUser(_ user: User) {
@@ -70,8 +60,7 @@ class AuthStore {
         isResetFlowActive = false
     }
 
-    func authenticate(token: String, user: User) {
-        tokenStore.save(token)
+    func authenticate(user: User) {
         currentUser = user
         state = .authenticated
         isResetFlowActive = false

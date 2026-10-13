@@ -11,11 +11,11 @@ class VerifyResetCodeViewModel {
     var secondsRemaining = 30
     private var submitted = false
 
-    private let service: AuthServicing
+    private let repository: AuthRepository
 
-    init(email: String, service: AuthServicing = AuthService.live) {
+    init(email: String, repository: AuthRepository = RemoteAuthRepository()) {
         self.email = email
-        self.service = service
+        self.repository = repository
     }
 
     var codeError: String? {
@@ -39,7 +39,7 @@ class VerifyResetCodeViewModel {
 
     func resend() async {
         guard canResend else { return }
-        try? await service.forgotPassword(email: email)
+        try? await repository.forgotPassword(email: email)
         await startResendCountdown()
     }
 
@@ -50,7 +50,7 @@ class VerifyResetCodeViewModel {
         isLoading = true
         defer { isLoading = false }
         do {
-            try await service.verifyResetCode(email: email, code: code)
+            try await repository.verifyResetCode(email: email, code: code)
             showResetPassword = true
         } catch {
             errorMessage = error.userMessage()
