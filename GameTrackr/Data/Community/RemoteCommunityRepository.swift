@@ -49,7 +49,7 @@ struct RemoteCommunityRepository: CommunityRepository {
 
     func fetchPostComments(postId: Int) async throws -> [PostComment] {
         let response: PostDTO = try await apiClient.request(.post(id: postId))
-        return (response.comments ?? []).map { PostComment(dto: $0) }
+        return toThreads(response.comments ?? [])
     }
 
     func createPost(title: String, description: String, communityId: Int) async throws -> CommunityPost {
@@ -98,5 +98,24 @@ struct RemoteCommunityRepository: CommunityRepository {
 
     private func toLikeStatus(_ response: LikeResponse) -> LikeStatus {
         LikeStatus(isLiked: response.isLiked, likes: response.likes)
+    }
+
+    private func toThreads(_ comments: [CommentDTO]) -> [PostComment] {
+        let byId = Dictionary(uniqueKeysWithValues: comments.map { ($0.id, $0) })
+
+        func rootId(_ comment: CommentDTO) -> Int {
+            var current = comment
+            while let parentId = current.parentId, let parent = byId[parentId] {
+                current = parent
+            }
+            return current.id
+        }
+
+        let replies = Dictionary(grouping: comments.filter { $0.parentId != nil }) { rootId($0) }
+        return comments.filter { $0.parentId == nil }.map { comment in
+            var thread = PostComment(dto: comment)
+            thread.replies = (replies[comment.id] ?? []).map { PostComment(dto: $0) }
+            return thread
+        }
     }
 }

@@ -293,7 +293,7 @@ struct PostDetailView: View {
                 }
             }
 
-            action(icon: .comment, label: "Comment", value: comments.count.abbreviated) {
+            action(icon: .comment, label: "Comment", value: comments.totalCount.abbreviated) {
                 showComments = true
             }
 
