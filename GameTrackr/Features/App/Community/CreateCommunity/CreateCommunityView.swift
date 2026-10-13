@@ -60,11 +60,9 @@ struct CreateCommunityView: View {
                     .padding(.horizontal, 20)
                     .frame(height: 38)
                     .background(Capsule().fill(Color.appPrimary))
-                    .opacity(model.canSubmit ? 1 : 0.45)
                     .contentShape(Capsule())
             }
             .buttonStyle(PressableButtonStyle())
-            .disabled(!model.canSubmit)
         }
         .padding(.horizontal, 16)
         .padding(.vertical, 12)
