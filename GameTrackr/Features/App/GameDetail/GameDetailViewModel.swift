@@ -7,7 +7,11 @@ final class GameDetailViewModel {
     private(set) var isLoading = false
     private(set) var failed = false
 
-    private let service = GameService.shared
+    private let repository: GameRepository
+
+    init(repository: GameRepository = RemoteGameRepository()) {
+        self.repository = repository
+    }
 
     func load(slug: String) async {
         guard !isLoading else { return }
@@ -15,7 +19,7 @@ final class GameDetailViewModel {
         failed = false
 
         do {
-            game = try await GameDetail(dto: service.fetchGame(slug: slug))
+            game = try await repository.fetchGame(slug: slug)
         } catch {
             failed = true
         }
