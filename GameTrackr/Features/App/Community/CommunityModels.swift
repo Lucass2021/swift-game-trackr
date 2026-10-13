@@ -309,6 +309,12 @@ struct PostComment: Identifiable, Hashable {
     }
 }
 
+extension [PostComment] {
+    var totalCount: Int {
+        reduce(0) { $0 + 1 + $1.replies.count + $1.hiddenReplies }
+    }
+}
+
 struct LikeStatus: Hashable {
     let isLiked: Bool
     let likes: Int

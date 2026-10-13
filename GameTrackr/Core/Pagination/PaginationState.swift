@@ -20,13 +20,6 @@ final class PaginationState<Item: Identifiable> {
         total = 0
     }
 
-    func append<D: Decodable>(response: PaginatedResponse<D>, transform: ([D]) -> [Item]) {
-        items.append(contentsOf: transform(response.data))
-        currentPage = response.currentPage
-        lastPage = response.lastPage
-        total = response.total
-    }
-
     func append(page: Page<Item>) {
         items.append(contentsOf: page.items)
         currentPage = page.currentPage

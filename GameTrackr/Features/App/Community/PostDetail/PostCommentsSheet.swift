@@ -4,6 +4,7 @@ struct PostCommentsSheet: View {
     let postId: Int
     @State var comments: [PostComment]
     var isGuest = false
+    var repository: CommunityRepository = RemoteCommunityRepository()
 
     @Environment(AuthStore.self) private var authStore
     @Environment(\.dismiss) private var dismiss
@@ -13,7 +14,7 @@ struct PostCommentsSheet: View {
     @FocusState private var composerFocused: Bool
 
     private var total: Int {
-        comments.reduce(0) { $0 + 1 + $1.replies.count + $1.hiddenReplies }
+        comments.totalCount
     }
 
     var body: some View {
@@ -170,12 +171,11 @@ struct PostCommentsSheet: View {
         Task {
             do {
                 if let replyTarget {
-                    let dto = try await CommunityService.shared.replyToComment(
+                    let newReply = try await repository.replyToComment(
                         postId: postId,
                         commentId: replyTarget.id,
                         comment: text
                     )
-                    let newReply = PostComment(dto: dto)
                     if let parentIndex = comments.firstIndex(where: { $0.id == replyTarget.id }) {
                         comments[parentIndex].replies.append(newReply)
                     } else {
@@ -187,8 +187,8 @@ struct PostCommentsSheet: View {
                         }
                     }
                 } else {
-                    let dto = try await CommunityService.shared.addComment(postId: postId, comment: text)
-                    comments.append(PostComment(dto: dto))
+                    let comment = try await repository.addComment(postId: postId, comment: text)
+                    comments.append(comment)
                 }
             } catch {}
             isSubmitting = false
@@ -221,10 +221,7 @@ struct PostCommentsSheet: View {
 
         Task {
             do {
-                _ = try await CommunityService.shared.toggleCommentLike(
-                    postId: postId,
-                    commentId: comment.id
-                )
+                _ = try await repository.toggleCommentLike(postId: postId, commentId: comment.id)
             } catch {}
         }
     }
