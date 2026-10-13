@@ -17,10 +17,18 @@ struct PostDetailView: View {
     @State private var selectedUser: UserProfile?
     @State private var showDeleteAlert = false
 
-    init(post: CommunityPost, onCommunitySelect: @escaping () -> Void = {}, onDelete: @escaping () -> Void = {}) {
+    private let repository: CommunityRepository
+
+    init(
+        post: CommunityPost,
+        onCommunitySelect: @escaping () -> Void = {},
+        onDelete: @escaping () -> Void = {},
+        repository: CommunityRepository = RemoteCommunityRepository()
+    ) {
         self.post = post
         self.onCommunitySelect = onCommunitySelect
         self.onDelete = onDelete
+        self.repository = repository
         _isLiked = State(initialValue: post.isLiked)
         _likes = State(initialValue: post.likes)
         _isBookmarked = State(initialValue: post.isBookmarked)
@@ -30,7 +38,7 @@ struct PostDetailView: View {
         UserProfile(handle: post.author, avatarStart: post.avatarStart, avatarEnd: post.avatarEnd)
     }
 
-    private var isAuthor: Bool {
+    private var isOwnPost: Bool {
         authStore.currentUser?.id != nil && authStore.currentUser?.id == post.authorId
     }
 
@@ -86,42 +94,6 @@ struct PostDetailView: View {
             get: { selectedUser != nil },
             set: { if !$0 { selectedUser = nil } }
         )
-    }
-
-    private func loadComments() async {
-        commentsError = false
-        do {
-            let dto = try await CommunityService.shared.fetchPost(id: post.id)
-            comments = dto.comments?.map { PostComment(dto: $0) } ?? []
-        } catch {
-            commentsError = true
-        }
-    }
-
-    private func toggleLike() {
-        isLiked.toggle()
-        likes += isLiked ? 1 : -1
-
-        Task {
-            do {
-                let response = try await CommunityService.shared.toggleLike(postId: post.id)
-                isLiked = response.isLiked
-                likes = response.likes
-            } catch {
-                isLiked.toggle()
-                likes += isLiked ? 1 : -1
-            }
-        }
-    }
-
-    private func deletePost() {
-        Task {
-            do {
-                _ = try await CommunityService.shared.deletePost(id: post.id)
-                onDelete()
-                dismiss()
-            } catch {}
-        }
     }
 
     private var guestCard: some View {
@@ -182,7 +154,7 @@ struct PostDetailView: View {
 
             Spacer()
 
-            if isAuthor {
+            if isOwnPost {
                 Menu {
                     Button(role: .destructive) {
                         showDeleteAlert = true
@@ -237,7 +209,7 @@ struct PostDetailView: View {
 
             Spacer()
 
-            if !authStore.isGuest {
+            if !authStore.isGuest, !isOwnPost {
                 Button {
                     isFollowing.toggle()
                 } label: {
@@ -379,6 +351,46 @@ struct PostDetailView: View {
         .buttonStyle(PressableButtonStyle())
         .accessibilityLabel(label)
         .accessibilityValue(value ?? "")
+    }
+}
+
+private extension PostDetailView {
+    func loadComments() async {
+        commentsError = false
+        do {
+            comments = try await repository.fetchPostComments(postId: post.id)
+        } catch {
+            commentsError = true
+        }
+    }
+
+    func toggleLike() {
+        isLiked.toggle()
+        likes += isLiked ? 1 : -1
+
+        Task {
+            do {
+                let status = try await repository.togglePostLike(id: post.id)
+                isLiked = status.isLiked
+                likes = status.likes
+            } catch {
+                isLiked.toggle()
+                likes += isLiked ? 1 : -1
+            }
+        }
+    }
+
+    func deletePost() {
+        Task {
+            do {
+                try await repository.deletePost(id: post.id)
+            } catch APIError.notFound {
+            } catch {
+                return
+            }
+            onDelete()
+            dismiss()
+        }
     }
 }
 
