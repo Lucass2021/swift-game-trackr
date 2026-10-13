@@ -19,14 +19,18 @@ struct CommunityDetailView: View {
     @State private var showLeaveAlert = false
     @State private var deleteError: String?
 
+    private let repository: CommunityRepository
+
     init(
         community: Community,
         onPostSelect: @escaping (CommunityPost) -> Void = { _ in },
-        onDelete: @escaping () -> Void = {}
+        onDelete: @escaping () -> Void = {},
+        repository: CommunityRepository = RemoteCommunityRepository()
     ) {
         self.community = community
         self.onPostSelect = onPostSelect
         self.onDelete = onDelete
+        self.repository = repository
         _isJoined = State(initialValue: community.isJoined)
     }
 
@@ -235,7 +239,7 @@ struct CommunityDetailView: View {
     private func deleteCommunity() {
         Task {
             do {
-                _ = try await CommunityService.shared.deleteCommunity(id: community.id)
+                try await repository.deleteCommunity(id: community.id)
                 onDelete()
                 dismiss()
             } catch APIError.forbidden {
@@ -265,10 +269,10 @@ struct CommunityDetailView: View {
         let nextPage = postsPagination.currentPage + 1
 
         do {
-            let response = try await CommunityService.shared.fetchPosts(
-                communityId: community.id, perPage: 30, page: nextPage
+            let page = try await repository.fetchPosts(
+                page: nextPage, perPage: Constants.postsPageSize, communityId: community.id
             )
-            postsPagination.append(response: response) { $0.map { CommunityPost(dto: $0) } }
+            postsPagination.append(page: page)
         } catch {
             if reset { postsError = true }
         }
@@ -276,10 +280,9 @@ struct CommunityDetailView: View {
     }
 
     private func loadMembers() async {
-        do {
-            let dto = try await CommunityService.shared.fetchCommunity(id: community.id)
-            members = dto.members?.map { CommunityMember(dto: $0) } ?? []
-        } catch {}
+        if let fetched = try? await repository.fetchCommunityMembers(id: community.id) {
+            members = fetched
+        }
     }
 
     private func setJoined(_ joined: Bool) {
@@ -287,9 +290,9 @@ struct CommunityDetailView: View {
         Task {
             do {
                 if joined {
-                    _ = try await CommunityService.shared.join(communityId: community.id)
+                    try await repository.joinCommunity(id: community.id)
                 } else {
-                    _ = try await CommunityService.shared.leave(communityId: community.id)
+                    try await repository.leaveCommunity(id: community.id)
                 }
             } catch {
                 isJoined = !joined
@@ -331,11 +334,11 @@ struct CommunityDetailView: View {
 
         Task {
             do {
-                let response = try await CommunityService.shared.toggleLike(postId: post.id)
+                let status = try await repository.togglePostLike(id: post.id)
                 if let idx = postsPagination.items.firstIndex(where: { $0.id == post.id }) {
                     var item = postsPagination.items[idx]
-                    item.isLiked = response.isLiked
-                    item.likes = response.likes
+                    item.isLiked = status.isLiked
+                    item.likes = status.likes
                     postsPagination.updateItem(at: idx, with: item)
                 }
             } catch {
@@ -355,6 +358,10 @@ struct CommunityDetailView: View {
         updated.isBookmarked.toggle()
         postsPagination.updateItem(at: index, with: updated)
     }
+}
+
+private enum Constants {
+    static let postsPageSize = 30
 }
 
 #Preview {
