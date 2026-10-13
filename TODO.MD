@@ -30,3 +30,5 @@
 # Design system parity between apps
 # Mocks A: Fake repositories for screens without API (phase 3)
 # Mocks B: Previews use MockData sample objects (phase 3)
+# Standardize error display (toast vs inline field errors)
+# Post detail: show comments inline below the post (Reddit-like) instead of a bottom sheet
