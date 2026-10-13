@@ -1,24 +1,22 @@
 import Foundation
 import Security
 
-enum KeychainHelper {
-    private enum Key {
-        static let token = "com.lucasdias.GameTrackr.token"
+nonisolated struct KeychainTokenStore: TokenStore {
+    private static let tokenKey = "com.lucasdias.GameTrackr.token"
+
+    func get() -> String? {
+        read(forKey: Self.tokenKey)
     }
 
-    static func saveToken(_ token: String) {
-        save(token, forKey: Key.token)
+    func save(_ token: String) {
+        save(token, forKey: Self.tokenKey)
     }
 
-    static func getToken() -> String? {
-        read(forKey: Key.token)
+    func clear() {
+        delete(forKey: Self.tokenKey)
     }
 
-    static func clearToken() {
-        delete(forKey: Key.token)
-    }
-
-    private static func save(_ value: String, forKey key: String) {
+    private func save(_ value: String, forKey key: String) {
         guard let data = value.data(using: .utf8) else { return }
 
         let query: [CFString: Any] = [
@@ -41,7 +39,7 @@ enum KeychainHelper {
         }
     }
 
-    private static func read(forKey key: String) -> String? {
+    private func read(forKey key: String) -> String? {
         let query: [CFString: Any] = [
             kSecClass: kSecClassGenericPassword,
             kSecAttrAccount: key,
@@ -60,7 +58,7 @@ enum KeychainHelper {
         return string
     }
 
-    private static func delete(forKey key: String) {
+    private func delete(forKey key: String) {
         let query: [CFString: Any] = [
             kSecClass: kSecClassGenericPassword,
             kSecAttrAccount: key

@@ -13,6 +13,8 @@ class AuthStore {
     private(set) var currentUser: User?
     var isResetFlowActive = false
 
+    private let tokenStore: TokenStore
+
     var isAuthenticated: Bool {
         state == .authenticated
     }
@@ -25,8 +27,9 @@ class AuthStore {
         state != .unauthenticated
     }
 
-    init() {
-        state = KeychainHelper.getToken() != nil ? .authenticated : .unauthenticated
+    init(tokenStore: TokenStore = KeychainTokenStore()) {
+        self.tokenStore = tokenStore
+        state = tokenStore.get() != nil ? .authenticated : .unauthenticated
         Task { [weak self] in
             await APIClient.shared.setRefreshFailureHandler { [weak self] in
                 Task { @MainActor [weak self] in
@@ -47,12 +50,12 @@ class AuthStore {
     }
 
     func completeSocialSignIn(token: String) async throws {
-        KeychainHelper.saveToken(token)
+        tokenStore.save(token)
         do {
             let response: ValidateResponse = try await APIClient.shared.request(.me)
             authenticate(token: token, user: response.user)
         } catch {
-            KeychainHelper.clearToken()
+            tokenStore.clear()
             throw error
         }
     }
@@ -68,14 +71,14 @@ class AuthStore {
     }
 
     func authenticate(token: String, user: User) {
-        KeychainHelper.saveToken(token)
+        tokenStore.save(token)
         currentUser = user
         state = .authenticated
         isResetFlowActive = false
     }
 
     func logout() {
-        KeychainHelper.clearToken()
+        tokenStore.clear()
         currentUser = nil
         state = .unauthenticated
         isResetFlowActive = false

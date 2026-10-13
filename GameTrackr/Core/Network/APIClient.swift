@@ -18,14 +18,16 @@ actor APIClient {
 
     private nonisolated let baseURL = Config.baseURL
     private let session: URLSession
+    private let tokenStore: TokenStore
     private let encoder = JSONEncoder()
     private let decoder = JSONDecoder()
 
     private var refreshTask: Task<String, Error>?
     private var onRefreshFailure: (@Sendable () -> Void)?
 
-    init(session: URLSession = .shared) {
+    init(session: URLSession = .shared, tokenStore: TokenStore = KeychainTokenStore()) {
         self.session = session
+        self.tokenStore = tokenStore
     }
 
     func setRefreshFailureHandler(_ handler: @escaping @Sendable () -> Void) {
@@ -33,7 +35,7 @@ actor APIClient {
     }
 
     func request<T: Decodable>(_ endpoint: Endpoint, body: Encodable? = nil) async throws -> T {
-        var token = endpoint.requiresAuth ? KeychainHelper.getToken() : nil
+        var token = endpoint.requiresAuth ? tokenStore.get() : nil
 
         if let current = token, JWT.isExpired(current) {
             token = try await refreshToken()
@@ -54,11 +56,11 @@ actor APIClient {
         }
 
         let task = Task<String, Error> {
-            guard let current = KeychainHelper.getToken() else {
+            guard let current = self.tokenStore.get() else {
                 throw APIError.unauthorized
             }
             let response: RefreshResponse = try await self.perform(.refresh, body: nil, token: current)
-            KeychainHelper.saveToken(response.token)
+            self.tokenStore.save(response.token)
             return response.token
         }
         refreshTask = task
