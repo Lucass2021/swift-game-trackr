@@ -34,7 +34,7 @@ struct Community: Identifiable, Hashable {
     let name: String
     let authorId: Int?
     let category: String
-    let memberCount: Int
+    var memberCount: Int
     let postCount: Int
     let description: String
     var isJoined: Bool
@@ -307,6 +307,11 @@ struct PostComment: Identifiable, Hashable {
         default: return "\(Int(interval / 86400))d"
         }
     }
+}
+
+struct LikeStatus: Hashable {
+    let isLiked: Bool
+    let likes: Int
 }
 
 enum GradientPalette {

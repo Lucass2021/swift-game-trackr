@@ -12,11 +12,20 @@ final class CreateTopicModel {
     private(set) var hasAttemptedSubmit = false
     private(set) var isSubmitting = false
 
+    private(set) var communities: [Community] = []
+
     let isCommunityLocked: Bool
 
-    init(community: Community? = nil) {
+    private let repository: CommunityRepository
+
+    init(community: Community? = nil, repository: CommunityRepository = RemoteCommunityRepository()) {
         self.community = community
+        self.repository = repository
         isCommunityLocked = community != nil
+    }
+
+    func loadCommunities() async {
+        communities = await (try? repository.fetchJoinedCommunities()) ?? []
     }
 
     private var trimmedTitle: String {

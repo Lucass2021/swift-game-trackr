@@ -130,3 +130,13 @@ struct CreatePostRequest: Encodable {
 struct CommentBody: Encodable {
     let comment: String
 }
+
+struct CreatePostResponse: Decodable {
+    let message: String
+    let post: PostDTO
+}
+
+struct ReplyResponse: Decodable {
+    let message: String
+    let reply: CommentDTO
+}

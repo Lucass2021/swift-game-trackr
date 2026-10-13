@@ -86,13 +86,3 @@ struct CommunityService {
         try await APIClient.shared.request(.likeComment(postId: postId, commentId: commentId))
     }
 }
-
-private struct CreatePostResponse: Decodable {
-    let message: String
-    let post: PostDTO
-}
-
-private struct ReplyResponse: Decodable {
-    let message: String
-    let reply: CommentDTO
-}

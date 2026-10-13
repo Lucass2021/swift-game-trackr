@@ -18,7 +18,11 @@ final class CommunityViewModel {
         communitiesPagination.items
     }
 
-    private let service = CommunityService.shared
+    private let repository: CommunityRepository
+
+    init(repository: CommunityRepository = RemoteCommunityRepository()) {
+        self.repository = repository
+    }
 
     func loadFeed(reset: Bool = true) async {
         if reset {
@@ -34,8 +38,12 @@ final class CommunityViewModel {
         let nextPage = feedPagination.currentPage + 1
 
         do {
-            let response = try await service.fetchPosts(perPage: 20, page: nextPage)
-            feedPagination.append(response: response) { $0.map { CommunityPost(dto: $0) } }
+            let page = try await repository.fetchPosts(
+                page: nextPage,
+                perPage: Constants.feedPageSize,
+                communityId: nil
+            )
+            feedPagination.append(page: page)
         } catch {
             if reset { feedError = error.localizedDescription }
         }
@@ -62,8 +70,12 @@ final class CommunityViewModel {
         let nextPage = communitiesPagination.currentPage + 1
 
         do {
-            let response = try await service.fetchCommunities(search: search, perPage: 30, page: nextPage)
-            communitiesPagination.append(response: response) { $0.map { Community(dto: $0) } }
+            let page = try await repository.fetchCommunities(
+                page: nextPage,
+                perPage: Constants.communitiesPageSize,
+                search: search
+            )
+            communitiesPagination.append(page: page)
         } catch {
             if reset { communitiesError = error.localizedDescription }
         }
@@ -85,11 +97,11 @@ final class CommunityViewModel {
 
         Task {
             do {
-                let response = try await service.toggleLike(postId: post.id)
+                let status = try await repository.togglePostLike(id: post.id)
                 if let idx = feed.firstIndex(where: { $0.id == post.id }) {
                     var item = feed[idx]
-                    item.isLiked = response.isLiked
-                    item.likes = response.likes
+                    item.isLiked = status.isLiked
+                    item.likes = status.likes
                     feedPagination.updateItem(at: idx, with: item)
                 }
             } catch {
@@ -118,7 +130,7 @@ final class CommunityViewModel {
 
         Task {
             do {
-                _ = try await service.join(communityId: community.id)
+                try await repository.joinCommunity(id: community.id)
             } catch {
                 if let idx = communities.firstIndex(where: { $0.id == community.id }) {
                     var item = communities[idx]
@@ -137,7 +149,7 @@ final class CommunityViewModel {
 
         Task {
             do {
-                _ = try await service.leave(communityId: community.id)
+                try await repository.leaveCommunity(id: community.id)
             } catch {
                 if let idx = communities.firstIndex(where: { $0.id == community.id }) {
                     var item = communities[idx]
@@ -149,15 +161,9 @@ final class CommunityViewModel {
     }
 
     func createCommunity(name: String, description: String) async throws -> Community {
-        let dto = try await service.createCommunity(title: name, description: description)
-        let created = Community(
-            id: dto.id,
-            name: dto.title,
-            authorId: dto.authorId,
-            memberCount: 1,
-            description: dto.description ?? "",
-            isJoined: true
-        )
+        var created = try await repository.createCommunity(title: name, description: description)
+        created.isJoined = true
+        created.memberCount = Constants.firstMemberCount
         communitiesPagination.insert(created, at: 0)
         return created
     }
@@ -169,12 +175,11 @@ final class CommunityViewModel {
 
     func createPost(title: String, body: String, communityId: Int) async -> CommunityPost? {
         do {
-            let dto = try await service.createPost(
+            let post = try await repository.createPost(
                 title: title,
                 description: body,
                 communityId: communityId
             )
-            let post = CommunityPost(dto: dto)
             feedPagination.insert(post, at: 0)
             return post
         } catch {
@@ -182,4 +187,10 @@ final class CommunityViewModel {
             return nil
         }
     }
+}
+
+private enum Constants {
+    static let feedPageSize = 20
+    static let communitiesPageSize = 30
+    static let firstMemberCount = 1
 }

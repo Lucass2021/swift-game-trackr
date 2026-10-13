@@ -7,7 +7,6 @@ struct CreateTopicView: View {
     @Environment(\.dismiss) private var dismiss
 
     @State private var model: CreateTopicModel
-    @State private var joinedCommunities: [Community] = []
     @State private var showDiscardConfirm = false
     @FocusState private var focusedField: Field?
 
@@ -35,10 +34,7 @@ struct CreateTopicView: View {
         .background(Color.appBackground)
         .preferredColorScheme(.dark)
         .task {
-            do {
-                let response = try await CommunityService.shared.fetchJoinedCommunities()
-                joinedCommunities = response.data.map { Community(dto: $0) }
-            } catch {}
+            await model.loadCommunities()
         }
         .alert("Discard this post?", isPresented: $showDiscardConfirm) {
             Button("Keep editing", role: .cancel) {}
@@ -105,7 +101,7 @@ struct CreateTopicView: View {
                 field("Community", error: model.visibleError(model.communityError)) {
                     CommunityPickerField(
                         selection: $model.community,
-                        options: joinedCommunities,
+                        options: model.communities,
                         isLocked: model.isCommunityLocked
                     )
                 }
