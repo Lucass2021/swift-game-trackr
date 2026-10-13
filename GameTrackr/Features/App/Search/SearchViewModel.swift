@@ -10,11 +10,16 @@ final class SearchViewModel {
     private(set) var appliedSearch = ""
     private(set) var platforms: [GamePlatform] = []
 
-    private let service = GameService.shared
     private let cache = FeedCache()
     private var scope: SearchScope = .all
     private var platform: GamePlatform?
     private var generation = 0
+
+    private let repository: GameRepository
+
+    init(repository: GameRepository = RemoteGameRepository()) {
+        self.repository = repository
+    }
 
     var games: [Game] {
         pagination.items
@@ -30,7 +35,7 @@ final class SearchViewModel {
 
     func loadPlatforms() async {
         guard platforms.isEmpty else { return }
-        platforms = await (try? service.fetchPlatforms()) ?? []
+        platforms = await (try? repository.fetchPlatforms()) ?? []
     }
 
     func applyFilters(scope: SearchScope, search: String, platform: GamePlatform?) async {
@@ -71,16 +76,13 @@ final class SearchViewModel {
 
         let requestGeneration = generation
 
+        let nextPage = pagination.currentPage + 1
+        let search = appliedSearch.isEmpty ? nil : appliedSearch
+        let platformSlug = platform?.slug
         do {
-            let response = try await service.fetchFeed(
-                scope,
-                page: pagination.currentPage + 1,
-                perPage: Self.perPage,
-                search: appliedSearch.isEmpty ? nil : appliedSearch,
-                platform: platform
-            )
+            let page = try await fetchPage(nextPage, search: search, platformSlug: platformSlug)
             guard requestGeneration == generation else { return }
-            pagination.append(response: response) { $0.map(Game.init(dto:)) }
+            pagination.append(page: page)
             cache.store(pagination.snapshot, for: key)
         } catch {
             guard requestGeneration == generation, !Task.isCancelled else { return }
@@ -94,6 +96,26 @@ final class SearchViewModel {
             hasLoaded = true
         }
         pagination.setLoading(false)
+    }
+
+    private func fetchPage(_ page: Int, search: String?, platformSlug: String?) async throws -> Page<Game> {
+        switch scope {
+        case .mostAnticipated:
+            try await repository.fetchAllMostAnticipated(
+                page: page, perPage: Self.perPage, search: search, platformSlug: platformSlug
+            )
+        case .newReleases:
+            try await repository.fetchAllNewReleases(
+                page: page, perPage: Self.perPage, search: search, platformSlug: platformSlug
+            )
+        case .all:
+            try await repository.searchGames(
+                page: page,
+                perPage: Self.perPage,
+                search: search,
+                platformSlug: platformSlug
+            )
+        }
     }
 
     private static let perPage = 20

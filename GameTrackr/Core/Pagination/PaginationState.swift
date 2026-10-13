@@ -27,6 +27,13 @@ final class PaginationState<Item: Identifiable> {
         total = response.total
     }
 
+    func append(page: Page<Item>) {
+        items.append(contentsOf: page.items)
+        currentPage = page.currentPage
+        lastPage = page.lastPage
+        total = page.total
+    }
+
     func restore(_ snapshot: PaginationSnapshot<Item>) {
         items = snapshot.items
         currentPage = snapshot.currentPage

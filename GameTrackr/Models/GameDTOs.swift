@@ -58,16 +58,6 @@ struct PaginatedGamesResponse: Decodable {
     let message: String?
     let data: [GameDTO]
     let meta: GamesMeta
-
-    var page: PaginatedResponse<GameDTO> {
-        PaginatedResponse(
-            data: data,
-            currentPage: meta.page,
-            lastPage: meta.lastPage,
-            perPage: meta.perPage,
-            total: meta.total
-        )
-    }
 }
 
 struct GameImageDTO: Decodable {
