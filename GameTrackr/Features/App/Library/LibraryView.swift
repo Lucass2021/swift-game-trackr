@@ -5,9 +5,15 @@ struct LibraryView: View {
     @Binding var filter: LibraryStatus?
     var onBrowseGames: () -> Void = {}
     var onGameSelect: () -> Void = {}
+    var repository: LibraryRepository = FakeLibraryRepository()
 
-    @State private var pagination = MockPaginationState(allItems: LibraryMockData.entries, pageSize: 3)
+    @State private var pagination = PaginationState<LibraryEntry>()
+    @State private var stats: LibraryStats?
     @State private var favoriteIds = Set<UUID>()
+
+    private enum Constants {
+        static let entriesPageSize = 3
+    }
 
     private var filteredEntries: [LibraryEntry] {
         let items = pagination.items.map { entry in
@@ -24,8 +30,8 @@ struct LibraryView: View {
             guestState
         } else {
             VStack(spacing: 0) {
-                if !pagination.items.isEmpty {
-                    LibraryStatsBar(stats: LibraryMockData.stats)
+                if !pagination.items.isEmpty, let stats {
+                    LibraryStatsBar(stats: stats)
                         .padding(.horizontal, 20)
                         .padding(.top, 14)
                         .padding(.bottom, 16)
@@ -39,6 +45,14 @@ struct LibraryView: View {
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
             .background(Color.appBackground)
+            .task {
+                guard pagination.currentPage == 0 else { return }
+                await loadNextPage()
+            }
+            .task {
+                guard stats == nil else { return }
+                stats = try? await repository.fetchLibraryStats()
+            }
         }
     }
 
@@ -84,7 +98,10 @@ struct LibraryView: View {
 
     @ViewBuilder
     private var content: some View {
-        if pagination.items.isEmpty {
+        if pagination.currentPage == 0 {
+            ProgressView()
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+        } else if pagination.items.isEmpty {
             LibraryEmptyState(onBrowse: onBrowseGames)
         } else if filteredEntries.isEmpty {
             filterEmptyState
@@ -101,7 +118,7 @@ struct LibraryView: View {
                         .buttonStyle(PressableButtonStyle())
                         .onAppear {
                             if index >= filteredEntries.count - 2 {
-                                Task { await pagination.loadNextPage() }
+                                Task { await loadNextPage() }
                             }
                         }
                     }
@@ -114,6 +131,18 @@ struct LibraryView: View {
                 .padding(.bottom, 24)
             }
         }
+    }
+
+    private func loadNextPage() async {
+        guard pagination.canLoadMore else { return }
+        pagination.setLoading(true)
+        if let page = try? await repository.fetchLibrary(
+            page: pagination.currentPage + 1,
+            perPage: Constants.entriesPageSize
+        ) {
+            pagination.append(page: page)
+        }
+        pagination.setLoading(false)
     }
 
     private func toggleFavorite(_ entry: LibraryEntry) {
