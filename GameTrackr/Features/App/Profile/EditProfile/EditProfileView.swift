@@ -29,6 +29,9 @@ struct EditProfileView: View {
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background(Color.appBackground)
         .toolbar(.hidden, for: .navigationBar)
+        .onAppear {
+            model = EditProfileModel(profile: profile)
+        }
         .task {
             await model.loadColors()
         }
