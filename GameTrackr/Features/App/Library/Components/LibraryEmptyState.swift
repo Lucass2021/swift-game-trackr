@@ -1,7 +1,11 @@
 import SwiftUI
 
 struct LibraryEmptyState: View {
-    let onBrowse: () -> Void
+    let title: String
+    let message: String
+    let actionTitle: String
+    var actionIcon: AppIcon?
+    let onAction: () -> Void
 
     var body: some View {
         VStack(spacing: 0) {
@@ -12,23 +16,25 @@ struct LibraryEmptyState: View {
                 .shadow(color: Color.appPrimary.opacity(0.25), radius: 34)
                 .subtleBounce()
 
-            Text("Your library is empty")
+            Text(title)
                 .font(.appHeadline(26, weight: .heavy))
                 .foregroundStyle(Color.appTextPrimary)
                 .multilineTextAlignment(.center)
                 .padding(.top, 28)
 
-            Text("Find games to start tracking your journey and building your ultimate collection.")
+            Text(message)
                 .font(.appBody(15))
                 .foregroundStyle(Color.appTextSecondary)
                 .multilineTextAlignment(.center)
                 .padding(.top, 12)
                 .padding(.horizontal, 32)
 
-            Button(action: onBrowse) {
+            Button(action: onAction) {
                 HStack(spacing: 10) {
-                    Text("Browse games")
-                    AppIconView(icon: .forward, size: 18)
+                    Text(actionTitle)
+                    if let actionIcon {
+                        AppIconView(icon: actionIcon, size: 18)
+                    }
                 }
                 .font(.appLabel(16))
                 .foregroundStyle(Color.appOnPrimary)
@@ -47,8 +53,14 @@ struct LibraryEmptyState: View {
 }
 
 #Preview {
-    LibraryEmptyState(onBrowse: {})
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .background(Color.appBackground)
-        .preferredColorScheme(.dark)
+    LibraryEmptyState(
+        title: "Your library is empty",
+        message: "Find games to start tracking your journey and building your ultimate collection.",
+        actionTitle: "Browse games",
+        actionIcon: .forward,
+        onAction: {}
+    )
+    .frame(maxWidth: .infinity, maxHeight: .infinity)
+    .background(Color.appBackground)
+    .preferredColorScheme(.dark)
 }

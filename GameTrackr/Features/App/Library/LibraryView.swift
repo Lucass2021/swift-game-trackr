@@ -57,42 +57,13 @@ struct LibraryView: View {
     }
 
     private var guestState: some View {
-        VStack(spacing: 0) {
-            AppIconView(icon: .brand, size: 60)
-                .foregroundStyle(Color.appPrimary)
-                .frame(width: 128, height: 128)
-                .background(Color.appSurfaceCard, in: RoundedRectangle(cornerRadius: 32, style: .continuous))
-                .shadow(color: Color.appPrimary.opacity(0.25), radius: 34)
-                .subtleBounce()
-
-            Text("Library needs an account")
-                .font(.appHeadline(26, weight: .heavy))
-                .foregroundStyle(Color.appTextPrimary)
-                .multilineTextAlignment(.center)
-                .padding(.top, 28)
-
-            Text("Create an account to start tracking your games, building your collection, and logging your progress.")
-                .font(.appBody(15))
-                .foregroundStyle(Color.appTextSecondary)
-                .multilineTextAlignment(.center)
-                .padding(.top, 12)
-                .padding(.horizontal, 32)
-
-            Button(action: { authStore.logout() }, label: {
-                Text("Create an account")
-                    .font(.appLabel(16))
-                    .foregroundStyle(Color.appOnPrimary)
-                    .padding(.horizontal, 28)
-                    .padding(.vertical, 16)
-                    .background(Capsule().fill(Color.appPrimary))
-                    .shadow(color: Color.appPrimary.opacity(0.35), radius: 24)
-                    .contentShape(Capsule())
-            })
-            .buttonStyle(PressableButtonStyle())
-            .padding(.top, 32)
-        }
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .padding(.horizontal, 24)
+        LibraryEmptyState(
+            title: "Library needs an account",
+            message: "Create an account to start tracking your games, building your collection, "
+                + "and logging your progress.",
+            actionTitle: "Create an account",
+            onAction: { authStore.logout() }
+        )
         .background(Color.appBackground)
     }
 
@@ -102,7 +73,13 @@ struct LibraryView: View {
             ProgressView()
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
         } else if pagination.items.isEmpty {
-            LibraryEmptyState(onBrowse: onBrowseGames)
+            LibraryEmptyState(
+                title: "Your library is empty",
+                message: "Find games to start tracking your journey and building your ultimate collection.",
+                actionTitle: "Browse games",
+                actionIcon: .forward,
+                onAction: onBrowseGames
+            )
         } else if filteredEntries.isEmpty {
             filterEmptyState
         } else {
