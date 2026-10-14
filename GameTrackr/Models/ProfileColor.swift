@@ -1,6 +1,6 @@
 import SwiftUI
 
-struct ProfileColor: Identifiable, Hashable, Decodable {
+struct ProfileColor: Identifiable, Hashable {
     let key: String
     let name: String
     let hex: String
@@ -14,7 +14,8 @@ struct ProfileColor: Identifiable, Hashable, Decodable {
     }
 }
 
-struct ProfileColorsResponse: Decodable {
-    let message: String?
-    let data: [ProfileColor]
+extension ProfileColor {
+    init(dto: ProfileColorDTO) {
+        self.init(key: dto.key, name: dto.name, hex: dto.hex)
+    }
 }

@@ -20,10 +20,11 @@ final class EditProfileModel {
     var errorMessage: String?
 
     private let original: Profile
-    private let service = ProfileService.shared
+    private let repository: ProfileRepository
 
-    init(profile: Profile) {
+    init(profile: Profile, repository: ProfileRepository = RemoteProfileRepository()) {
         original = profile
+        self.repository = repository
         name = profile.name
         username = String(profile.username.drop { $0 == "@" })
         bio = profile.bio
@@ -100,7 +101,7 @@ final class EditProfileModel {
 
     func loadColors() async {
         guard colors.isEmpty else { return }
-        colors = await (try? service.fetchColors()) ?? []
+        colors = await (try? repository.fetchColors()) ?? []
     }
 
     func save() async -> (Profile, User)? {
@@ -113,7 +114,7 @@ final class EditProfileModel {
 
         let user: User
         do {
-            user = try await service.update(
+            user = try await repository.updateProfile(
                 name: trimmedName,
                 username: trimmedUsername,
                 profileColor: avatarHex
