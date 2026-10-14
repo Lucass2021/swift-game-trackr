@@ -28,7 +28,15 @@
 - Pagination
 - Centralized error mapping
 # Design system parity between apps
+- Same color/theme source in both apps, no hardcoded colors
 # Mocks A: Fake repositories for screens without API (phase 3)
 # Mocks B: Previews use MockData sample objects (phase 3)
 # Standardize error display (toast vs inline field errors)
 # Post detail: show comments inline below the post (Reddit-like) instead of a bottom sheet
+# Security review
+# Performance review
+# Strict typing review (no Any or untyped data)
+# E2E tests with tester-army/e2e
+# Cache and refetch strategy (TanStack Query-like)
+# Map partially implemented features (e.g. save posts)
+# Remove personal placeholders (e.g. "lucasdias" in edit profile)
