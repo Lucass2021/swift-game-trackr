@@ -15,6 +15,7 @@
 ## Leave changes unstaged; the user reviews and stages them in the IDE, and commits include only what is staged
 ## Do not move code between "staged changes" and "changes" without permission
 ## Create stashes as backups when needed
+## For every batch, build an interactive HTML review page for the user (in Portuguese) in ~/Projetos/gametrackr-reviews/: write notes/<date>-<batch>.json, run tools/build_review.py (reads the uncommitted changes of both apps, untracked files included) and open the page; it lives outside both repos and is never committed
 
 ## Git
 ## Do not commit anything without permission; always work on new branches for commits and pull requests
