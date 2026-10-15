@@ -2,6 +2,7 @@ import SwiftUI
 
 struct UserProfileView: View {
     let user: UserProfile
+    var repository: ProfileOverviewRepository = FakeProfileOverviewRepository()
 
     @Environment(AuthStore.self) private var authStore
     @Environment(\.dismiss) private var dismiss
@@ -10,9 +11,11 @@ struct UserProfileView: View {
     @State private var showStats = false
     @State private var showGameDetail = false
     @State private var toastMessage: String?
+    @State private var overview: ProfileOverview?
 
-    init(user: UserProfile) {
+    init(user: UserProfile, repository: ProfileOverviewRepository = FakeProfileOverviewRepository()) {
         self.user = user
+        self.repository = repository
         _isFriend = State(initialValue: user.isFriend)
     }
 
@@ -23,7 +26,16 @@ struct UserProfileView: View {
     var body: some View {
         VStack(spacing: 0) {
             topBar
-            content
+
+            if let overview {
+                content(overview)
+            } else {
+                ProgressView()
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    .task {
+                        overview = try? await repository.fetchUserOverview(username: user.username)
+                    }
+            }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background(Color.appBackground)
@@ -59,7 +71,7 @@ struct UserProfileView: View {
         .padding(.vertical, 8)
     }
 
-    private var content: some View {
+    private func content(_ overview: ProfileOverview) -> some View {
         ScrollView(showsIndicators: false) {
             VStack(alignment: .leading, spacing: 26) {
                 ProfileHeader(
@@ -75,20 +87,20 @@ struct UserProfileView: View {
                     .padding(.horizontal, 20)
 
                 section("Breakdown") {
-                    ProfileBreakdownSection(breakdown: UserProfileMockData.breakdown)
+                    ProfileBreakdownSection(breakdown: overview.breakdown)
                         .padding(.horizontal, 20)
                 }
 
                 section("Favorites") {
                     ProfileFavoritesSection(
-                        favorites: UserProfileMockData.favorites,
+                        favorites: overview.favorites,
                         onSelect: { _ in showGameDetail = true }
                     )
                 }
 
                 section("Currently playing") {
                     VStack(spacing: 14) {
-                        ForEach(UserProfileMockData.currentlyPlaying) { entry in
+                        ForEach(overview.currentlyPlaying) { entry in
                             Button { showGameDetail = true } label: {
                                 LibraryEntryRow(entry: entry)
                             }
@@ -99,7 +111,7 @@ struct UserProfileView: View {
                 }
 
                 section("Recent activity") {
-                    ProfileActivitySection(events: UserProfileMockData.activity)
+                    ProfileActivitySection(events: overview.activity)
                         .padding(.horizontal, 20)
                 }
             }

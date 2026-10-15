@@ -2,9 +2,7 @@ import SwiftUI
 
 struct ProfileView: View {
     var profile: Profile = ProfileMockData.profile
-    var breakdown: [StatusCount] = ProfileMockData.breakdown
-    var favorites: [LibraryEntry] = ProfileMockData.favorites
-    var currentlyPlaying: [LibraryEntry] = ProfileMockData.currentlyPlaying
+    var repository: ProfileOverviewRepository = FakeProfileOverviewRepository()
     var setups: [SetupItem] = []
     var onGameSelect: () -> Void = {}
     var onStatusSelect: (LibraryStatus) -> Void = { _ in }
@@ -14,19 +12,26 @@ struct ProfileView: View {
 
     @Environment(AuthStore.self) private var authStore
 
+    @State private var overview: ProfileOverview?
+
     var body: some View {
         Group {
             if authStore.isGuest {
                 guestState
+            } else if let overview {
+                content(overview)
             } else {
-                content
+                ProgressView()
+                    .task {
+                        overview = try? await repository.fetchMyOverview()
+                    }
             }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background(Color.appBackground)
     }
 
-    private var content: some View {
+    private func content(_ overview: ProfileOverview) -> some View {
         ScrollView(showsIndicators: false) {
             VStack(alignment: .leading, spacing: 26) {
                 ProfileHeader(
@@ -39,21 +44,21 @@ struct ProfileView: View {
                     .padding(.horizontal, 20)
 
                 section("Breakdown") {
-                    ProfileBreakdownSection(breakdown: breakdown, onSelect: onStatusSelect)
+                    ProfileBreakdownSection(breakdown: overview.breakdown, onSelect: onStatusSelect)
                         .padding(.horizontal, 20)
                 }
 
                 section("Favorites", actionTitle: "View all") {
                     onGameSelect()
                 } content: {
-                    ProfileFavoritesSection(favorites: favorites, onSelect: { _ in onGameSelect() })
+                    ProfileFavoritesSection(favorites: overview.favorites, onSelect: { _ in onGameSelect() })
                 }
 
                 section("Currently playing", actionTitle: "View all") {
                     onStatusSelect(.playing)
                 } content: {
                     VStack(spacing: 14) {
-                        ForEach(currentlyPlaying) { entry in
+                        ForEach(overview.currentlyPlaying) { entry in
                             Button(action: onGameSelect) {
                                 LibraryEntryRow(entry: entry)
                             }

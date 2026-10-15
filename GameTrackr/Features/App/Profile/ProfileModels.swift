@@ -133,3 +133,10 @@ struct ActivityEvent: Identifiable {
         self.timeAgo = timeAgo
     }
 }
+
+struct ProfileOverview {
+    let breakdown: [StatusCount]
+    let favorites: [LibraryEntry]
+    let currentlyPlaying: [LibraryEntry]
+    let activity: [ActivityEvent]
+}
