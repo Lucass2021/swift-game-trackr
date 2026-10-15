@@ -4,7 +4,7 @@ struct LibraryView: View {
     @Environment(AuthStore.self) private var authStore
     @Binding var filter: LibraryStatus?
     var onBrowseGames: () -> Void = {}
-    var onGameSelect: () -> Void = {}
+    var onGameSelect: (String) -> Void = { _ in }
     var repository: LibraryRepository = FakeLibraryRepository()
 
     @State private var pagination = PaginationState<LibraryEntry>()
@@ -86,7 +86,7 @@ struct LibraryView: View {
             ScrollView(showsIndicators: false) {
                 LazyVStack(spacing: 14) {
                     ForEach(Array(filteredEntries.enumerated()), id: \.element.id) { index, entry in
-                        Button(action: onGameSelect) {
+                        Button { onGameSelect(entry.slug) } label: {
                             LibraryEntryRow(
                                 entry: entry,
                                 onFavorite: { toggleFavorite(entry) }

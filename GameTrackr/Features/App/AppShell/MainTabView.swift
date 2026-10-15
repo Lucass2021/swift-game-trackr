@@ -5,7 +5,6 @@ struct MainTabView: View {
     @State private var searchScope: SearchScope?
     @State private var showNotifications = false
     @State private var showMenu = false
-    @State private var showGameDetail = false
     @State private var detailSlug: String?
     @State private var showStats = false
     @State private var showEditProfile = false
@@ -39,8 +38,8 @@ struct MainTabView: View {
             .navigationDestination(isPresented: $showStats) { StatsView() }
             .navigationDestination(isPresented: $showEditProfile) { EditProfileView(profile: $profile) }
             .navigationDestination(isPresented: $showSetup) { MySetupView(setups: $setups) }
-            .navigationDestination(isPresented: $showGameDetail) {
-                GameDetailView(slug: detailSlug)
+            .navigationDestination(item: $detailSlug) { slug in
+                GameDetailView(slug: slug)
             }
             .task(id: authStore.currentUser?.id) {
                 profile = profile.applying(authStore.currentUser)
@@ -48,21 +47,16 @@ struct MainTabView: View {
         }
     }
 
-    private func openGameDetail(slug: String?) {
-        detailSlug = slug
-        showGameDetail = true
-    }
-
     @ViewBuilder
     private var content: some View {
         switch selection {
         case .home:
-            HomeView(onViewAll: { searchScope = $0 }, onGameSelect: { openGameDetail(slug: $0) })
+            HomeView(onViewAll: { searchScope = $0 }, onGameSelect: { detailSlug = $0 })
         case .library:
             LibraryView(
                 filter: $libraryFilter,
                 onBrowseGames: { searchScope = .all },
-                onGameSelect: { openGameDetail(slug: nil) }
+                onGameSelect: { detailSlug = $0 }
             )
         case .community:
             CommunityView()
@@ -70,7 +64,7 @@ struct MainTabView: View {
             ProfileView(
                 profile: profile,
                 setups: setups,
-                onGameSelect: { openGameDetail(slug: nil) },
+                onGameSelect: { detailSlug = $0 },
                 onStatusSelect: { status in
                     libraryFilter = status
                     selection = .library

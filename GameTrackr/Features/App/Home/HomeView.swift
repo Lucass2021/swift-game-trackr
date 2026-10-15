@@ -2,7 +2,7 @@ import SwiftUI
 
 struct HomeView: View {
     var onViewAll: (SearchScope) -> Void = { _ in }
-    var onGameSelect: (String?) -> Void = { _ in }
+    var onGameSelect: (String) -> Void = { _ in }
 
     @State private var viewModel = HomeViewModel()
 

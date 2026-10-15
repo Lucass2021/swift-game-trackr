@@ -1,15 +1,20 @@
 import SwiftUI
 
 struct GameDetailView: View {
-    var slug: String?
+    let slug: String
 
     @Environment(AuthStore.self) private var authStore
     @Environment(\.dismiss) private var dismiss
-    @State private var viewModel = GameDetailViewModel()
+    @State private var viewModel: GameDetailViewModel
     @State private var showAddToLibrary = false
 
+    init(slug: String, repository: GameRepository = RemoteGameRepository()) {
+        self.slug = slug
+        _viewModel = State(initialValue: GameDetailViewModel(repository: repository))
+    }
+
     private var game: GameDetail? {
-        slug == nil ? GameDetailMockData.game : viewModel.game
+        viewModel.game
     }
 
     var body: some View {
@@ -24,7 +29,6 @@ struct GameDetailView: View {
         .toolbar(.hidden, for: .navigationBar)
         .navigationBarBackButtonHidden(true)
         .task {
-            guard let slug else { return }
             await viewModel.load(slug: slug)
         }
         .sheet(isPresented: $showAddToLibrary) {
@@ -112,7 +116,10 @@ struct GameDetailView: View {
 
 #Preview {
     NavigationStack {
-        GameDetailView()
+        GameDetailView(
+            slug: "neon-ascent-revival",
+            repository: FakeGameRepository()
+        )
     }
     .preferredColorScheme(.dark)
 }

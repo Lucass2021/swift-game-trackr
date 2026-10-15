@@ -35,6 +35,7 @@ enum LibraryStatus: String, CaseIterable, Identifiable {
 struct LibraryEntry: Identifiable {
     let id = UUID()
     let title: String
+    let slug: String
     let status: LibraryStatus
     let rating: Int
     let hours: Int
@@ -44,6 +45,7 @@ struct LibraryEntry: Identifiable {
 
     init(
         title: String,
+        slug: String,
         status: LibraryStatus,
         rating: Int,
         hours: Int,
@@ -52,6 +54,7 @@ struct LibraryEntry: Identifiable {
         coverEnd: Color
     ) {
         self.title = title
+        self.slug = slug
         self.status = status
         self.rating = rating
         self.hours = hours

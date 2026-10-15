@@ -9,7 +9,7 @@ struct UserProfileView: View {
 
     @State private var isFriend: Bool
     @State private var showStats = false
-    @State private var showGameDetail = false
+    @State private var detailSlug: String?
     @State private var toastMessage: String?
     @State private var overview: ProfileOverview?
 
@@ -44,8 +44,8 @@ struct UserProfileView: View {
         .navigationDestination(isPresented: $showStats) {
             StatsView(ownerName: user.username)
         }
-        .navigationDestination(isPresented: $showGameDetail) {
-            GameDetailView()
+        .navigationDestination(item: $detailSlug) { slug in
+            GameDetailView(slug: slug)
         }
         .toast(message: $toastMessage)
     }
@@ -94,14 +94,14 @@ struct UserProfileView: View {
                 section("Favorites") {
                     ProfileFavoritesSection(
                         favorites: overview.favorites,
-                        onSelect: { _ in showGameDetail = true }
+                        onSelect: { detailSlug = $0.slug }
                     )
                 }
 
                 section("Currently playing") {
                     VStack(spacing: 14) {
                         ForEach(overview.currentlyPlaying) { entry in
-                            Button { showGameDetail = true } label: {
+                            Button { detailSlug = entry.slug } label: {
                                 LibraryEntryRow(entry: entry)
                             }
                             .buttonStyle(PressableButtonStyle())

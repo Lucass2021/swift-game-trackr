@@ -38,6 +38,7 @@ enum UserProfileMockData {
     static let favorites: [LibraryEntry] = [
         LibraryEntry(
             title: "The Witcher 3",
+            slug: "the-witcher-3-wild-hunt",
             status: .platinum,
             rating: 5,
             hours: 168,
@@ -46,6 +47,7 @@ enum UserProfileMockData {
         ),
         LibraryEntry(
             title: "Bloodborne",
+            slug: "bloodborne",
             status: .completed,
             rating: 5,
             hours: 72,
@@ -54,6 +56,7 @@ enum UserProfileMockData {
         ),
         LibraryEntry(
             title: "Celeste",
+            slug: "celeste",
             status: .platinum,
             rating: 5,
             hours: 24,
@@ -62,6 +65,7 @@ enum UserProfileMockData {
         ),
         LibraryEntry(
             title: "Disco Elysium",
+            slug: "disco-elysium",
             status: .completed,
             rating: 5,
             hours: 41,
@@ -73,6 +77,7 @@ enum UserProfileMockData {
     static let currentlyPlaying: [LibraryEntry] = [
         LibraryEntry(
             title: "Baldur's Gate 3",
+            slug: "baldurs-gate-iii",
             status: .playing,
             rating: 5,
             hours: 96,
@@ -81,6 +86,7 @@ enum UserProfileMockData {
         ),
         LibraryEntry(
             title: "Helldivers 2",
+            slug: "helldivers-2",
             status: .playing,
             rating: 4,
             hours: 44,

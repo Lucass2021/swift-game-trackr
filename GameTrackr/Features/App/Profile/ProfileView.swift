@@ -4,8 +4,8 @@ struct ProfileView: View {
     var profile: Profile = ProfileMockData.profile
     var repository: ProfileOverviewRepository = FakeProfileOverviewRepository()
     var setups: [SetupItem] = []
-    var onGameSelect: () -> Void = {}
-    var onStatusSelect: (LibraryStatus) -> Void = { _ in }
+    var onGameSelect: (String) -> Void = { _ in }
+    var onStatusSelect: (LibraryStatus?) -> Void = { _ in }
     var onEditProfile: () -> Void = {}
     var onViewStats: () -> Void = {}
     var onViewSetup: () -> Void = {}
@@ -49,9 +49,9 @@ struct ProfileView: View {
                 }
 
                 section("Favorites", actionTitle: "View all") {
-                    onGameSelect()
+                    onStatusSelect(nil)
                 } content: {
-                    ProfileFavoritesSection(favorites: overview.favorites, onSelect: { _ in onGameSelect() })
+                    ProfileFavoritesSection(favorites: overview.favorites, onSelect: { onGameSelect($0.slug) })
                 }
 
                 section("Currently playing", actionTitle: "View all") {
@@ -59,7 +59,7 @@ struct ProfileView: View {
                 } content: {
                     VStack(spacing: 14) {
                         ForEach(overview.currentlyPlaying) { entry in
-                            Button(action: onGameSelect) {
+                            Button { onGameSelect(entry.slug) } label: {
                                 LibraryEntryRow(entry: entry)
                             }
                             .buttonStyle(PressableButtonStyle())

@@ -27,6 +27,7 @@ enum ProfileMockData {
     static let favorites: [LibraryEntry] = [
         LibraryEntry(
             title: "Elden Ring",
+            slug: "elden-ring",
             status: .platinum,
             rating: 5,
             hours: 210,
@@ -35,6 +36,7 @@ enum ProfileMockData {
         ),
         LibraryEntry(
             title: "Hollow Knight",
+            slug: "hollow-knight",
             status: .completed,
             rating: 5,
             hours: 64,
@@ -43,6 +45,7 @@ enum ProfileMockData {
         ),
         LibraryEntry(
             title: "Chrono Trigger",
+            slug: "chrono-trigger",
             status: .platinum,
             rating: 5,
             hours: 38,
@@ -51,6 +54,7 @@ enum ProfileMockData {
         ),
         LibraryEntry(
             title: "Outer Wilds",
+            slug: "outer-wilds",
             status: .completed,
             rating: 5,
             hours: 27,
@@ -62,6 +66,7 @@ enum ProfileMockData {
     static let currentlyPlaying: [LibraryEntry] = [
         LibraryEntry(
             title: "Cyberpunk 2077: Phantom Liberty",
+            slug: "cyberpunk-2077-phantom-liberty",
             status: .playing,
             rating: 4,
             hours: 32,
@@ -70,6 +75,7 @@ enum ProfileMockData {
         ),
         LibraryEntry(
             title: "Final Fantasy VII Rebirth",
+            slug: "final-fantasy-vii-rebirth",
             status: .playing,
             rating: 5,
             hours: 61,

@@ -6,7 +6,6 @@ struct SearchView: View {
     @Environment(\.dismiss) private var dismiss
     @State private var query = ""
     @State private var platform: GamePlatform?
-    @State private var showGameDetail = false
     @State private var detailSlug: String?
     @State private var viewModel = SearchViewModel()
     @State private var hasPendingFilter = false
@@ -51,8 +50,8 @@ struct SearchView: View {
             guard !Task.isCancelled else { return }
             hasPendingFilter = false
         }
-        .navigationDestination(isPresented: $showGameDetail) {
-            GameDetailView(slug: detailSlug)
+        .navigationDestination(item: $detailSlug) { slug in
+            GameDetailView(slug: slug)
         }
     }
 
@@ -116,7 +115,6 @@ struct SearchView: View {
                 ForEach(Array(games.enumerated()), id: \.element.id) { index, game in
                     Button {
                         detailSlug = game.slug
-                        showGameDetail = true
                     } label: {
                         SearchResultCard(game: game)
                     }
