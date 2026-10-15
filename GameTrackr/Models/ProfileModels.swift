@@ -3,8 +3,8 @@ import SwiftUI
 struct Profile {
     var name: String
     var username: String
-    let bio: String
-    let joinedAt: String
+    var bio: String
+    var joinedAt: Date?
     var avatarHex: String
     let stats: ProfileStats
     var visibility: ProfileVisibility = .publicProfile
@@ -23,13 +23,20 @@ struct Profile {
         copy.name = user.name
         if let username = user.username { copy.username = "@\(username)" }
         if let color = user.profileColor { copy.avatarHex = color }
+        copy.bio = user.bio ?? ""
+        copy.visibility = user.visibility
+        if let createdAt = user.createdAt { copy.joinedAt = createdAt }
         return copy
     }
 }
 
 enum ProfileVisibility: String, CaseIterable, Identifiable {
-    case publicProfile
-    case privateProfile
+    case publicProfile = "public"
+    case privateProfile = "private"
+
+    init(apiValue: String?) {
+        self = apiValue.flatMap(Self.init(rawValue:)) ?? .publicProfile
+    }
 
     var id: String {
         rawValue

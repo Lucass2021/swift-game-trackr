@@ -5,7 +5,7 @@ import SwiftUI
 final class EditProfileModel {
     static let nameLimit = 50
     static let usernameLimit = 20
-    static let bioLimit = 160
+    static let bioLimit = 1000
 
     private static let usernameAllowed = CharacterSet(charactersIn: "abcdefghijklmnopqrstuvwxyz0123456789_")
 
@@ -117,7 +117,9 @@ final class EditProfileModel {
             user = try await repository.updateProfile(
                 name: trimmedName,
                 username: trimmedUsername,
-                profileColor: avatarHex
+                profileColor: avatarHex,
+                bio: trimmedBio,
+                visibility: visibility
             )
         } catch {
             errorMessage = error.userMessage()

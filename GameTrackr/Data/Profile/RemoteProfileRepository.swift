@@ -10,8 +10,20 @@ struct RemoteProfileRepository: ProfileRepository {
         return response.data.map { ProfileColor(dto: $0) }
     }
 
-    func updateProfile(name: String, username: String, profileColor: String) async throws -> User {
-        let body = UpdateProfileRequest(name: name, username: username, profileColor: profileColor)
+    func updateProfile(
+        name: String,
+        username: String,
+        profileColor: String,
+        bio: String,
+        visibility: ProfileVisibility
+    ) async throws -> User {
+        let body = UpdateProfileRequest(
+            name: name,
+            username: username,
+            profileColor: profileColor,
+            bio: bio,
+            visibility: visibility.rawValue
+        )
         let response: ValidateResponse = try await apiClient.request(.updateProfile, body: body)
         return response.user
     }

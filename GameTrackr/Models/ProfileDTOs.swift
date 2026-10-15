@@ -15,9 +15,11 @@ struct UpdateProfileRequest: Encodable {
     let name: String
     let username: String
     let profileColor: String
+    let bio: String
+    let visibility: String
 
     enum CodingKeys: String, CodingKey {
-        case name, username
+        case name, username, bio, visibility
         case profileColor = "profile_color"
     }
 }

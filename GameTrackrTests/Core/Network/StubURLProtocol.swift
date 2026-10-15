@@ -7,6 +7,7 @@ final class StubURLProtocol: URLProtocol {
     }
 
     nonisolated(unsafe) static var stub: Stub?
+    nonisolated(unsafe) static var lastRequestBody: Data?
 
     static func makeSession() -> URLSession {
         let configuration = URLSessionConfiguration.ephemeral
@@ -23,6 +24,7 @@ final class StubURLProtocol: URLProtocol {
     }
 
     override func startLoading() {
+        Self.lastRequestBody = request.httpBody ?? request.httpBodyStream.map(Self.readAll)
         guard let stub = Self.stub,
               let url = request.url,
               let response = HTTPURLResponse(url: url, statusCode: stub.statusCode, httpVersion: nil, headerFields: nil)
@@ -33,4 +35,17 @@ final class StubURLProtocol: URLProtocol {
     }
 
     override func stopLoading() {}
+
+    private static func readAll(_ stream: InputStream) -> Data {
+        var data = Data()
+        var buffer = [UInt8](repeating: 0, count: 1024)
+        stream.open()
+        defer { stream.close() }
+        while stream.hasBytesAvailable {
+            let count = stream.read(&buffer, maxLength: buffer.count)
+            guard count > 0 else { break }
+            data.append(buffer, count: count)
+        }
+        return data
+    }
 }

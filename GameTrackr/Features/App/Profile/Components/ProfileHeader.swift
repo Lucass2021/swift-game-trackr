@@ -1,6 +1,9 @@
 import SwiftUI
 
 struct ProfileHeader: View {
+    private static let joinedFormat = Date.FormatStyle(locale: Locale(identifier: "en_US"), timeZone: .gmt).month(.wide)
+        .year()
+
     let profile: Profile
     var mode: ProfileHeaderMode = .own
     var isGuest = false
@@ -35,14 +38,18 @@ struct ProfileHeader: View {
                     Spacer(minLength: 0)
                 }
 
-                Text(profile.bio)
-                    .font(.appBody(15))
-                    .foregroundStyle(Color.appTextSecondary)
-                    .fixedSize(horizontal: false, vertical: true)
+                if !profile.bio.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+                    Text(profile.bio)
+                        .font(.appBody(15))
+                        .foregroundStyle(Color.appTextSecondary)
+                        .fixedSize(horizontal: false, vertical: true)
+                }
 
-                Text(profile.joinedAt)
-                    .font(.appBody(13))
-                    .foregroundStyle(Color.appTextSecondary)
+                if let joinedAt = profile.joinedAt {
+                    Text("Joined \(joinedAt.formatted(Self.joinedFormat))")
+                        .font(.appBody(13))
+                        .foregroundStyle(Color.appTextSecondary)
+                }
 
                 actions
             }
