@@ -121,5 +121,6 @@ struct GameDetailView: View {
             repository: FakeGameRepository()
         )
     }
+    .environment(AuthStore())
     .preferredColorScheme(.dark)
 }
