@@ -8,7 +8,7 @@ struct NotificationsView: View {
 
     @State private var filter: NotificationFilter = .all
     @State private var markedAllRead = false
-    @State private var removedIDs: Set<UUID> = []
+    @State private var removedIDs: Set<Int> = []
     @State private var pagination = PaginationState<NotificationItem>()
 
     private enum Constants {

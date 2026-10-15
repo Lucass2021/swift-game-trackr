@@ -90,10 +90,10 @@ enum UserProfileMockData {
     ]
 
     static let activity: [ActivityEvent] = [
-        ActivityEvent(kind: .completed, gameTitle: "Baldur's Gate 3", timeAgo: "1d"),
-        ActivityEvent(kind: .platinum, gameTitle: "Celeste", timeAgo: "5d"),
-        ActivityEvent(kind: .rated, gameTitle: "Helldivers 2", detail: "4 stars", timeAgo: "1w"),
-        ActivityEvent(kind: .started, gameTitle: "Baldur's Gate 3", timeAgo: "2w"),
-        ActivityEvent(kind: .added, gameTitle: "Metaphor: ReFantazio", timeAgo: "3w")
+        ActivityEvent(id: 1, kind: .completed, gameTitle: "Baldur's Gate 3", timeAgo: "1d"),
+        ActivityEvent(id: 2, kind: .platinum, gameTitle: "Celeste", timeAgo: "5d"),
+        ActivityEvent(id: 3, kind: .rated, gameTitle: "Helldivers 2", detail: "4 stars", timeAgo: "1w"),
+        ActivityEvent(id: 4, kind: .started, gameTitle: "Baldur's Gate 3", timeAgo: "2w"),
+        ActivityEvent(id: 5, kind: .added, gameTitle: "Metaphor: ReFantazio", timeAgo: "3w")
     ]
 }

@@ -97,10 +97,10 @@ enum ProfileMockData {
     ]
 
     static let activity: [ActivityEvent] = [
-        ActivityEvent(kind: .platinum, gameTitle: "Uncharted: Legacy of Thieves", timeAgo: "2d"),
-        ActivityEvent(kind: .rated, gameTitle: "Starfield", detail: "4 stars", timeAgo: "4d"),
-        ActivityEvent(kind: .completed, gameTitle: "Hollow Knight", timeAgo: "1w"),
-        ActivityEvent(kind: .started, gameTitle: "Final Fantasy VII Rebirth", timeAgo: "2w"),
-        ActivityEvent(kind: .added, gameTitle: "Silksong", timeAgo: "3w")
+        ActivityEvent(id: 1, kind: .platinum, gameTitle: "Uncharted: Legacy of Thieves", timeAgo: "2d"),
+        ActivityEvent(id: 2, kind: .rated, gameTitle: "Starfield", detail: "4 stars", timeAgo: "4d"),
+        ActivityEvent(id: 3, kind: .completed, gameTitle: "Hollow Knight", timeAgo: "1w"),
+        ActivityEvent(id: 4, kind: .started, gameTitle: "Final Fantasy VII Rebirth", timeAgo: "2w"),
+        ActivityEvent(id: 5, kind: .added, gameTitle: "Silksong", timeAgo: "3w")
     ]
 }

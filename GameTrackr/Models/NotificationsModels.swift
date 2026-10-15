@@ -31,7 +31,7 @@ enum NotificationLeading {
 }
 
 struct NotificationItem: Identifiable {
-    let id = UUID()
+    let id: Int
     let section: NotificationSection
     let leading: NotificationLeading
     let spans: [NotificationSpan]

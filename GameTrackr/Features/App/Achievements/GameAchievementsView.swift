@@ -1,54 +1,66 @@
 import SwiftUI
 
 struct GameAchievementsView: View {
-    let game: GameAchievements
+    let gameId: Int
+    var repository: AchievementsRepository = FakeAchievementsRepository()
 
     @Environment(\.dismiss) private var dismiss
 
-    private var unlocked: [Achievement] {
-        game.achievements.filter(\.isUnlocked)
-    }
-
-    private var locked: [Achievement] {
-        game.achievements.filter { !$0.isUnlocked }
-    }
+    @State private var game: GameAchievements?
 
     var body: some View {
         VStack(spacing: 0) {
             StatsTopBar(
                 title: "Achievements",
-                subtitle: game.title,
+                subtitle: game?.title,
                 onBack: { dismiss() }
             )
 
-            ScrollView(showsIndicators: false) {
-                VStack(spacing: 20) {
-                    header
-
-                    if !unlocked.isEmpty {
-                        StatsSectionCard(title: "Unlocked", icon: .success) {
-                            list(unlocked)
-                        }
-                    }
-
-                    if !locked.isEmpty {
-                        StatsSectionCard(title: "Locked", icon: .eyeSlash) {
-                            list(locked)
-                        }
-                    }
-                }
-                .padding(.horizontal, 20)
-                .padding(.top, 12)
-                .padding(.bottom, 32)
+            if let game {
+                content(game)
+            } else {
+                ProgressView()
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
             }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background(Color.appBackground)
         .toolbar(.hidden, for: .navigationBar)
         .navigationBarBackButtonHidden(true)
+        .task(id: gameId) {
+            guard game?.id != gameId else { return }
+            game = nil
+            game = try? await repository.fetchGameAchievements(id: gameId)
+        }
     }
 
-    private var header: some View {
+    private func content(_ game: GameAchievements) -> some View {
+        let unlocked = game.achievements.filter(\.isUnlocked)
+        let locked = game.achievements.filter { !$0.isUnlocked }
+
+        return ScrollView(showsIndicators: false) {
+            VStack(spacing: 20) {
+                header(game)
+
+                if !unlocked.isEmpty {
+                    StatsSectionCard(title: "Unlocked", icon: .success) {
+                        list(unlocked)
+                    }
+                }
+
+                if !locked.isEmpty {
+                    StatsSectionCard(title: "Locked", icon: .eyeSlash) {
+                        list(locked)
+                    }
+                }
+            }
+            .padding(.horizontal, 20)
+            .padding(.top, 12)
+            .padding(.bottom, 32)
+        }
+    }
+
+    private func header(_ game: GameAchievements) -> some View {
         HStack(spacing: 16) {
             GameCoverArt(start: game.coverStart, end: game.coverEnd, width: 72, height: 96)
 
@@ -105,14 +117,14 @@ struct GameAchievementsView: View {
 
 #Preview("Platinum") {
     NavigationStack {
-        GameAchievementsView(game: AchievementsMockData.games[0])
+        GameAchievementsView(gameId: AchievementsMockData.games[0].id)
     }
     .preferredColorScheme(.dark)
 }
 
 #Preview("In progress") {
     NavigationStack {
-        GameAchievementsView(game: AchievementsMockData.games[4])
+        GameAchievementsView(gameId: AchievementsMockData.games[4].id)
     }
     .preferredColorScheme(.dark)
 }

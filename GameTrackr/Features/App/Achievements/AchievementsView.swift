@@ -7,7 +7,7 @@ struct AchievementsView: View {
     @Environment(\.dismiss) private var dismiss
 
     @State private var filter: AchievementFilter = .all
-    @State private var selected: GameAchievements?
+    @State private var selectedGameId: Int?
     @State private var pagination = PaginationState<GameAchievements>()
     @State private var summary: AchievementsSummary?
 
@@ -44,8 +44,8 @@ struct AchievementsView: View {
         .background(Color.appBackground)
         .toolbar(.hidden, for: .navigationBar)
         .navigationBarBackButtonHidden(true)
-        .navigationDestination(item: $selected) { game in
-            GameAchievementsView(game: game)
+        .navigationDestination(item: $selectedGameId) { gameId in
+            GameAchievementsView(gameId: gameId, repository: repository)
         }
     }
 
@@ -66,7 +66,7 @@ struct AchievementsView: View {
 
                     ForEach(Array(visible.enumerated()), id: \.element.id) { index, game in
                         Button {
-                            selected = game
+                            selectedGameId = game.id
                         } label: {
                             GameAchievementsRow(game: game)
                         }
@@ -126,16 +126,6 @@ struct AchievementsView: View {
             Spacer(minLength: 0)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
-    }
-}
-
-extension GameAchievements: Hashable {
-    static func == (lhs: GameAchievements, rhs: GameAchievements) -> Bool {
-        lhs.id == rhs.id
-    }
-
-    func hash(into hasher: inout Hasher) {
-        hasher.combine(id)
     }
 }
 

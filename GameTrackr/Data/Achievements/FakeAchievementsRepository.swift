@@ -8,4 +8,12 @@ struct FakeAchievementsRepository: AchievementsRepository {
         try await Task.sleep(for: FakeLatency.responseDelay)
         return AchievementsSummary(games: AchievementsMockData.games)
     }
+
+    func fetchGameAchievements(id: Int) async throws -> GameAchievements {
+        try await Task.sleep(for: FakeLatency.responseDelay)
+        guard let game = AchievementsMockData.games.first(where: { $0.id == id }) else {
+            throw APIError.notFound
+        }
+        return game
+    }
 }

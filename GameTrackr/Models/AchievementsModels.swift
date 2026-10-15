@@ -30,7 +30,7 @@ enum AchievementTier: CaseIterable {
 }
 
 struct Achievement: Identifiable {
-    let id = UUID()
+    let id: Int
     let title: String
     let detail: String
     let tier: AchievementTier
@@ -55,7 +55,7 @@ struct Achievement: Identifiable {
 }
 
 struct GameAchievements: Identifiable {
-    let id = UUID()
+    let id: Int
     let title: String
     let platform: String
     let coverStart: Color

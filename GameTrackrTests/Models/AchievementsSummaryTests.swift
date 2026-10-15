@@ -4,12 +4,14 @@ import Testing
 
 struct AchievementsSummaryTests {
     private static let completedGame = game(
-        Achievement(title: "Platinum", detail: "All", tier: .platinum, unlockedAt: "Jul 2024"),
-        Achievement(title: "Finish", detail: "End", tier: .gold, unlockedAt: "Jun 2024")
+        id: 1,
+        Achievement(id: 1, title: "Platinum", detail: "All", tier: .platinum, unlockedAt: "Jul 2024"),
+        Achievement(id: 2, title: "Finish", detail: "End", tier: .gold, unlockedAt: "Jun 2024")
     )
     private static let startedGame = game(
-        Achievement(title: "Start", detail: "Begin", tier: .bronze, unlockedAt: "May 2024"),
-        Achievement(title: "Finish", detail: "End", tier: .gold, unlockedAt: nil)
+        id: 2,
+        Achievement(id: 3, title: "Start", detail: "Begin", tier: .bronze, unlockedAt: "May 2024"),
+        Achievement(id: 4, title: "Finish", detail: "End", tier: .gold, unlockedAt: nil)
     )
 
     @Test func summaryAggregatesEveryGame() {
@@ -30,9 +32,10 @@ struct AchievementsSummaryTests {
         #expect(summary.percent == 0)
     }
 
-    private static func game(_ achievements: Achievement...) -> GameAchievements {
+    private static func game(id: Int, _ achievements: Achievement...) -> GameAchievements {
         GameAchievements(
-            title: "Game",
+            id: id,
+            title: "Game \(id)",
             platform: "PC",
             coverStart: .black,
             coverEnd: .black,

@@ -3,6 +3,7 @@ import SwiftUI
 enum NotificationsMockData {
     static let items: [NotificationItem] = [
         NotificationItem(
+            id: 1,
             section: .new,
             leading: .avatar(start: .coverEmeraldStart, end: .coverEmeraldEnd, badge: .online),
             spans: [
@@ -14,6 +15,7 @@ enum NotificationsMockData {
             isFriendRequest: true
         ),
         NotificationItem(
+            id: 2,
             section: .new,
             leading: .avatar(start: .coverAzureStart, end: .coverAzureEnd, badge: .online),
             spans: [
@@ -26,6 +28,7 @@ enum NotificationsMockData {
             unread: true
         ),
         NotificationItem(
+            id: 3,
             section: .new,
             leading: .iconBox(icon: .like, tint: .appPrimary),
             spans: [
@@ -38,6 +41,7 @@ enum NotificationsMockData {
             trailingDot: true
         ),
         NotificationItem(
+            id: 4,
             section: .today,
             leading: .thumbnail(start: .coverIndigoStart, end: .coverIndigoEnd),
             spans: [
@@ -48,6 +52,7 @@ enum NotificationsMockData {
             timestamp: "6h"
         ),
         NotificationItem(
+            id: 5,
             section: .today,
             leading: .avatar(start: .coverVioletStart, end: .coverVioletEnd, badge: nil),
             spans: [
@@ -58,6 +63,7 @@ enum NotificationsMockData {
             isMention: true
         ),
         NotificationItem(
+            id: 6,
             section: .today,
             leading: .iconBox(icon: .medal, tint: .appPrimary),
             spans: [
@@ -68,6 +74,7 @@ enum NotificationsMockData {
             timestamp: "12h"
         ),
         NotificationItem(
+            id: 7,
             section: .thisWeek,
             leading: .avatar(start: .coverCrimsonStart, end: .coverCrimsonEnd, badge: .accepted),
             spans: [
@@ -77,6 +84,7 @@ enum NotificationsMockData {
             timestamp: "2d"
         ),
         NotificationItem(
+            id: 8,
             section: .thisWeek,
             leading: .iconBox(icon: .envelope, tint: .appTextSecondary),
             spans: [

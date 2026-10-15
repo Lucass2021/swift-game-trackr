@@ -115,13 +115,14 @@ enum ActivityKind {
 }
 
 struct ActivityEvent: Identifiable {
-    let id = UUID()
+    let id: Int
     let kind: ActivityKind
     let gameTitle: String
     let detail: String?
     let timeAgo: String
 
-    init(kind: ActivityKind, gameTitle: String, detail: String? = nil, timeAgo: String) {
+    init(id: Int, kind: ActivityKind, gameTitle: String, detail: String? = nil, timeAgo: String) {
+        self.id = id
         self.kind = kind
         self.gameTitle = gameTitle
         self.detail = detail
