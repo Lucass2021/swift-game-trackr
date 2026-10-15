@@ -4,17 +4,23 @@ struct NotificationsView: View {
     @Environment(AuthStore.self) private var authStore
     @Environment(\.dismiss) private var dismiss
 
+    var repository: NotificationsRepository = FakeNotificationsRepository()
+
     @State private var filter: NotificationFilter = .all
     @State private var markedAllRead = false
     @State private var removedIDs: Set<UUID> = []
-    @State private var pagination = MockPaginationState(allItems: NotificationsMockData.items, pageSize: 4)
+    @State private var pagination = PaginationState<NotificationItem>()
+
+    private enum Constants {
+        static let notificationsPageSize = 4
+    }
 
     var body: some View {
         VStack(spacing: 0) {
             NotificationsTopBar(
                 onBack: { dismiss() },
-                onMarkAllRead: { markedAllRead = true },
-                onClearAll: { clearAll() },
+                onMarkAllRead: { Task { await markAllAsRead() } },
+                onClearAll: { Task { await clearAll() } },
                 showActions: !authStore.isGuest
             )
 
@@ -47,7 +53,10 @@ struct NotificationsView: View {
                 .padding(.top, 4)
                 .padding(.bottom, 8)
 
-            if items.isEmpty {
+            if pagination.currentPage == 0 {
+                ProgressView()
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+            } else if items.isEmpty {
                 NotificationsEmptyState(
                     title: "You're all caught up",
                     subtitle: "New notifications will show up here."
@@ -68,7 +77,7 @@ struct NotificationsView: View {
                                     )
                                     .onAppear {
                                         if item.id == items.last?.id {
-                                            Task { await pagination.loadNextPage() }
+                                            Task { await loadNextPage() }
                                         }
                                     }
                                 }
@@ -83,6 +92,10 @@ struct NotificationsView: View {
                     .padding(.bottom, 24)
                 }
             }
+        }
+        .task {
+            guard pagination.currentPage == 0 else { return }
+            await loadNextPage()
         }
     }
 
@@ -111,7 +124,25 @@ struct NotificationsView: View {
         _ = withAnimation { removedIDs.insert(item.id) }
     }
 
-    private func clearAll() {
+    private func loadNextPage() async {
+        guard pagination.canLoadMore else { return }
+        pagination.setLoading(true)
+        if let page = try? await repository.fetchNotifications(
+            page: pagination.currentPage + 1,
+            perPage: Constants.notificationsPageSize
+        ) {
+            pagination.append(page: page)
+        }
+        pagination.setLoading(false)
+    }
+
+    private func markAllAsRead() async {
+        guard await (try? repository.markAllAsRead()) != nil else { return }
+        markedAllRead = true
+    }
+
+    private func clearAll() async {
+        guard await (try? repository.clearNotifications()) != nil else { return }
         withAnimation {
             for item in pagination.items {
                 removedIDs.insert(item.id)
