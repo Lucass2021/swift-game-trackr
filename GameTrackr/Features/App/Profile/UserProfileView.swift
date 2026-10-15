@@ -148,12 +148,7 @@ struct UserProfileView: View {
 
 #Preview("Not friend") {
     NavigationStack {
-        UserProfileView(user: UserProfile(
-            name: "Ava Reyes",
-            username: "@avareyes",
-            avatarStart: .coverCyanStart,
-            avatarEnd: .coverCyanEnd
-        ))
+        UserProfileView(user: UserProfileMockData.user)
     }
     .environment(AuthStore())
     .preferredColorScheme(.dark)
@@ -161,13 +156,7 @@ struct UserProfileView: View {
 
 #Preview("Friend") {
     NavigationStack {
-        UserProfileView(user: UserProfile(
-            name: "Ava Reyes",
-            username: "@avareyes",
-            avatarStart: .coverCyanStart,
-            avatarEnd: .coverCyanEnd,
-            isFriend: true
-        ))
+        UserProfileView(user: UserProfileMockData.friend)
     }
     .environment(AuthStore())
     .preferredColorScheme(.dark)

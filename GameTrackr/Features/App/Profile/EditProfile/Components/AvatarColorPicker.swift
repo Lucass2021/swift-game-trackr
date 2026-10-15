@@ -53,13 +53,9 @@ struct AvatarColorPicker: View {
 }
 
 #Preview {
-    @Previewable @State var selection = "#8B5CF6"
+    @Previewable @State var selection = ProfileMockData.colors[0].hex
     AvatarColorPicker(
-        colors: [
-            ProfileColor(key: "purple", name: "Purple", hex: "#8B5CF6"),
-            ProfileColor(key: "emerald", name: "Emerald", hex: "#10B981"),
-            ProfileColor(key: "amber", name: "Amber", hex: "#F59E0B")
-        ],
+        colors: ProfileMockData.colors,
         selection: $selection
     )
     .padding()

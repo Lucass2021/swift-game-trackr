@@ -10,6 +10,12 @@ enum ProfileMockData {
         stats: ProfileStats(totalGames: 142, hours: 1248, platinum: 21)
     )
 
+    static let colors = [
+        ProfileColor(key: "purple", name: "Purple", hex: "#8B5CF6"),
+        ProfileColor(key: "emerald", name: "Emerald", hex: "#10B981"),
+        ProfileColor(key: "amber", name: "Amber", hex: "#F59E0B")
+    ]
+
     static let breakdown: [StatusCount] = [
         StatusCount(status: .playing, count: 8),
         StatusCount(status: .completed, count: 47),

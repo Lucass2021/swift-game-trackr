@@ -28,6 +28,21 @@ extension UserProfile {
 }
 
 enum UserProfileMockData {
+    static let user = UserProfile(
+        name: "Ava Reyes",
+        username: "@avareyes",
+        avatarStart: .coverCyanStart,
+        avatarEnd: .coverCyanEnd
+    )
+
+    static let friend = UserProfile(
+        name: "Ava Reyes",
+        username: "@avareyes",
+        avatarStart: .coverCyanStart,
+        avatarEnd: .coverCyanEnd,
+        isFriend: true
+    )
+
     static func profile(for user: UserProfile) -> Profile {
         Profile(
             name: user.name,

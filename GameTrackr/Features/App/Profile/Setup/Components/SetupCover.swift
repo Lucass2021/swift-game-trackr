@@ -52,7 +52,7 @@ struct SetupCover: View {
 }
 
 #Preview {
-    SetupCover(setup: SetupItem(title: "Retro Corner", description: "", palette: .crimson))
+    SetupCover(setup: ProfileMockData.setups[1])
         .frame(width: 200, height: 130)
         .padding(20)
         .background(Color.appBackground)
