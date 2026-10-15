@@ -1,26 +1,22 @@
 import SwiftUI
 
 struct AchievementsSummaryCard: View {
-    let games: [GameAchievements]
-
-    private var percent: Int {
-        Int((games.unlockedFraction * 100).rounded())
-    }
+    let summary: AchievementsSummary
 
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
             HStack(alignment: .firstTextBaseline, spacing: 8) {
-                Text("\(games.unlockedTotal)")
+                Text("\(summary.unlockedCount)")
                     .font(.appHeadline(34, weight: .heavy))
                     .foregroundStyle(Color.appPrimary)
 
-                Text("of \(games.achievementTotal) unlocked")
+                Text("of \(summary.total) unlocked")
                     .font(.appBody(15))
                     .foregroundStyle(Color.appTextSecondary)
 
                 Spacer(minLength: 8)
 
-                Text("\(percent)%")
+                Text("\(summary.percent)%")
                     .font(.appHeadline(20))
                     .foregroundStyle(Color.appTextPrimary)
                     .monospacedDigit()
@@ -39,15 +35,15 @@ struct AchievementsSummaryCard: View {
                                 endPoint: .trailing
                             )
                         )
-                        .frame(width: proxy.size.width * games.unlockedFraction)
+                        .frame(width: proxy.size.width * summary.fraction)
                 }
             }
             .frame(height: 10)
 
             HStack(spacing: 22) {
-                miniStat(icon: .trophy, value: "\(games.platinumCount)", label: "Platinums")
-                miniStat(icon: .success, value: "\(games.completedCount)", label: "Completed")
-                miniStat(icon: .brand, value: "\(games.count)", label: "Games")
+                miniStat(icon: .trophy, value: "\(summary.platinumCount)", label: "Platinums")
+                miniStat(icon: .success, value: "\(summary.completedCount)", label: "Completed")
+                miniStat(icon: .brand, value: "\(summary.gameCount)", label: "Games")
             }
         }
         .padding(20)
@@ -61,7 +57,7 @@ struct AchievementsSummaryCard: View {
                 .stroke(Color.appOutline, lineWidth: 1)
         )
         .accessibilityElement(children: .combine)
-        .accessibilityLabel("\(games.unlockedTotal) of \(games.achievementTotal) achievements unlocked")
+        .accessibilityLabel("\(summary.unlockedCount) of \(summary.total) achievements unlocked")
     }
 
     private func miniStat(icon: AppIcon, value: String, label: String) -> some View {
@@ -83,7 +79,7 @@ struct AchievementsSummaryCard: View {
 }
 
 #Preview {
-    AchievementsSummaryCard(games: AchievementsMockData.games)
+    AchievementsSummaryCard(summary: AchievementsSummary(games: AchievementsMockData.games))
         .padding(20)
         .background(Color.appBackground)
         .preferredColorScheme(.dark)

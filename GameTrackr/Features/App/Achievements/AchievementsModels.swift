@@ -113,24 +113,28 @@ struct GameAchievements: Identifiable {
     }
 }
 
-extension [GameAchievements] {
-    var unlockedTotal: Int {
-        reduce(0) { $0 + $1.unlockedCount }
+struct AchievementsSummary {
+    let unlockedCount: Int
+    let total: Int
+    let platinumCount: Int
+    let completedCount: Int
+    let gameCount: Int
+
+    var fraction: Double {
+        total == 0 ? 0 : Double(unlockedCount) / Double(total)
     }
 
-    var achievementTotal: Int {
-        reduce(0) { $0 + $1.total }
+    var percent: Int {
+        Int((fraction * 100).rounded())
     }
+}
 
-    var platinumCount: Int {
-        count(where: \.hasPlatinum)
-    }
-
-    var completedCount: Int {
-        count(where: \.isComplete)
-    }
-
-    var unlockedFraction: Double {
-        achievementTotal == 0 ? 0 : Double(unlockedTotal) / Double(achievementTotal)
+extension AchievementsSummary {
+    init(games: [GameAchievements]) {
+        unlockedCount = games.reduce(0) { $0 + $1.unlockedCount }
+        total = games.reduce(0) { $0 + $1.total }
+        platinumCount = games.count(where: \.hasPlatinum)
+        completedCount = games.count(where: \.isComplete)
+        gameCount = games.count
     }
 }
