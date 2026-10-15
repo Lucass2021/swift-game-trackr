@@ -57,11 +57,6 @@ enum ProfileVisibility: String, CaseIterable, Identifiable {
     }
 }
 
-enum ProfileHeaderMode: Equatable {
-    case own
-    case other(isFriend: Bool)
-}
-
 struct ProfileStats {
     let totalGames: Int
     let hours: Int
