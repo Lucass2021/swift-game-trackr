@@ -13,6 +13,11 @@ private struct LaravelErrorBody: Decodable {
     }
 }
 
+private enum RequestPayload {
+    case json(Encodable)
+    case multipart(MultipartForm)
+}
+
 actor APIClient {
     static let shared = APIClient()
 
@@ -35,6 +40,14 @@ actor APIClient {
     }
 
     func request<T: Decodable>(_ endpoint: Endpoint, body: Encodable? = nil) async throws -> T {
+        try await send(endpoint, payload: body.map(RequestPayload.json))
+    }
+
+    func request<T: Decodable>(_ endpoint: Endpoint, form: MultipartForm) async throws -> T {
+        try await send(endpoint, payload: .multipart(form))
+    }
+
+    private func send<T: Decodable>(_ endpoint: Endpoint, payload: RequestPayload?) async throws -> T {
         var token = endpoint.requiresAuth ? tokenStore.get() : nil
 
         if let current = token, JWT.isExpired(current) {
@@ -42,11 +55,11 @@ actor APIClient {
         }
 
         do {
-            return try await perform(endpoint, body: body, token: token)
+            return try await perform(endpoint, payload: payload, token: token)
         } catch APIError.unauthorized {
             guard endpoint.requiresAuth else { throw APIError.unauthorized }
             let newToken = try await refreshToken()
-            return try await perform(endpoint, body: body, token: newToken)
+            return try await perform(endpoint, payload: payload, token: newToken)
         }
     }
 
@@ -59,7 +72,7 @@ actor APIClient {
             guard let current = self.tokenStore.get() else {
                 throw APIError.unauthorized
             }
-            let response: RefreshResponse = try await self.perform(.refresh, body: nil, token: current)
+            let response: RefreshResponse = try await self.perform(.refresh, payload: nil, token: current)
             self.tokenStore.save(response.token)
             return response.token
         }
@@ -78,7 +91,7 @@ actor APIClient {
 
     private func perform<T: Decodable>(
         _ endpoint: Endpoint,
-        body: Encodable?,
+        payload: RequestPayload?,
         token: String?
     ) async throws -> T {
         guard var urlRequest = endpoint.urlRequest(baseURL: baseURL) else {
@@ -91,9 +104,15 @@ actor APIClient {
             urlRequest.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
         }
 
-        if let body {
+        switch payload {
+        case let .json(body):
             urlRequest.setValue("application/json", forHTTPHeaderField: "Content-Type")
             urlRequest.httpBody = try encoder.encode(body)
+        case let .multipart(form):
+            urlRequest.setValue(form.contentType, forHTTPHeaderField: "Content-Type")
+            urlRequest.httpBody = form.encoded
+        case nil:
+            break
         }
 
         let data: Data

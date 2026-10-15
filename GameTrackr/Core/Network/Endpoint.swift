@@ -15,6 +15,10 @@ enum Endpoint {
     case me
     case updateProfile
     case profileColors
+    case setups
+    case createSetup
+    case updateSetup(id: Int)
+    case deleteSetup(id: Int)
     case forgotPassword
     case verifyResetCode
     case resetPassword
@@ -53,6 +57,8 @@ enum Endpoint {
         case .me: "/profile/me"
         case .updateProfile: "/profile"
         case .profileColors: "/profile/colors"
+        case .setups, .createSetup: "/profile/setups"
+        case let .updateSetup(id), let .deleteSetup(id): "/profile/setups/\(id)"
         case .forgotPassword: "/auth/forgot-password"
         case .verifyResetCode: "/auth/verify-reset-code"
         case .resetPassword: "/auth/reset-password"
@@ -88,13 +94,14 @@ enum Endpoint {
         case .register, .login, .refresh, .logout,
              .forgotPassword, .verifyResetCode, .resetPassword,
              .joinCommunity, .leaveCommunity, .createCommunity,
-             .createPost, .likePost, .commentOnPost, .replyToComment, .likeComment:
+             .createPost, .likePost, .commentOnPost, .replyToComment, .likeComment,
+             .createSetup, .updateSetup:
             .post
-        case .me, .profileColors, .communities, .joinedCommunities, .community, .posts, .post,
+        case .me, .profileColors, .setups, .communities, .joinedCommunities, .community, .posts, .post,
              .newReleases, .allNewReleases,
              .mostAnticipated, .allMostAnticipated, .game, .platforms, .searchGames:
             .get
-        case .deletePost, .deleteCommunity:
+        case .deletePost, .deleteCommunity, .deleteSetup:
             .delete
         case .updateProfile:
             .patch

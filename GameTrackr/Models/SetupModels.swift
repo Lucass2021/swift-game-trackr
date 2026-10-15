@@ -1,25 +1,48 @@
 import SwiftUI
 
 struct SetupItem: Identifiable, Equatable {
-    let id: UUID
+    let id: Int
     var title: String
     var description: String
+    var images: [SetupImage]
     var photos: [SetupPhoto]
     var palette: SetupPalette
 
     init(
-        id: UUID = UUID(),
+        id: Int,
         title: String,
         description: String,
+        images: [SetupImage] = [],
         photos: [SetupPhoto] = [],
-        palette: SetupPalette = .indigo
+        palette: SetupPalette? = nil
     ) {
         self.id = id
         self.title = title
         self.description = description
+        self.images = images
         self.photos = photos
-        self.palette = palette
+        self.palette = palette ?? .forId(id)
     }
+
+    init(dto: SetupDTO) {
+        self.init(
+            id: dto.id,
+            title: dto.title,
+            description: dto.description ?? "",
+            images: dto.images.map { SetupImage(id: $0.id, url: $0.url) }
+        )
+    }
+}
+
+struct SetupImage: Identifiable, Equatable {
+    let id: Int
+    let url: String
+}
+
+struct SetupImageUpload {
+    let data: Data
+    let fileName: String
+    let mimeType: String
 }
 
 struct SetupPhoto: Identifiable, Equatable {

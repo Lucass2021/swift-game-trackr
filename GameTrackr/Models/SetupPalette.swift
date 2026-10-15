@@ -13,6 +13,10 @@ enum SetupPalette: String, CaseIterable, Identifiable {
         rawValue
     }
 
+    static func forId(_ id: Int) -> SetupPalette {
+        allCases[((id % allCases.count) + allCases.count) % allCases.count]
+    }
+
     var title: String {
         rawValue.capitalized
     }

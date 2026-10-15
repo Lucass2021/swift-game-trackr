@@ -7,6 +7,7 @@ final class StubURLProtocol: URLProtocol {
     }
 
     nonisolated(unsafe) static var stub: Stub?
+    nonisolated(unsafe) static var lastRequest: URLRequest?
     nonisolated(unsafe) static var lastRequestBody: Data?
 
     static func makeSession() -> URLSession {
@@ -24,6 +25,7 @@ final class StubURLProtocol: URLProtocol {
     }
 
     override func startLoading() {
+        Self.lastRequest = request
         Self.lastRequestBody = request.httpBody ?? request.httpBodyStream.map(Self.readAll)
         guard let stub = Self.stub,
               let url = request.url,

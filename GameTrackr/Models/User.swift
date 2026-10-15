@@ -31,7 +31,7 @@ struct User: Decodable, Identifiable {
         createdAt = try container.decodeIfPresent(String.self, forKey: .createdAt).flatMap(Self.parseDate)
     }
 
-    private static func parseDate(_ value: String) -> Date? {
+    private nonisolated static func parseDate(_ value: String) -> Date? {
         try? Date(value, strategy: .iso8601.year().month().day().time(includingFractionalSeconds: true))
     }
 }

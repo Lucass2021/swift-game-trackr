@@ -123,11 +123,10 @@ struct MySetupView: View {
     }
 
     private func startNewSetup() {
-        let palettes = SetupPalette.allCases
         draft = SetupItem(
+            id: (setups.map(\.id).max() ?? 0) + 1,
             title: "",
-            description: "",
-            palette: palettes[setups.count % palettes.count]
+            description: ""
         )
     }
 

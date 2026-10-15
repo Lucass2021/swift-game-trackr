@@ -289,7 +289,7 @@ struct EditSetupView: View {
 
 #Preview {
     EditSetupView(
-        setup: SetupItem(title: "", description: ""),
+        setup: SetupItem(id: 1, title: "", description: ""),
         isNew: true,
         onSave: { _ in },
         onDelete: { _ in }
