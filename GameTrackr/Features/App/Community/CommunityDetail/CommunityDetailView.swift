@@ -61,6 +61,7 @@ struct CommunityDetailView: View {
                     tabContent
                 }
                 .padding(.bottom, 96)
+                .remainingHeightContainer()
             }
             .refreshable {
                 await loadPosts(reset: true)
@@ -120,23 +121,25 @@ struct CommunityDetailView: View {
         switch tab {
         case .posts:
             if postsError, postsPagination.items.isEmpty {
-                CommunityEmptyState(
+                EmptyState(
                     icon: .info,
                     title: "Couldn't load posts",
                     message: "Check your connection\nand try again.",
                     actionTitle: "Try again",
-                    action: { Task { await loadPosts() } }
+                    onAction: { Task { await loadPosts() } }
                 )
+                .frame(maxHeight: .infinity)
             } else if postsPagination.items.isEmpty {
-                CommunityEmptyState(
+                EmptyState(
                     icon: .community,
                     title: "No posts yet",
                     message: isJoined
                         ? "Start the first discussion in this community."
                         : "Join this community to start posting.",
                     actionTitle: isJoined ? "Create post" : nil,
-                    action: isJoined ? { showCreateTopic = true } : nil
+                    onAction: isJoined ? { showCreateTopic = true } : nil
                 )
+                .frame(maxHeight: .infinity)
             } else {
                 VStack(spacing: 16) {
                     ForEach(Array(postsPagination.items.enumerated()), id: \.element.id) { index, post in

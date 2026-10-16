@@ -57,13 +57,15 @@ struct LibraryView: View {
     }
 
     private var guestState: some View {
-        LibraryEmptyState(
+        EmptyState(
+            icon: .brand,
             title: "Library needs an account",
             message: "Create an account to start tracking your games, building your collection, "
                 + "and logging your progress.",
             actionTitle: "Create an account",
             onAction: { authStore.logout() }
         )
+        .frame(maxHeight: .infinity)
         .background(Color.appBackground)
     }
 
@@ -73,13 +75,15 @@ struct LibraryView: View {
             ProgressView()
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
         } else if pagination.items.isEmpty {
-            LibraryEmptyState(
+            EmptyState(
+                icon: .brand,
                 title: "Your library is empty",
                 message: "Find games to start tracking your journey and building your ultimate collection.",
                 actionTitle: "Browse games",
                 actionIcon: .forward,
                 onAction: onBrowseGames
             )
+            .frame(maxHeight: .infinity)
         } else if filteredEntries.isEmpty {
             filterEmptyState
         } else {
@@ -131,19 +135,12 @@ struct LibraryView: View {
     }
 
     private var filterEmptyState: some View {
-        VStack(spacing: 8) {
-            Text("Nothing here yet")
-                .font(.appHeadline(20, weight: .heavy))
-                .foregroundStyle(Color.appTextPrimary)
-
-            Text("No games marked as \u{201C}\(filter?.rawValue ?? "")\u{201D}.")
-                .font(.appBody(15))
-                .foregroundStyle(Color.appTextSecondary)
-                .multilineTextAlignment(.center)
-        }
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .padding(.horizontal, 24)
-        .padding(.bottom, 40)
+        EmptyState(
+            icon: .library,
+            title: "Nothing here yet",
+            message: "No games marked as \u{201C}\(filter?.rawValue ?? "")\u{201D}."
+        )
+        .frame(maxHeight: .infinity)
     }
 }
 

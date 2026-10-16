@@ -37,12 +37,14 @@ struct NotificationsView: View {
     }
 
     private var guestState: some View {
-        NotificationsEmptyState(
+        EmptyState(
+            icon: .notifications,
             title: "Notifications need an account",
-            subtitle: "You're browsing as a guest. Create an account to get friend requests, replies, and messages.",
+            message: "You're browsing as a guest. Create an account to get friend requests, replies, and messages.",
             actionTitle: "Create an account",
             onAction: { authStore.logout() }
         )
+        .frame(maxHeight: .infinity)
     }
 
     @ViewBuilder
@@ -57,10 +59,12 @@ struct NotificationsView: View {
                 ProgressView()
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
             } else if items.isEmpty {
-                NotificationsEmptyState(
+                EmptyState(
+                    icon: .notifications,
                     title: "You're all caught up",
-                    subtitle: "New notifications will show up here."
+                    message: "New notifications will show up here."
                 )
+                .frame(maxHeight: .infinity)
             } else {
                 ScrollView(showsIndicators: false) {
                     LazyVStack(alignment: .leading, spacing: 12, pinnedViews: []) {

@@ -34,16 +34,18 @@ struct DiscoverCommunitiesView: View {
                 CommunityChipRow(titles: CommunityOptions.categories, selection: $category)
 
                 if filtered.isEmpty {
-                    CommunityEmptyState(
+                    EmptyState(
                         icon: .search,
                         title: "No communities found",
                         message: "Try a different search or category."
                     )
+                    .frame(maxHeight: .infinity)
                 } else {
                     allCommunities
                 }
             }
             .padding(.bottom, 28)
+            .remainingHeightContainer()
         }
         .scrollDismissesKeyboard(.interactively)
     }

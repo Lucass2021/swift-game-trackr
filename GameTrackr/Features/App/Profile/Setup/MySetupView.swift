@@ -64,14 +64,13 @@ struct MySetupView: View {
     }
 
     private var emptyState: some View {
-        CommunityEmptyState(
+        EmptyState(
             icon: .devices,
             title: "No setup yet",
             message: "Add your battle station, retro corner or handheld gear so other players can see how you play.",
             actionTitle: "Add your first setup",
-            action: startNewSetup
+            onAction: startNewSetup
         )
-        .padding(.bottom, 60)
         .frame(maxHeight: .infinity)
     }
 

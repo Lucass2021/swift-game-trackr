@@ -102,30 +102,12 @@ struct AchievementsView: View {
     }
 
     private var emptyState: some View {
-        VStack(spacing: 0) {
-            Spacer(minLength: 0)
-
-            AppIconView(icon: .trophy, size: 48)
-                .foregroundStyle(Color.appPrimary)
-                .frame(width: 104, height: 104)
-                .background(Color.appSurfaceCard, in: RoundedRectangle(cornerRadius: 26, style: .continuous))
-                .subtleBounce()
-
-            Text("Nothing here yet")
-                .font(.appHeadline(20))
-                .foregroundStyle(Color.appTextPrimary)
-                .padding(.top, 24)
-
-            Text("Achievements from the games in your library show up here as you unlock them.")
-                .font(.appBody(15))
-                .foregroundStyle(Color.appTextSecondary)
-                .multilineTextAlignment(.center)
-                .padding(.top, 10)
-                .padding(.horizontal, 32)
-
-            Spacer(minLength: 0)
-        }
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        EmptyState(
+            icon: .trophy,
+            title: "Nothing here yet",
+            message: "Achievements from the games in your library show up here as you unlock them."
+        )
+        .frame(maxHeight: .infinity)
     }
 }
 

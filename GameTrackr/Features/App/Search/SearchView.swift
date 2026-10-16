@@ -62,18 +62,17 @@ struct SearchView: View {
         if games.isEmpty, isStillSearching {
             ProgressView()
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
+        } else if games.isEmpty {
+            SearchResultsEmptyState(query: query) {
+                query = ""
+                platform = nil
+            }
+            .frame(maxHeight: .infinity)
         } else {
             ScrollView(showsIndicators: false) {
                 VStack(alignment: .leading, spacing: 24) {
-                    if games.isEmpty {
-                        SearchResultsEmptyState(query: query) {
-                            query = ""
-                            platform = nil
-                        }
-                    } else {
-                        sectionHeader(count: viewModel.total)
-                        grid(games)
-                    }
+                    sectionHeader(count: viewModel.total)
+                    grid(games)
                 }
                 .padding(.top, 6)
                 .padding(.bottom, 28)

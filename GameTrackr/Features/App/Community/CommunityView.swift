@@ -25,12 +25,12 @@ struct CommunityView: View {
                 case .discover:
                     if authStore.isGuest {
                         Spacer()
-                        CommunityEmptyState(
+                        EmptyState(
                             icon: .community,
                             title: "Account required",
                             message: "Create an account to discover\nand join communities.",
                             actionTitle: "Create an account",
-                            action: { authStore.logout() }
+                            onAction: { authStore.logout() }
                         )
                         Spacer()
                     } else {
@@ -118,22 +118,22 @@ struct CommunityView: View {
     private var feedContent: some View {
         if let error = viewModel.feedError, viewModel.feed.isEmpty {
             Spacer()
-            CommunityEmptyState(
+            EmptyState(
                 icon: .info,
                 title: "Couldn't load feed",
                 message: "Check your connection\nand try again.",
                 actionTitle: "Try again",
-                action: { Task { await viewModel.loadFeed() } }
+                onAction: { Task { await viewModel.loadFeed() } }
             )
             Spacer()
         } else if viewModel.feed.isEmpty {
             Spacer()
-            CommunityEmptyState(
+            EmptyState(
                 icon: .community,
                 title: "Your feed is quiet",
                 message: "Join a community to see posts\nfrom other players here.",
                 actionTitle: "Discover communities",
-                action: { segment = .discover }
+                onAction: { segment = .discover }
             )
             Spacer()
         } else {

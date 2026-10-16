@@ -5,39 +5,13 @@ struct SearchResultsEmptyState: View {
     var onClear: (() -> Void)?
 
     var body: some View {
-        VStack(spacing: 0) {
-            AppIconView(icon: .search, size: 52)
-                .foregroundStyle(Color.appPrimary)
-                .frame(width: 120, height: 120)
-                .background(Color.appSurfaceCard, in: RoundedRectangle(cornerRadius: 28, style: .continuous))
-                .shadow(color: Color.appPrimary.opacity(0.25), radius: 30)
-                .subtleBounce()
-
-            Text("No games found")
-                .font(.appHeadline(24, weight: .heavy))
-                .foregroundStyle(Color.appTextPrimary)
-                .padding(.top, 26)
-
-            Text(subtitle)
-                .font(.appBody(15))
-                .foregroundStyle(Color.appTextSecondary)
-                .multilineTextAlignment(.center)
-                .padding(.top, 10)
-                .padding(.horizontal, 24)
-
-            if let onClear {
-                Button(action: onClear) {
-                    Text("Clear search")
-                        .font(.appLabel(15))
-                        .foregroundStyle(Color.appPrimary)
-                        .contentShape(Rectangle())
-                }
-                .buttonStyle(PressableButtonStyle())
-                .padding(.top, 22)
-            }
-        }
-        .frame(maxWidth: .infinity)
-        .padding(.top, 48)
+        EmptyState(
+            icon: .search,
+            title: "No games found",
+            message: subtitle,
+            actionTitle: "Clear search",
+            onAction: onClear
+        )
     }
 
     private var subtitle: String {

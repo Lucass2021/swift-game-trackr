@@ -144,19 +144,12 @@ struct PostCommentsSheet: View {
     }
 
     private var emptyState: some View {
-        VStack(spacing: 12) {
-            AppIconView(icon: .comment, size: 44)
-                .foregroundStyle(Color.appTextSecondary)
-
-            Text("No comments yet")
-                .font(.appHeadline(20))
-                .foregroundStyle(Color.appTextPrimary)
-
-            Text("Be the first to comment.")
-                .font(.appBody(15))
-                .foregroundStyle(Color.appTextSecondary)
-        }
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        EmptyState(
+            icon: .comment,
+            title: "No comments yet",
+            message: "Be the first to comment."
+        )
+        .frame(maxHeight: .infinity)
     }
 
     private func submitComment() {

@@ -84,13 +84,14 @@ struct CreateTopicView: View {
     }
 
     private var guestState: some View {
-        CommunityEmptyState(
+        EmptyState(
             icon: .community,
             title: "Posting needs an account",
             message: "You're browsing as a guest. Create an account to start discussions in your communities.",
             actionTitle: "Create an account",
-            action: { authStore.logout() }
+            onAction: { authStore.logout() }
         )
+        .frame(maxHeight: .infinity)
     }
 
     private var form: some View {
