@@ -11,14 +11,20 @@
 ## Read the latest sessions/AAAA-MM-DD.md before starting; read older ones if needed
 ## Update the progress of each session in sessions/AAAA-MM-DD.md; these files must not be committed
 ## Never put credentials, tokens, keys, personal e-mails or private URLs in sessions/ or any committed file
-## Work in small batches: change one thing, ask for review, and only move on after an explicit ok
-## Leave changes unstaged; the user reviews and stages them in the IDE, and commits include only what is staged
-## Do not move code between "staged changes" and "changes" without permission
+## Work in small batches; propose design choices and the batch scope to the user and get an explicit ok before coding
+## Never unstage or alter changes the user staged
 ## Create stashes as backups when needed
-## For every batch, build an interactive HTML review page for the user (in Portuguese) in ~/Projetos/gametrackr-reviews/: write notes/<date>-<batch>.json, run tools/build_review.py (reads the uncommitted changes of both apps, untracked files included) and open the page; it lives outside both repos and is never committed
+
+## Batch review flow
+## When a batch is done in both apps, run the batch-reviewer agent (~/.claude/agents/batch-reviewer.md) with both repo paths and the approved batch scope; it has no shared context on purpose
+## For UI batches, capture the affected screens first (Android: adb exec-out screencap -p; iOS: xcrun simctl io booted screenshot) and pass the screenshot paths and reference designs to the reviewer
+## The reviewer answers APPROVED or a list of findings; fix the findings and review again; after 2 rounds without approval, stop and ask the user
+## Once approved, stage and commit the batch (one commit per batch) and record the reviewer report in sessions/
+## At the end of each phase, build an interactive HTML review page for the user (in Portuguese) in ~/Projetos/gametrackr-reviews/ with the phase changes and the reviewer reports; it lives outside both repos and is never committed
+## The user does the final review of the whole refactor before the merge
 
 ## Git
-## Do not commit anything without permission; always work on new branches for commits and pull requests
+## Commit only through the batch review flow or with explicit permission; always work on new branches for commits and pull requests
 ## Do not push without permission
 ## Follow the project pattern for branch names (feat/, fix/, refactor/, chore/, test/) and commits (conventional commits, lowercase, in English)
 ## Avoid large commits; one commit per batch
