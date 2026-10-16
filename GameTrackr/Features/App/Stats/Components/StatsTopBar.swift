@@ -1,5 +1,12 @@
 import SwiftUI
 
+private enum Constants {
+    static let iconSize: CGFloat = 22
+    static let buttonSize: CGFloat = 40
+    static let titleSize: CGFloat = 22
+    static let subtitleSize: CGFloat = 13
+}
+
 struct StatsTopBar: View {
     let title: String
     var subtitle: String?
@@ -7,44 +14,45 @@ struct StatsTopBar: View {
     var shareText: String?
 
     var body: some View {
-        HStack(spacing: 12) {
+        HStack(spacing: Spacing.sm) {
             Button(action: onBack) {
-                AppIconView(icon: .back, size: 22)
+                AppIconView(icon: .back, size: Constants.iconSize)
                     .foregroundStyle(Color.appTextPrimary)
-                    .frame(width: 40, height: 40, alignment: .leading)
+                    .frame(width: Constants.buttonSize, height: Constants.buttonSize, alignment: .leading)
                     .contentShape(Rectangle())
             }
             .buttonStyle(PressableButtonStyle())
+            .accessibilityLabel("Back")
 
-            VStack(alignment: .leading, spacing: 1) {
+            VStack(alignment: .leading, spacing: Spacing.xxxs) {
                 Text(title)
-                    .font(.appHeadline(22))
+                    .font(.appHeadline(Constants.titleSize))
                     .foregroundStyle(Color.appTextPrimary)
 
                 if let subtitle {
                     Text(subtitle)
-                        .font(.appBody(13))
+                        .font(.appBody(Constants.subtitleSize))
                         .foregroundStyle(Color.appTextSecondary)
                         .lineLimit(1)
                         .truncationMode(.tail)
                 }
             }
 
-            Spacer(minLength: 8)
+            Spacer(minLength: Spacing.xs)
 
             if let shareText {
                 ShareLink(item: shareText) {
-                    AppIconView(icon: .share, size: 22)
+                    AppIconView(icon: .share, size: Constants.iconSize)
                         .foregroundStyle(Color.appSecondary)
-                        .frame(width: 40, height: 40, alignment: .trailing)
+                        .frame(width: Constants.buttonSize, height: Constants.buttonSize, alignment: .trailing)
                         .contentShape(Rectangle())
                 }
                 .buttonStyle(PressableButtonStyle())
                 .accessibilityLabel("Share stats")
             }
         }
-        .padding(.horizontal, 20)
-        .padding(.vertical, 12)
+        .padding(.horizontal, Spacing.lg)
+        .padding(.vertical, Spacing.sm)
         .background(Color.appBackground)
     }
 }

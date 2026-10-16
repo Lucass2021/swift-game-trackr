@@ -1,36 +1,49 @@
 import SwiftUI
 
+private enum Constants {
+    static let trophySize: CGFloat = 140
+    static let trophyOffsetX: CGFloat = 30
+    static let trophyOffsetY: CGFloat = -20
+    static let trophyAlpha = 0.12
+    static let overlayAlpha = 0.45
+    static let messageAlpha = 0.85
+    static let actionHeight: CGFloat = 44
+    static let titleSize: CGFloat = 24
+    static let messageSize: CGFloat = 15
+    static let actionTextSize: CGFloat = 15
+}
+
 struct AchievementSpotlightCard: View {
     let spotlight: AchievementSpotlight
     var onAction: () -> Void = {}
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 12) {
+        VStack(alignment: .leading, spacing: Spacing.sm) {
             Text(spotlight.title)
-                .font(.appHeadline(24, weight: .heavy))
+                .font(.appHeadline(Constants.titleSize, weight: .heavy))
                 .foregroundStyle(Color.appTextPrimary)
 
             Text(spotlight.message)
-                .font(.appBody(15))
-                .foregroundStyle(Color.appTextPrimary.opacity(0.85))
+                .font(.appBody(Constants.messageSize))
+                .foregroundStyle(Color.appTextPrimary.opacity(Constants.messageAlpha))
                 .fixedSize(horizontal: false, vertical: true)
 
             Button(action: onAction) {
                 Text(spotlight.actionTitle)
-                    .font(.appLabel(15))
+                    .font(.appLabel(Constants.actionTextSize))
                     .foregroundStyle(Color.appOnPrimary)
-                    .padding(.horizontal, 26)
-                    .frame(height: 44)
+                    .padding(.horizontal, Spacing.xl)
+                    .frame(height: Constants.actionHeight)
                     .background(Capsule().fill(Color.appPrimary))
                     .contentShape(Capsule())
             }
             .buttonStyle(PressableButtonStyle())
-            .padding(.top, 4)
+            .padding(.top, Spacing.xxs)
         }
-        .padding(22)
+        .padding(Spacing.lg)
         .frame(maxWidth: .infinity, alignment: .leading)
         .background(background)
-        .clipShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
+        .clipShape(RoundedRectangle(cornerRadius: Radius.lg, style: .continuous))
     }
 
     private var background: some View {
@@ -39,18 +52,18 @@ struct AchievementSpotlightCard: View {
             startPoint: .topLeading,
             endPoint: .bottomTrailing
         )
-        .overlay(Color.appBackground.opacity(0.45))
+        .overlay(Color.appBackground.opacity(Constants.overlayAlpha))
         .overlay(alignment: .topTrailing) {
-            AppIconView(icon: .trophy, size: 140)
-                .foregroundStyle(Color.appPrimary.opacity(0.12))
-                .offset(x: 30, y: -20)
+            AppIconView(icon: .trophy, size: Constants.trophySize)
+                .foregroundStyle(Color.appPrimary.opacity(Constants.trophyAlpha))
+                .offset(x: Constants.trophyOffsetX, y: Constants.trophyOffsetY)
         }
     }
 }
 
 #Preview {
     AchievementSpotlightCard(spotlight: StatsMockData.stats.spotlight)
-        .padding(20)
+        .padding(Spacing.lg)
         .background(Color.appBackground)
         .preferredColorScheme(.dark)
 }

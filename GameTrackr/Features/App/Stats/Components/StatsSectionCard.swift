@@ -1,34 +1,40 @@
 import SwiftUI
 
+private enum Constants {
+    static let borderWidth: CGFloat = 1
+    static let iconSize: CGFloat = 22
+    static let titleSize: CGFloat = 22
+}
+
 struct StatsSectionCard<Content: View>: View {
     let title: String
     let icon: AppIcon
     @ViewBuilder let content: Content
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 18) {
+        VStack(alignment: .leading, spacing: Spacing.md) {
             HStack(alignment: .top) {
                 Text(title)
-                    .font(.appHeadline(22, weight: .heavy))
+                    .font(.appHeadline(Constants.titleSize, weight: .heavy))
                     .foregroundStyle(Color.appTextPrimary)
 
-                Spacer(minLength: 12)
+                Spacer(minLength: Spacing.sm)
 
-                AppIconView(icon: icon, size: 22)
+                AppIconView(icon: icon, size: Constants.iconSize)
                     .foregroundStyle(Color.appSecondary)
             }
 
             content
         }
-        .padding(20)
+        .padding(Spacing.lg)
         .frame(maxWidth: .infinity, alignment: .leading)
         .background(
-            RoundedRectangle(cornerRadius: 18, style: .continuous)
+            RoundedRectangle(cornerRadius: Radius.lg, style: .continuous)
                 .fill(Color.appSurfaceCard)
         )
         .overlay(
-            RoundedRectangle(cornerRadius: 18, style: .continuous)
-                .stroke(Color.appOutline, lineWidth: 1)
+            RoundedRectangle(cornerRadius: Radius.lg, style: .continuous)
+                .stroke(Color.appOutline, lineWidth: Constants.borderWidth)
         )
     }
 }
@@ -38,7 +44,7 @@ struct StatsSectionCard<Content: View>: View {
         Text("Content")
             .foregroundStyle(Color.appTextSecondary)
     }
-    .padding(20)
+    .padding(Spacing.lg)
     .background(Color.appBackground)
     .preferredColorScheme(.dark)
 }

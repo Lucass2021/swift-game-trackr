@@ -1,5 +1,12 @@
 import SwiftUI
 
+private enum Constants {
+    static let barHeight: CGFloat = 26
+    static let dotSize: CGFloat = 8
+    static let percentSize: CGFloat = 13
+    static let labelSize: CGFloat = 12
+}
+
 struct StatusShareBar: View {
     let shares: [StatusShare]
 
@@ -8,7 +15,7 @@ struct StatusShareBar: View {
     }
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 14) {
+        VStack(alignment: .leading, spacing: Spacing.sm) {
             GeometryReader { geo in
                 HStack(spacing: 0) {
                     ForEach(shares) { share in
@@ -18,10 +25,10 @@ struct StatusShareBar: View {
                     }
                 }
             }
-            .frame(height: 26)
+            .frame(height: Constants.barHeight)
             .clipShape(Capsule())
 
-            HStack(alignment: .top, spacing: 18) {
+            HStack(alignment: .top, spacing: Spacing.md) {
                 ForEach(shares) { share in
                     legend(share)
                 }
@@ -32,18 +39,18 @@ struct StatusShareBar: View {
     }
 
     private func legend(_ share: StatusShare) -> some View {
-        HStack(alignment: .top, spacing: 7) {
+        HStack(alignment: .top, spacing: Spacing.xs) {
             Circle()
                 .fill(share.status.barTint)
-                .frame(width: 8, height: 8)
-                .padding(.top, 4)
+                .frame(width: Constants.dotSize, height: Constants.dotSize)
+                .padding(.top, Spacing.xxs)
 
-            VStack(alignment: .leading, spacing: 1) {
+            VStack(alignment: .leading, spacing: Spacing.xxxs) {
                 Text("\(share.percent)%")
-                    .font(.appLabel(13))
+                    .font(.appLabel(Constants.percentSize))
                     .foregroundStyle(Color.appTextPrimary)
                 Text(share.status.rawValue)
-                    .font(.appBody(12))
+                    .font(.appBody(Constants.labelSize))
                     .foregroundStyle(Color.appTextSecondary)
             }
         }
@@ -52,7 +59,7 @@ struct StatusShareBar: View {
 
 #Preview {
     StatusShareBar(shares: StatsMockData.stats.statusShare)
-        .padding(20)
+        .padding(Spacing.lg)
         .background(Color.appBackground)
         .preferredColorScheme(.dark)
 }

@@ -2,12 +2,16 @@ import SwiftUI
 
 struct StatsView: View {
     var ownerName: String?
-    var repository: StatsRepository = FakeStatsRepository()
 
     @Environment(\.dismiss) private var dismiss
 
-    @State private var stats: UserStats?
+    @State private var viewModel: StatsViewModel
     @State private var showAchievements = false
+
+    init(ownerName: String? = nil, repository: StatsRepository = FakeStatsRepository()) {
+        self.ownerName = ownerName
+        _viewModel = State(initialValue: StatsViewModel(repository: repository))
+    }
 
     var body: some View {
         VStack(spacing: 0) {
@@ -19,12 +23,7 @@ struct StatsView: View {
                     ?? "Check out my gaming stats on GameTrackr!"
             )
 
-            if let stats {
-                content(stats)
-            } else {
-                ProgressView()
-                    .frame(maxWidth: .infinity, maxHeight: .infinity)
-            }
+            content
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background(Color.appBackground)
@@ -33,15 +32,32 @@ struct StatsView: View {
         .navigationDestination(isPresented: $showAchievements) {
             AchievementsView(ownerName: ownerName)
         }
-        .task {
-            guard stats == nil else { return }
-            stats = try? await repository.fetchStats()
+        .task { await viewModel.loadIfNeeded() }
+    }
+
+    @ViewBuilder
+    private var content: some View {
+        if let stats = viewModel.stats {
+            list(stats)
+        } else if viewModel.hasError {
+            EmptyState(
+                icon: .info,
+                title: "Couldn't load stats",
+                message: "Check your connection and try again.",
+                actionTitle: "Try again",
+                onAction: { Task { await viewModel.load() } }
+            )
+            .frame(maxHeight: .infinity)
+        } else {
+            ProgressView()
+                .tint(Color.appPrimary)
+                .frame(maxHeight: .infinity)
         }
     }
 
-    private func content(_ stats: UserStats) -> some View {
+    private func list(_ stats: UserStats) -> some View {
         ScrollView(showsIndicators: false) {
-            VStack(spacing: 20) {
+            VStack(spacing: Spacing.lg) {
                 ForEach(stats.highlights) { highlight in
                     StatHighlightCard(highlight: highlight)
                 }
@@ -67,9 +83,9 @@ struct StatsView: View {
                     onAction: { showAchievements = true }
                 )
             }
-            .padding(.horizontal, 20)
-            .padding(.top, 12)
-            .padding(.bottom, 32)
+            .padding(.horizontal, Spacing.lg)
+            .padding(.top, Spacing.sm)
+            .padding(.bottom, Spacing.xxl)
         }
     }
 }
@@ -84,6 +100,13 @@ struct StatsView: View {
 #Preview("Other user") {
     NavigationStack {
         StatsView(ownerName: "Ana")
+    }
+    .preferredColorScheme(.dark)
+}
+
+#Preview("Error") {
+    NavigationStack {
+        StatsView(repository: FakeStatsRepository(failure: APIError.networkFailure, latency: .zero))
     }
     .preferredColorScheme(.dark)
 }

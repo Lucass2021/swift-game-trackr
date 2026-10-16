@@ -1,10 +1,17 @@
 import SwiftUI
 
+private enum Constants {
+    static let barHeight: CGFloat = 7
+    static let minBarWidth: CGFloat = 8
+    static let labelSize: CGFloat = 12
+    static let labelLetterSpacing: CGFloat = 0.8
+}
+
 struct StatBarList: View {
     let bars: [StatBar]
 
     var body: some View {
-        VStack(spacing: 16) {
+        VStack(spacing: Spacing.md) {
             ForEach(bars) { bar in
                 row(bar)
             }
@@ -12,18 +19,18 @@ struct StatBarList: View {
     }
 
     private func row(_ bar: StatBar) -> some View {
-        VStack(spacing: 8) {
+        VStack(spacing: Spacing.xs) {
             HStack {
                 Text(bar.label.uppercased())
-                    .font(.appLabel(12))
-                    .kerning(0.8)
+                    .font(.appLabel(Constants.labelSize))
+                    .kerning(Constants.labelLetterSpacing)
                     .foregroundStyle(Color.appTextPrimary)
 
-                Spacer(minLength: 12)
+                Spacer(minLength: Spacing.sm)
 
                 Text(bar.value.uppercased())
-                    .font(.appLabel(12))
-                    .kerning(0.8)
+                    .font(.appLabel(Constants.labelSize))
+                    .kerning(Constants.labelLetterSpacing)
                     .foregroundStyle(Color.appTextSecondary)
             }
 
@@ -34,10 +41,10 @@ struct StatBarList: View {
 
                     Capsule()
                         .fill(bar.tint)
-                        .frame(width: max(geo.size.width * bar.fraction, 8))
+                        .frame(width: max(geo.size.width * min(max(bar.fraction, 0), 1), Constants.minBarWidth))
                 }
             }
-            .frame(height: 7)
+            .frame(height: Constants.barHeight)
         }
         .accessibilityElement(children: .combine)
         .accessibilityLabel("\(bar.label), \(bar.value)")
@@ -46,7 +53,7 @@ struct StatBarList: View {
 
 #Preview {
     StatBarList(bars: StatsMockData.stats.platforms)
-        .padding(20)
+        .padding(Spacing.lg)
         .background(Color.appBackground)
         .preferredColorScheme(.dark)
 }

@@ -1,5 +1,12 @@
 import SwiftUI
 
+private enum Constants {
+    static let chartHeight: CGFloat = 150
+    static let maxBarHeight: CGFloat = 110
+    static let minBarHeight: CGFloat = 12
+    static let labelSize: CGFloat = 12
+}
+
 struct YearBarChart: View {
     let years: [YearCount]
 
@@ -8,24 +15,27 @@ struct YearBarChart: View {
     }
 
     var body: some View {
-        HStack(alignment: .bottom, spacing: 18) {
+        HStack(alignment: .bottom, spacing: Spacing.md) {
             ForEach(Array(years.enumerated()), id: \.element.id) { index, year in
                 column(year, isCurrent: index == years.count - 1)
             }
         }
-        .frame(height: 150, alignment: .bottom)
+        .frame(height: Constants.chartHeight, alignment: .bottom)
     }
 
     private func column(_ year: YearCount, isCurrent: Bool) -> some View {
-        VStack(spacing: 10) {
+        VStack(spacing: Spacing.xs) {
             Spacer(minLength: 0)
 
-            RoundedRectangle(cornerRadius: 6, style: .continuous)
+            RoundedRectangle(cornerRadius: Radius.sm, style: .continuous)
                 .fill(year.tint)
-                .frame(height: max(110 * Double(year.count) / Double(maxCount), 12))
+                .frame(height: max(
+                    Constants.maxBarHeight * Double(year.count) / Double(maxCount),
+                    Constants.minBarHeight
+                ))
 
             Text(year.year)
-                .font(.appLabel(12, weight: isCurrent ? .heavy : .regular))
+                .font(.appLabel(Constants.labelSize, weight: isCurrent ? .heavy : .regular))
                 .foregroundStyle(isCurrent ? Color.appTextPrimary : Color.appTextSecondary)
         }
         .frame(maxWidth: .infinity)
@@ -36,7 +46,7 @@ struct YearBarChart: View {
 
 #Preview {
     YearBarChart(years: StatsMockData.stats.yearsCompleted)
-        .padding(20)
+        .padding(Spacing.lg)
         .background(Color.appBackground)
         .preferredColorScheme(.dark)
 }
