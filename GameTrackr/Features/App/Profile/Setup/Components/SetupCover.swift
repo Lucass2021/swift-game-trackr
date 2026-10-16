@@ -19,10 +19,14 @@ struct SetupCover: View {
                 )
             )
             .overlay {
-                if let photo = setup.photos.first {
-                    Image(uiImage: photo.image)
-                        .resizable()
-                        .scaledToFill()
+                if let cover = setup.images.first, let url = URL(string: cover.url) {
+                    AsyncImage(url: url) { image in
+                        image
+                            .resizable()
+                            .scaledToFill()
+                    } placeholder: {
+                        Color.clear
+                    }
                 } else {
                     AppIconView(icon: .devices, size: placeholderSize)
                         .foregroundStyle(Color.white.opacity(0.22))
@@ -31,7 +35,7 @@ struct SetupCover: View {
             .clipShape(shape)
             .overlay(shape.stroke(Color.appOutline, lineWidth: 1))
             .overlay(alignment: .topTrailing) {
-                if setup.photos.count > 1 {
+                if setup.images.count > 1 {
                     photoCount
                 }
             }
@@ -40,7 +44,7 @@ struct SetupCover: View {
     private var photoCount: some View {
         HStack(spacing: 4) {
             AppIconView(icon: .grid, size: 11)
-            Text("\(setup.photos.count)")
+            Text("\(setup.images.count)")
                 .font(.appLabel(11))
         }
         .foregroundStyle(Color.white)

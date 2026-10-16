@@ -12,7 +12,7 @@ struct MainTabView: View {
     @State private var libraryFilter: LibraryStatus?
     @Environment(AuthStore.self) private var authStore
     @State private var profile = ProfileMockData.profile
-    @State private var setups: [SetupItem] = []
+    @State private var mySetupViewModel = MySetupViewModel()
 
     var body: some View {
         NavigationStack {
@@ -37,12 +37,13 @@ struct MainTabView: View {
             .navigationDestination(isPresented: $showMenu) { ProfileMenuView(profile: $profile) }
             .navigationDestination(isPresented: $showStats) { StatsView() }
             .navigationDestination(isPresented: $showEditProfile) { EditProfileView(profile: $profile) }
-            .navigationDestination(isPresented: $showSetup) { MySetupView(setups: $setups) }
+            .navigationDestination(isPresented: $showSetup) { MySetupView(viewModel: mySetupViewModel) }
             .navigationDestination(item: $detailSlug) { slug in
                 GameDetailView(slug: slug)
             }
             .task(id: authStore.currentUser?.id) {
                 profile = profile.applying(authStore.currentUser)
+                await mySetupViewModel.loadFor(authStore.isGuest ? nil : authStore.currentUser?.id)
             }
         }
     }
@@ -63,7 +64,7 @@ struct MainTabView: View {
         case .profile:
             ProfileView(
                 profile: profile,
-                setups: setups,
+                setups: mySetupViewModel.setups,
                 onGameSelect: { detailSlug = $0 },
                 onStatusSelect: { status in
                     libraryFilter = status

@@ -1,87 +1,65 @@
 import SwiftUI
 
 struct MySetupView: View {
-    @Binding var setups: [SetupItem]
+    let viewModel: MySetupViewModel
 
     @Environment(\.dismiss) private var dismiss
-    @State private var draft: SetupItem?
+    @State private var editing: SetupEditing?
 
     var body: some View {
         VStack(spacing: 0) {
-            header
+            MySetupHeader(showAdd: !viewModel.setups.isEmpty, onBack: { dismiss() }, onAdd: startNewSetup)
 
-            if setups.isEmpty {
-                emptyState
-            } else {
-                list
-            }
+            content
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background(Color.appBackground)
         .toolbar(.hidden, for: .navigationBar)
         .navigationBarBackButtonHidden(true)
-        .fullScreenCover(item: $draft) { item in
+        .fullScreenCover(item: $editing) { editing in
             EditSetupView(
-                setup: item,
-                isNew: !setups.contains { $0.id == item.id },
-                onSave: save,
-                onDelete: delete
+                setup: editing.setup,
+                onSaved: viewModel.onSetupSaved,
+                onDeleted: viewModel.onSetupDeleted
             )
         }
     }
 
-    private var header: some View {
-        HStack(spacing: 12) {
-            Button { dismiss() } label: {
-                AppIconView(icon: .back, size: 22)
-                    .foregroundStyle(Color.appTextPrimary)
-                    .frame(width: 40, height: 40, alignment: .leading)
-                    .contentShape(Rectangle())
-            }
-            .buttonStyle(PressableButtonStyle())
-            .accessibilityLabel("Back")
-
-            Text("My Setup")
-                .font(.appHeadline(20))
-                .foregroundStyle(Color.appTextPrimary)
-
-            Spacer()
-
-            if !setups.isEmpty {
-                Button(action: startNewSetup) {
-                    AppIconView(icon: .plus, size: 20)
-                        .foregroundStyle(Color.appOnPrimary)
-                        .frame(width: 38, height: 38)
-                        .background(Circle().fill(Color.appPrimary))
-                        .contentShape(Circle())
-                }
-                .buttonStyle(PressableButtonStyle())
-                .accessibilityLabel("Add setup")
-            }
+    @ViewBuilder
+    private var content: some View {
+        if !viewModel.setups.isEmpty {
+            list
+        } else if viewModel.isLoading {
+            ProgressView()
+                .tint(Color.appPrimary)
+                .frame(maxHeight: .infinity)
+        } else if viewModel.hasError {
+            EmptyState(
+                icon: .info,
+                title: "Couldn't load your setups",
+                message: "Check your connection and try again.",
+                actionTitle: "Try again",
+                onAction: { Task { await viewModel.load() } }
+            )
+            .frame(maxHeight: .infinity)
+        } else {
+            EmptyState(
+                icon: .devices,
+                title: "No setup yet",
+                message: "Add your battle station, retro corner or handheld gear "
+                    + "so other players can see how you play.",
+                actionTitle: "Add your first setup",
+                onAction: startNewSetup
+            )
+            .frame(maxHeight: .infinity)
         }
-        .padding(.horizontal, 16)
-        .padding(.vertical, 12)
-    }
-
-    private var emptyState: some View {
-        EmptyState(
-            icon: .devices,
-            title: "No setup yet",
-            message: "Add your battle station, retro corner or handheld gear so other players can see how you play.",
-            actionTitle: "Add your first setup",
-            onAction: startNewSetup
-        )
-        .frame(maxHeight: .infinity)
     }
 
     private var list: some View {
         ScrollView(showsIndicators: false) {
             VStack(spacing: 18) {
-                ForEach(setups) { setup in
-                    Button { draft = setup } label: {
-                        card(setup)
-                    }
-                    .buttonStyle(PressableButtonStyle())
+                ForEach(viewModel.setups) { setup in
+                    SetupCard(setup: setup) { editing = SetupEditing(setup: setup) }
                 }
             }
             .padding(.horizontal, 20)
@@ -90,70 +68,28 @@ struct MySetupView: View {
         }
     }
 
-    private func card(_ setup: SetupItem) -> some View {
-        VStack(alignment: .leading, spacing: 12) {
-            SetupCover(setup: setup, cornerRadius: 16, placeholderSize: 48)
-                .frame(height: 180)
-
-            VStack(alignment: .leading, spacing: 4) {
-                Text(setup.title)
-                    .font(.appHeadline(18))
-                    .foregroundStyle(Color.appTextPrimary)
-                    .lineLimit(1)
-
-                if !setup.description.isEmpty {
-                    Text(setup.description)
-                        .font(.appBody(14))
-                        .foregroundStyle(Color.appTextSecondary)
-                        .lineLimit(3)
-                        .multilineTextAlignment(.leading)
-                        .fixedSize(horizontal: false, vertical: true)
-                }
-            }
-            .frame(maxWidth: .infinity, alignment: .leading)
-        }
-        .padding(14)
-        .background(Color.appSurfaceCard, in: RoundedRectangle(cornerRadius: 20, style: .continuous))
-        .overlay(
-            RoundedRectangle(cornerRadius: 20, style: .continuous)
-                .stroke(Color.appOutline, lineWidth: 1)
-        )
-        .contentShape(Rectangle())
-    }
-
     private func startNewSetup() {
-        draft = SetupItem(
-            id: (setups.map(\.id).max() ?? 0) + 1,
-            title: "",
-            description: ""
-        )
-    }
-
-    private func save(_ setup: SetupItem) {
-        if let index = setups.firstIndex(where: { $0.id == setup.id }) {
-            setups[index] = setup
-        } else {
-            setups.append(setup)
-        }
-    }
-
-    private func delete(_ setup: SetupItem) {
-        setups.removeAll { $0.id == setup.id }
+        editing = SetupEditing(setup: nil)
     }
 }
 
+private struct SetupEditing: Identifiable {
+    let id = UUID()
+    let setup: SetupItem?
+}
+
 #Preview("With setups") {
-    @Previewable @State var setups = ProfileMockData.setups
+    @Previewable @State var viewModel = MySetupViewModel(repository: FakeSetupRepository())
     NavigationStack {
-        MySetupView(setups: $setups)
+        MySetupView(viewModel: viewModel)
     }
+    .task { await viewModel.load() }
     .preferredColorScheme(.dark)
 }
 
 #Preview("Empty") {
-    @Previewable @State var setups: [SetupItem] = []
     NavigationStack {
-        MySetupView(setups: $setups)
+        MySetupView(viewModel: MySetupViewModel(repository: FakeSetupRepository(setups: [])))
     }
     .preferredColorScheme(.dark)
 }
