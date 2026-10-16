@@ -2,7 +2,8 @@ import SwiftUI
 import Testing
 @testable import GameTrackr
 
-struct AchievementsSummaryTests {
+@MainActor
+struct FakeAchievementsRepositoryTests {
     private static let completedGame = game(
         id: 1,
         Achievement(id: 1, title: "Platinum", detail: "All", tier: .platinum, unlockedAt: "Jul 2024"),
@@ -14,8 +15,9 @@ struct AchievementsSummaryTests {
         Achievement(id: 4, title: "Finish", detail: "End", tier: .gold, unlockedAt: nil)
     )
 
-    @Test func summaryAggregatesEveryGame() {
-        let summary = AchievementsSummary(games: [Self.completedGame, Self.startedGame])
+    @Test func summaryAggregatesEveryGame() async throws {
+        let repository = FakeAchievementsRepository(games: [Self.completedGame, Self.startedGame], latency: .zero)
+        let summary = try await repository.fetchAchievementsSummary()
 
         #expect(summary.unlockedCount == 3)
         #expect(summary.total == 4)
@@ -25,8 +27,8 @@ struct AchievementsSummaryTests {
         #expect(summary.percent == 75)
     }
 
-    @Test func summaryOfNoGamesIsEmpty() {
-        let summary = AchievementsSummary(games: [])
+    @Test func summaryOfNoGamesIsEmpty() async throws {
+        let summary = try await FakeAchievementsRepository(games: [], latency: .zero).fetchAchievementsSummary()
 
         #expect(summary.total == 0)
         #expect(summary.percent == 0)

@@ -2,21 +2,17 @@ import SwiftUI
 
 struct AchievementsView: View {
     var ownerName: String?
-    var repository: AchievementsRepository = FakeAchievementsRepository()
 
     @Environment(\.dismiss) private var dismiss
 
-    @State private var filter: AchievementFilter = .all
+    @State private var viewModel: AchievementsViewModel
     @State private var selectedGameId: Int?
-    @State private var pagination = PaginationState<GameAchievements>()
-    @State private var summary: AchievementsSummary?
+    private let repository: AchievementsRepository
 
-    private enum Constants {
-        static let gamesPageSize = 3
-    }
-
-    private var visible: [GameAchievements] {
-        pagination.items.filter(filter.matches)
+    init(ownerName: String? = nil, repository: AchievementsRepository = FakeAchievementsRepository()) {
+        self.ownerName = ownerName
+        self.repository = repository
+        _viewModel = State(initialValue: AchievementsViewModel(repository: repository))
     }
 
     var body: some View {
@@ -27,18 +23,12 @@ struct AchievementsView: View {
                 onBack: { dismiss() }
             )
 
-            AchievementFilterChips(selection: $filter)
-                .padding(.bottom, 4)
+            AchievementFilterChips(selection: viewModel.filter) { filter in
+                Task { await viewModel.onFilterChange(filter) }
+            }
+            .padding(.bottom, Spacing.xxs)
 
             content
-                .task {
-                    guard pagination.currentPage == 0 else { return }
-                    await loadNextPage()
-                }
-                .task {
-                    guard summary == nil else { return }
-                    summary = try? await repository.fetchAchievementsSummary()
-                }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background(Color.appBackground)
@@ -47,67 +37,42 @@ struct AchievementsView: View {
         .navigationDestination(item: $selectedGameId) { gameId in
             GameAchievementsView(gameId: gameId, repository: repository)
         }
+        .task { await viewModel.loadIfNeeded() }
     }
 
     @ViewBuilder
     private var content: some View {
-        if pagination.currentPage == 0 {
+        if viewModel.hasError {
+            EmptyState(
+                icon: .info,
+                title: "Couldn't load achievements",
+                message: "Check your connection and try again.",
+                actionTitle: "Try again",
+                onAction: { Task { await viewModel.load() } }
+            )
+            .frame(maxHeight: .infinity)
+        } else if viewModel.currentPage == 0 {
             ProgressView()
+                .tint(Color.appPrimary)
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
-        } else if visible.isEmpty {
-            emptyState
+        } else if viewModel.games.isEmpty {
+            EmptyState(
+                icon: .trophy,
+                title: "Nothing here yet",
+                message: "Achievements from the games in your library show up here as you unlock them."
+            )
+            .frame(maxHeight: .infinity)
         } else {
-            ScrollView(showsIndicators: false) {
-                VStack(spacing: 14) {
-                    if filter == .all, let summary {
-                        AchievementsSummaryCard(summary: summary)
-                            .padding(.bottom, 6)
-                    }
-
-                    ForEach(Array(visible.enumerated()), id: \.element.id) { index, game in
-                        Button {
-                            selectedGameId = game.id
-                        } label: {
-                            GameAchievementsRow(game: game)
-                        }
-                        .buttonStyle(PressableButtonStyle())
-                        .onAppear {
-                            if index >= visible.count - 2 {
-                                Task { await loadNextPage() }
-                            }
-                        }
-                    }
-
-                    if pagination.isLoadingMore {
-                        LoadingMoreIndicator()
-                    }
-                }
-                .padding(.horizontal, 20)
-                .padding(.top, 12)
-                .padding(.bottom, 32)
-            }
+            AchievementsList(
+                games: viewModel.games,
+                summary: viewModel.showsSummary ? viewModel.summary : nil,
+                canLoadMore: viewModel.canLoadMore,
+                isLoadingMore: viewModel.isLoadingMore,
+                loadMoreFailed: viewModel.loadMoreFailed,
+                onLoadMore: { Task { await viewModel.loadMore() } },
+                onGameSelect: { selectedGameId = $0 }
+            )
         }
-    }
-
-    private func loadNextPage() async {
-        guard pagination.canLoadMore else { return }
-        pagination.setLoading(true)
-        if let page = try? await repository.fetchAchievementGames(
-            page: pagination.currentPage + 1,
-            perPage: Constants.gamesPageSize
-        ) {
-            pagination.append(page: page)
-        }
-        pagination.setLoading(false)
-    }
-
-    private var emptyState: some View {
-        EmptyState(
-            icon: .trophy,
-            title: "Nothing here yet",
-            message: "Achievements from the games in your library show up here as you unlock them."
-        )
-        .frame(maxHeight: .infinity)
     }
 }
 
@@ -121,6 +86,13 @@ struct AchievementsView: View {
 #Preview("Other user") {
     NavigationStack {
         AchievementsView(ownerName: "Ana")
+    }
+    .preferredColorScheme(.dark)
+}
+
+#Preview("Error") {
+    NavigationStack {
+        AchievementsView(repository: FakeAchievementsRepository(failure: APIError.networkFailure, latency: .zero))
     }
     .preferredColorScheme(.dark)
 }

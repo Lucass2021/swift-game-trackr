@@ -1,23 +1,34 @@
 import SwiftUI
 
+private enum Constants {
+    static let borderWidth: CGFloat = 1
+    static let barHeight: CGFloat = 10
+    static let statIconSize: CGFloat = 16
+    static let countSize: CGFloat = 34
+    static let totalSize: CGFloat = 15
+    static let percentSize: CGFloat = 20
+    static let statValueSize: CGFloat = 15
+    static let statLabelSize: CGFloat = 11
+}
+
 struct AchievementsSummaryCard: View {
     let summary: AchievementsSummary
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 16) {
-            HStack(alignment: .firstTextBaseline, spacing: 8) {
+        VStack(alignment: .leading, spacing: Spacing.md) {
+            HStack(alignment: .firstTextBaseline, spacing: Spacing.xs) {
                 Text("\(summary.unlockedCount)")
-                    .font(.appHeadline(34, weight: .heavy))
+                    .font(.appHeadline(Constants.countSize, weight: .heavy))
                     .foregroundStyle(Color.appPrimary)
 
                 Text("of \(summary.total) unlocked")
-                    .font(.appBody(15))
+                    .font(.appBody(Constants.totalSize))
                     .foregroundStyle(Color.appTextSecondary)
 
-                Spacer(minLength: 8)
+                Spacer(minLength: Spacing.xs)
 
                 Text("\(summary.percent)%")
-                    .font(.appHeadline(20))
+                    .font(.appHeadline(Constants.percentSize))
                     .foregroundStyle(Color.appTextPrimary)
                     .monospacedDigit()
             }
@@ -38,40 +49,40 @@ struct AchievementsSummaryCard: View {
                         .frame(width: proxy.size.width * summary.fraction)
                 }
             }
-            .frame(height: 10)
+            .frame(height: Constants.barHeight)
 
-            HStack(spacing: 22) {
+            HStack(spacing: Spacing.lg) {
                 miniStat(icon: .trophy, value: "\(summary.platinumCount)", label: "Platinums")
                 miniStat(icon: .success, value: "\(summary.completedCount)", label: "Completed")
                 miniStat(icon: .brand, value: "\(summary.gameCount)", label: "Games")
             }
         }
-        .padding(20)
+        .padding(Spacing.lg)
         .frame(maxWidth: .infinity, alignment: .leading)
         .background(
-            RoundedRectangle(cornerRadius: 18, style: .continuous)
+            RoundedRectangle(cornerRadius: Radius.lg, style: .continuous)
                 .fill(Color.appSurfaceCard)
         )
         .overlay(
-            RoundedRectangle(cornerRadius: 18, style: .continuous)
-                .stroke(Color.appOutline, lineWidth: 1)
+            RoundedRectangle(cornerRadius: Radius.lg, style: .continuous)
+                .stroke(Color.appOutline, lineWidth: Constants.borderWidth)
         )
         .accessibilityElement(children: .combine)
         .accessibilityLabel("\(summary.unlockedCount) of \(summary.total) achievements unlocked")
     }
 
     private func miniStat(icon: AppIcon, value: String, label: String) -> some View {
-        HStack(spacing: 8) {
-            AppIconView(icon: icon, size: 16)
+        HStack(spacing: Spacing.xs) {
+            AppIconView(icon: icon, size: Constants.statIconSize)
                 .foregroundStyle(Color.appSecondary)
 
             VStack(alignment: .leading, spacing: 0) {
                 Text(value)
-                    .font(.appLabel(15))
+                    .font(.appLabel(Constants.statValueSize))
                     .foregroundStyle(Color.appTextPrimary)
 
                 Text(label)
-                    .font(.appBody(11))
+                    .font(.appBody(Constants.statLabelSize))
                     .foregroundStyle(Color.appTextSecondary)
             }
         }
@@ -79,8 +90,14 @@ struct AchievementsSummaryCard: View {
 }
 
 #Preview {
-    AchievementsSummaryCard(summary: AchievementsSummary(games: AchievementsMockData.games))
-        .padding(20)
-        .background(Color.appBackground)
-        .preferredColorScheme(.dark)
+    AchievementsSummaryCard(summary: AchievementsSummary(
+        unlockedCount: 42,
+        total: 60,
+        platinumCount: 2,
+        completedCount: 3,
+        gameCount: 6
+    ))
+    .padding(Spacing.lg)
+    .background(Color.appBackground)
+    .preferredColorScheme(.dark)
 }

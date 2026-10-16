@@ -1,6 +1,6 @@
 import SwiftUI
 
-enum AchievementTier: CaseIterable {
+nonisolated enum AchievementTier: CaseIterable {
     case bronze
     case silver
     case gold
@@ -15,7 +15,7 @@ enum AchievementTier: CaseIterable {
         }
     }
 
-    var tint: Color {
+    @MainActor var tint: Color {
         switch self {
         case .bronze: .appNeutral
         case .silver: .appTextSecondary
@@ -24,12 +24,12 @@ enum AchievementTier: CaseIterable {
         }
     }
 
-    var icon: AppIcon {
+    @MainActor var icon: AppIcon {
         self == .platinum ? .trophy : .medal
     }
 }
 
-struct Achievement: Identifiable {
+nonisolated struct Achievement: Identifiable {
     let id: Int
     let title: String
     let detail: String
@@ -54,7 +54,7 @@ struct Achievement: Identifiable {
     }
 }
 
-struct GameAchievements: Identifiable {
+nonisolated struct GameAchievements: Identifiable {
     let id: Int
     let title: String
     let platform: String
@@ -87,7 +87,7 @@ struct GameAchievements: Identifiable {
     }
 }
 
-struct AchievementsSummary {
+nonisolated struct AchievementsSummary {
     let unlockedCount: Int
     let total: Int
     let platinumCount: Int
@@ -100,15 +100,5 @@ struct AchievementsSummary {
 
     var percent: Int {
         Int((fraction * 100).rounded())
-    }
-}
-
-extension AchievementsSummary {
-    init(games: [GameAchievements]) {
-        unlockedCount = games.reduce(0) { $0 + $1.unlockedCount }
-        total = games.reduce(0) { $0 + $1.total }
-        platinumCount = games.count(where: \.hasPlatinum)
-        completedCount = games.count(where: \.isComplete)
-        gameCount = games.count
     }
 }

@@ -1,16 +1,22 @@
 import SwiftUI
 
+private enum Constants {
+    static let borderWidth: CGFloat = 1
+    static let labelSize: CGFloat = 14
+}
+
 struct AchievementFilterChips: View {
-    @Binding var selection: AchievementFilter
+    let selection: AchievementFilter
+    let onSelect: (AchievementFilter) -> Void
 
     var body: some View {
         ScrollView(.horizontal, showsIndicators: false) {
-            HStack(spacing: 10) {
+            HStack(spacing: Spacing.xs) {
                 ForEach(AchievementFilter.allCases) { filter in
                     chip(filter)
                 }
             }
-            .padding(.horizontal, 20)
+            .padding(.horizontal, Spacing.lg)
         }
     }
 
@@ -18,15 +24,18 @@ struct AchievementFilterChips: View {
         let isSelected = filter == selection
 
         return Button {
-            selection = filter
+            onSelect(filter)
         } label: {
             Text(filter.title)
-                .font(.appLabel(14))
+                .font(.appLabel(Constants.labelSize))
                 .foregroundStyle(isSelected ? Color.appOnPrimary : Color.appTextPrimary)
-                .padding(.horizontal, 18)
-                .padding(.vertical, 9)
+                .padding(.horizontal, Spacing.md)
+                .padding(.vertical, Spacing.xs)
                 .background(Capsule().fill(isSelected ? Color.appPrimary : Color.clear))
-                .overlay(Capsule().stroke(isSelected ? Color.clear : Color.appOutline, lineWidth: 1))
+                .overlay(Capsule().stroke(
+                    isSelected ? Color.clear : Color.appOutline,
+                    lineWidth: Constants.borderWidth
+                ))
                 .contentShape(Capsule())
         }
         .buttonStyle(PressableButtonStyle())
@@ -35,8 +44,7 @@ struct AchievementFilterChips: View {
 }
 
 #Preview {
-    @Previewable @State var selection: AchievementFilter = .all
-    AchievementFilterChips(selection: $selection)
+    AchievementFilterChips(selection: .inProgress, onSelect: { _ in })
         .background(Color.appBackground)
         .preferredColorScheme(.dark)
 }
