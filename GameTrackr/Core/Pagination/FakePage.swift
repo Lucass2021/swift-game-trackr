@@ -1,4 +1,4 @@
-func fakePage<Item>(items: [Item], page: Int, perPage: Int) -> Page<Item> {
+nonisolated func fakePage<Item>(items: [Item], page: Int, perPage: Int) -> Page<Item> {
     let lastPage = max(1, (items.count + perPage - 1) / perPage)
     let start = min((page - 1) * perPage, items.count)
     let end = min(start + perPage, items.count)

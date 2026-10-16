@@ -1,31 +1,45 @@
 import SwiftUI
 
+private enum Constants {
+    static let borderWidth: CGFloat = 1
+    static let coverWidth: CGFloat = 62
+    static let coverHeight: CGFloat = 82
+    static let favoriteIconSize: CGFloat = 18
+    static let titleSize: CGFloat = 18
+    static let hoursSize: CGFloat = 15
+}
+
 struct LibraryEntryRow: View {
     let entry: LibraryEntry
     var onFavorite: (() -> Void)?
 
     var body: some View {
-        HStack(spacing: 14) {
-            GameCoverArt(start: entry.coverStart, end: entry.coverEnd, width: 62, height: 82)
+        HStack(spacing: Spacing.sm) {
+            GameCoverArt(
+                start: entry.coverStart,
+                end: entry.coverEnd,
+                width: Constants.coverWidth,
+                height: Constants.coverHeight
+            )
 
-            VStack(alignment: .leading, spacing: 8) {
+            VStack(alignment: .leading, spacing: Spacing.xs) {
                 Text(entry.title)
-                    .font(.appLabel(18))
+                    .font(.appLabel(Constants.titleSize))
                     .foregroundStyle(Color.appTextPrimary)
                     .lineLimit(1)
 
-                HStack(spacing: 10) {
+                HStack(spacing: Spacing.xs) {
                     LibraryStatusBadge(status: entry.status)
                     StarRatingView(rating: entry.rating)
                 }
             }
 
-            Spacer(minLength: 8)
+            Spacer(minLength: Spacing.xs)
 
-            VStack(spacing: 10) {
+            VStack(spacing: Spacing.xs) {
                 if let onFavorite {
                     Button(action: onFavorite) {
-                        AppIconView(icon: .like, filled: entry.isFavorite, size: 18)
+                        AppIconView(icon: .like, filled: entry.isFavorite, size: Constants.favoriteIconSize)
                             .foregroundStyle(entry.isFavorite ? Color.appPrimary : Color.appTextSecondary)
                             .contentShape(Rectangle())
                     }
@@ -34,23 +48,26 @@ struct LibraryEntryRow: View {
                 }
 
                 Text("\(entry.hours)h")
-                    .font(.appLabel(15))
+                    .font(.appLabel(Constants.hoursSize))
                     .foregroundStyle(Color.appTextSecondary)
             }
         }
-        .padding(14)
+        .padding(Spacing.sm)
         .frame(maxWidth: .infinity, alignment: .leading)
-        .background(Color.appSurfaceCard, in: RoundedRectangle(cornerRadius: 18, style: .continuous))
-        .overlay(RoundedRectangle(cornerRadius: 18, style: .continuous).stroke(Color.appOutline, lineWidth: 1))
+        .background(Color.appSurfaceCard, in: RoundedRectangle(cornerRadius: Radius.lg, style: .continuous))
+        .overlay(RoundedRectangle(cornerRadius: Radius.lg, style: .continuous).stroke(
+            Color.appOutline,
+            lineWidth: Constants.borderWidth
+        ))
     }
 }
 
 #Preview {
-    VStack(spacing: 14) {
+    VStack(spacing: Spacing.sm) {
         LibraryEntryRow(entry: LibraryMockData.entries[0])
         LibraryEntryRow(entry: LibraryMockData.entries[2])
     }
-    .padding(20)
+    .padding(Spacing.lg)
     .background(Color.appBackground)
     .preferredColorScheme(.dark)
 }

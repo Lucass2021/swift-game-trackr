@@ -33,7 +33,10 @@ enum LibraryStatus: String, CaseIterable, Identifiable {
 }
 
 struct LibraryEntry: Identifiable {
-    let id = UUID()
+    var id: String {
+        slug
+    }
+
     let title: String
     let slug: String
     let status: LibraryStatus

@@ -9,10 +9,10 @@ struct MainTabView: View {
     @State private var showStats = false
     @State private var showEditProfile = false
     @State private var showSetup = false
-    @State private var libraryFilter: LibraryStatus?
     @Environment(AuthStore.self) private var authStore
     @State private var profile = ProfileMockData.profile
     @State private var mySetupViewModel = MySetupViewModel()
+    @State private var libraryViewModel = LibraryViewModel(repository: FakeLibraryRepository())
 
     var body: some View {
         NavigationStack {
@@ -43,7 +43,10 @@ struct MainTabView: View {
             }
             .task(id: authStore.currentUser?.id) {
                 profile = profile.applying(authStore.currentUser)
-                await mySetupViewModel.loadFor(authStore.isGuest ? nil : authStore.currentUser?.id)
+                let userId = authStore.isGuest ? nil : authStore.currentUser?.id
+                async let setups: Void = mySetupViewModel.loadFor(userId)
+                async let library: Void = libraryViewModel.loadFor(userId)
+                _ = await (setups, library)
             }
         }
     }
@@ -55,7 +58,7 @@ struct MainTabView: View {
             HomeView(onViewAll: { searchScope = $0 }, onGameSelect: { detailSlug = $0 })
         case .library:
             LibraryView(
-                filter: $libraryFilter,
+                viewModel: libraryViewModel,
                 onBrowseGames: { searchScope = .all },
                 onGameSelect: { detailSlug = $0 }
             )
@@ -67,8 +70,8 @@ struct MainTabView: View {
                 setups: mySetupViewModel.setups,
                 onGameSelect: { detailSlug = $0 },
                 onStatusSelect: { status in
-                    libraryFilter = status
                     selection = .library
+                    Task { await libraryViewModel.onFilterChange(status) }
                 },
                 onEditProfile: { showEditProfile = true },
                 onViewStats: { showStats = true },

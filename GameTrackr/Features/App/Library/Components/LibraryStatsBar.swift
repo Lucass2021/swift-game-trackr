@@ -1,10 +1,14 @@
 import SwiftUI
 
+private enum Constants {
+    static let textSize: CGFloat = 15
+}
+
 struct LibraryStatsBar: View {
     let stats: LibraryStats
 
     var body: some View {
-        HStack(spacing: 8) {
+        HStack(spacing: Spacing.xs) {
             Text("\(stats.totalGames) games")
                 .foregroundStyle(Color.appTextPrimary)
 
@@ -16,7 +20,7 @@ struct LibraryStatsBar: View {
 
             Spacer(minLength: 0)
         }
-        .font(.appLabel(15))
+        .font(.appLabel(Constants.textSize))
     }
 }
 

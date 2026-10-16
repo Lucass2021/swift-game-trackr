@@ -1,58 +1,35 @@
 import SwiftUI
 
 struct LibraryView: View {
-    @Environment(AuthStore.self) private var authStore
-    @Binding var filter: LibraryStatus?
+    @Bindable var viewModel: LibraryViewModel
     var onBrowseGames: () -> Void = {}
     var onGameSelect: (String) -> Void = { _ in }
-    var repository: LibraryRepository = FakeLibraryRepository()
 
-    @State private var pagination = PaginationState<LibraryEntry>()
-    @State private var stats: LibraryStats?
-    @State private var favoriteIds = Set<UUID>()
-
-    private enum Constants {
-        static let entriesPageSize = 3
-    }
-
-    private var filteredEntries: [LibraryEntry] {
-        let items = pagination.items.map { entry in
-            var copy = entry
-            copy.isFavorite = favoriteIds.contains(entry.id)
-            return copy
-        }
-        guard let filter else { return items }
-        return items.filter { $0.status == filter }
-    }
+    @Environment(AuthStore.self) private var authStore
 
     var body: some View {
         if authStore.isGuest {
             guestState
         } else {
             VStack(spacing: 0) {
-                if !pagination.items.isEmpty, let stats {
+                if let stats = viewModel.stats, !viewModel.isLibraryEmpty {
                     LibraryStatsBar(stats: stats)
-                        .padding(.horizontal, 20)
-                        .padding(.top, 14)
-                        .padding(.bottom, 16)
+                        .padding(.horizontal, Spacing.lg)
+                        .padding(.top, Spacing.sm)
+                        .padding(.bottom, Spacing.md)
                 }
 
-                LibraryFilterChips(selection: $filter)
-                    .padding(.top, pagination.items.isEmpty ? 12 : 0)
-                    .padding(.bottom, 14)
+                LibraryFilterChips(selection: viewModel.filter) { status in
+                    Task { await viewModel.onFilterChange(status) }
+                }
+                .padding(.top, viewModel.stats == nil || viewModel.isLibraryEmpty ? Spacing.sm : 0)
+                .padding(.bottom, Spacing.sm)
 
                 content
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
             .background(Color.appBackground)
-            .task {
-                guard pagination.currentPage == 0 else { return }
-                await loadNextPage()
-            }
-            .task {
-                guard stats == nil else { return }
-                stats = try? await repository.fetchLibraryStats()
-            }
+            .toast(message: $viewModel.errorMessage)
         }
     }
 
@@ -71,10 +48,20 @@ struct LibraryView: View {
 
     @ViewBuilder
     private var content: some View {
-        if pagination.currentPage == 0 {
+        if viewModel.hasError {
+            EmptyState(
+                icon: .info,
+                title: "Couldn't load your library",
+                message: "Check your connection and try again.",
+                actionTitle: "Try again",
+                onAction: { Task { await viewModel.load() } }
+            )
+            .frame(maxHeight: .infinity)
+        } else if viewModel.currentPage == 0 {
             ProgressView()
+                .tint(Color.appPrimary)
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
-        } else if pagination.items.isEmpty {
+        } else if viewModel.isLibraryEmpty {
             EmptyState(
                 icon: .brand,
                 title: "Your library is empty",
@@ -84,68 +71,42 @@ struct LibraryView: View {
                 onAction: onBrowseGames
             )
             .frame(maxHeight: .infinity)
-        } else if filteredEntries.isEmpty {
-            filterEmptyState
+        } else if viewModel.entries.isEmpty {
+            EmptyState(
+                icon: .library,
+                title: "Nothing here yet",
+                message: "No games marked as \u{201C}\(viewModel.filter?.rawValue ?? "")\u{201D}."
+            )
+            .frame(maxHeight: .infinity)
         } else {
-            ScrollView(showsIndicators: false) {
-                LazyVStack(spacing: 14) {
-                    ForEach(Array(filteredEntries.enumerated()), id: \.element.id) { index, entry in
-                        Button { onGameSelect(entry.slug) } label: {
-                            LibraryEntryRow(
-                                entry: entry,
-                                onFavorite: { toggleFavorite(entry) }
-                            )
-                        }
-                        .buttonStyle(PressableButtonStyle())
-                        .onAppear {
-                            if index >= filteredEntries.count - 2 {
-                                Task { await loadNextPage() }
-                            }
-                        }
-                    }
-
-                    if pagination.isLoadingMore {
-                        LoadingMoreIndicator()
-                    }
-                }
-                .padding(.horizontal, 20)
-                .padding(.bottom, 24)
-            }
+            LibraryList(
+                entries: viewModel.entries,
+                canLoadMore: viewModel.canLoadMore,
+                isLoadingMore: viewModel.isLoadingMore,
+                loadMoreFailed: viewModel.loadMoreFailed,
+                onLoadMore: { Task { await viewModel.loadMore() } },
+                onToggleFavorite: viewModel.onToggleFavorite,
+                onGameSelect: onGameSelect
+            )
         }
-    }
-
-    private func loadNextPage() async {
-        guard pagination.canLoadMore else { return }
-        pagination.setLoading(true)
-        if let page = try? await repository.fetchLibrary(
-            page: pagination.currentPage + 1,
-            perPage: Constants.entriesPageSize
-        ) {
-            pagination.append(page: page)
-        }
-        pagination.setLoading(false)
-    }
-
-    private func toggleFavorite(_ entry: LibraryEntry) {
-        if favoriteIds.contains(entry.id) {
-            favoriteIds.remove(entry.id)
-        } else {
-            favoriteIds.insert(entry.id)
-        }
-    }
-
-    private var filterEmptyState: some View {
-        EmptyState(
-            icon: .library,
-            title: "Nothing here yet",
-            message: "No games marked as \u{201C}\(filter?.rawValue ?? "")\u{201D}."
-        )
-        .frame(maxHeight: .infinity)
     }
 }
 
 #Preview("Library") {
-    @Previewable @State var filter: LibraryStatus?
-    LibraryView(filter: $filter)
+    @Previewable @State var viewModel = LibraryViewModel(repository: FakeLibraryRepository())
+    LibraryView(viewModel: viewModel)
+        .environment(AuthStore())
+        .task { await viewModel.loadFor(1) }
+        .preferredColorScheme(.dark)
+}
+
+#Preview("Error") {
+    @Previewable @State var viewModel = LibraryViewModel(repository: FakeLibraryRepository(
+        failure: APIError.networkFailure,
+        latency: .zero
+    ))
+    LibraryView(viewModel: viewModel)
+        .environment(AuthStore())
+        .task { await viewModel.loadFor(1) }
         .preferredColorScheme(.dark)
 }
