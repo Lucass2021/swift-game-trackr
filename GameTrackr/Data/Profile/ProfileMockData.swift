@@ -8,8 +8,7 @@ enum ProfileMockData {
         username: "@lucasdias",
         bio: "Backlog eterno, platina ocasional. RPGs de turno e speedruns de fim de semana.",
         joinedAt: Date(timeIntervalSince1970: 1_710_504_000),
-        avatarHex: "#8B5CF6",
-        stats: stats
+        avatarHex: "#8B5CF6"
     )
 
     static let colors = [

@@ -132,7 +132,6 @@ final class EditProfileModel {
             bio: trimmedBio,
             joinedAt: original.joinedAt,
             avatarHex: avatarHex,
-            stats: original.stats,
             visibility: visibility
         ).applying(user)
 

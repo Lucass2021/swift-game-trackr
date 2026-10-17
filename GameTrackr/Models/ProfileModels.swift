@@ -6,7 +6,6 @@ struct Profile {
     var bio: String
     var joinedAt: Date?
     var avatarHex: String
-    let stats: ProfileStats
     var visibility: ProfileVisibility = .publicProfile
 
     var avatarStart: Color {
@@ -143,4 +142,11 @@ struct ProfileOverview {
     let favorites: [LibraryEntry]
     let currentlyPlaying: [LibraryEntry]
     let activity: [ActivityEvent]
+}
+
+struct UserOverview {
+    let bio: String
+    let joinedAt: Date?
+    let isFriend: Bool
+    let overview: ProfileOverview
 }

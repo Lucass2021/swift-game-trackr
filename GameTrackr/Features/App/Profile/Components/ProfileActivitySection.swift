@@ -1,5 +1,14 @@
 import SwiftUI
 
+private enum Constants {
+    static let borderWidth: CGFloat = 1
+    static let dividerInset: CGFloat = 52
+    static let iconBoxSize: CGFloat = 36
+    static let iconSize: CGFloat = 18
+    static let titleSize: CGFloat = 15
+    static let detailSize: CGFloat = 13
+}
+
 struct ProfileActivitySection: View {
     let events: [ActivityEvent]
 
@@ -11,47 +20,47 @@ struct ProfileActivitySection: View {
                 if index < events.count - 1 {
                     Divider()
                         .overlay(Color.appOutline)
-                        .padding(.leading, 52)
+                        .padding(.leading, Constants.dividerInset)
                 }
             }
         }
-        .padding(.vertical, 4)
+        .padding(.vertical, Spacing.xxs)
         .background(
-            RoundedRectangle(cornerRadius: 18, style: .continuous)
+            RoundedRectangle(cornerRadius: Radius.lg, style: .continuous)
                 .fill(Color.appSurfaceCard)
         )
         .overlay(
-            RoundedRectangle(cornerRadius: 18, style: .continuous)
-                .stroke(Color.appOutline, lineWidth: 1)
+            RoundedRectangle(cornerRadius: Radius.lg, style: .continuous)
+                .stroke(Color.appOutline, lineWidth: Constants.borderWidth)
         )
     }
 
     private func row(_ event: ActivityEvent) -> some View {
-        HStack(spacing: 12) {
-            AppIconView(icon: event.kind.icon, size: 18)
+        HStack(spacing: Spacing.sm) {
+            AppIconView(icon: event.kind.icon, size: Constants.iconSize)
                 .foregroundStyle(event.kind.tint)
-                .frame(width: 36, height: 36)
+                .frame(width: Constants.iconBoxSize, height: Constants.iconBoxSize)
                 .background(Circle().fill(Color.appBackground))
 
-            VStack(alignment: .leading, spacing: 2) {
+            VStack(alignment: .leading, spacing: Spacing.xxxs) {
                 Text(event.kind.verb)
-                    .font(.appBody(13))
+                    .font(.appBody(Constants.detailSize))
                     .foregroundStyle(Color.appTextSecondary)
 
                 Text(detail(for: event))
-                    .font(.appLabel(15))
+                    .font(.appLabel(Constants.titleSize))
                     .foregroundStyle(Color.appTextPrimary)
                     .lineLimit(1)
             }
 
-            Spacer(minLength: 8)
+            Spacer(minLength: Spacing.xs)
 
             Text(event.timeAgo)
-                .font(.appBody(13))
+                .font(.appBody(Constants.detailSize))
                 .foregroundStyle(Color.appTextSecondary)
         }
-        .padding(.horizontal, 14)
-        .padding(.vertical, 12)
+        .padding(.horizontal, Spacing.sm)
+        .padding(.vertical, Spacing.sm)
         .accessibilityElement(children: .combine)
     }
 
@@ -63,7 +72,7 @@ struct ProfileActivitySection: View {
 
 #Preview {
     ProfileActivitySection(events: ProfileMockData.activity)
-        .padding(20)
+        .padding(Spacing.lg)
         .background(Color.appBackground)
         .preferredColorScheme(.dark)
 }

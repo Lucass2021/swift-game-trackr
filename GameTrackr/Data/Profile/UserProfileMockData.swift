@@ -18,16 +18,9 @@ enum UserProfileMockData {
 
     static let stats = ProfileStats(totalGames: 87, hours: 934, platinum: 12)
 
-    static func profile(for user: UserProfile) -> Profile {
-        Profile(
-            name: user.name,
-            username: user.username,
-            bio: "Co-op enjoyer and lore hunter. Always down for a raid night or a slow-burn RPG.",
-            joinedAt: Date(timeIntervalSince1970: 1_705_320_000),
-            avatarHex: user.avatarStart.hexString,
-            stats: stats
-        )
-    }
+    static let bio = "Co-op enjoyer and lore hunter. Always down for a raid night or a slow-burn RPG."
+
+    static let joinedAt = Date(timeIntervalSince1970: 1_705_320_000)
 
     static let breakdown: [StatusCount] = [
         StatusCount(status: .playing, count: 5),
