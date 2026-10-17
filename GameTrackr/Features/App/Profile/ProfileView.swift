@@ -1,8 +1,8 @@
 import SwiftUI
 
 struct ProfileView: View {
+    let viewModel: ProfileViewModel
     var profile: Profile = ProfileMockData.profile
-    var repository: ProfileOverviewRepository = FakeProfileOverviewRepository()
     var setups: [SetupItem] = []
     var onGameSelect: (String) -> Void = { _ in }
     var onStatusSelect: (LibraryStatus?) -> Void = { _ in }
@@ -12,141 +12,65 @@ struct ProfileView: View {
 
     @Environment(AuthStore.self) private var authStore
 
-    @State private var overview: ProfileOverview?
-
     var body: some View {
-        Group {
-            if authStore.isGuest {
-                guestState
-            } else if let overview {
-                content(overview)
-            } else {
-                ProgressView()
-                    .task {
-                        overview = try? await repository.fetchMyOverview()
-                    }
-            }
-        }
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .background(Color.appBackground)
+        content
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+            .background(Color.appBackground)
     }
 
-    private func content(_ overview: ProfileOverview) -> some View {
-        ScrollView(showsIndicators: false) {
-            VStack(alignment: .leading, spacing: 26) {
-                ProfileHeader(
-                    profile: profile,
-                    onEdit: onEditProfile,
-                    shareText: "Check out my gaming profile on GameTrackr!"
-                )
-
-                ProfileStatsBar(stats: profile.stats, onTap: onViewStats)
-                    .padding(.horizontal, 20)
-
-                section("Breakdown") {
-                    ProfileBreakdownSection(breakdown: overview.breakdown, onSelect: onStatusSelect)
-                        .padding(.horizontal, 20)
-                }
-
-                section("Favorites", actionTitle: "View all") {
-                    onStatusSelect(nil)
-                } content: {
-                    ProfileFavoritesSection(favorites: overview.favorites, onSelect: { onGameSelect($0.slug) })
-                }
-
-                section("Currently playing", actionTitle: "View all") {
-                    onStatusSelect(.playing)
-                } content: {
-                    VStack(spacing: 14) {
-                        ForEach(overview.currentlyPlaying) { entry in
-                            Button { onGameSelect(entry.slug) } label: {
-                                LibraryEntryRow(entry: entry)
-                            }
-                            .buttonStyle(PressableButtonStyle())
-                        }
-                    }
-                    .padding(.horizontal, 20)
-                }
-
-                section("My Setup", actionTitle: setups.isEmpty ? nil : "View all") {
-                    onViewSetup()
-                } content: {
-                    ProfileSetupSection(
-                        setups: setups,
-                        onSelect: { _ in onViewSetup() },
-                        onAdd: onViewSetup
-                    )
-                }
-            }
-            .padding(.bottom, 32)
-        }
-    }
-
-    private var guestState: some View {
-        VStack(spacing: 0) {
-            Spacer(minLength: 0)
-
-            AppIconView(icon: .avatar, size: 56)
-                .foregroundStyle(Color.appPrimary)
-                .frame(width: 120, height: 120)
-                .background(Color.appSurfaceCard, in: RoundedRectangle(cornerRadius: 28, style: .continuous))
-                .shadow(color: Color.appPrimary.opacity(0.35), radius: 30)
-                .subtleBounce()
-
-            Text("Guest")
-                .font(.appHeadline(24, weight: .heavy))
-                .foregroundStyle(Color.appTextPrimary)
-                .padding(.top, 28)
-
-            Text("You're browsing as a guest. Create an account to build a public profile with your stats.")
-                .font(.appBody(15))
-                .foregroundStyle(Color.appTextSecondary)
-                .multilineTextAlignment(.center)
-                .padding(.top, 10)
-                .padding(.horizontal, 24)
-
-            PrimaryButton(title: "Create an account") { authStore.logout() }
-                .padding(.top, 28)
-                .padding(.horizontal, 32)
-
-            Spacer(minLength: 0)
-        }
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
-    }
-
-    private func section(
-        _ title: String,
-        actionTitle: String? = nil,
-        action: @escaping () -> Void = {},
-        @ViewBuilder content: () -> some View
-    ) -> some View {
-        VStack(alignment: .leading, spacing: 14) {
-            HStack(alignment: .firstTextBaseline) {
-                Text(title)
-                    .font(.appHeadline(20))
-                    .foregroundStyle(Color.appTextPrimary)
-
-                Spacer()
-
-                if let actionTitle {
-                    Button(action: action) {
-                        Text(actionTitle)
-                            .font(.appLabel(15))
-                            .foregroundStyle(Color.appPrimary)
-                            .contentShape(Rectangle())
-                    }
-                    .buttonStyle(PressableButtonStyle())
-                }
-            }
-            .padding(.horizontal, 20)
-
-            content()
+    @ViewBuilder
+    private var content: some View {
+        if authStore.isGuest {
+            ProfileGuestState(onCreateAccount: { authStore.logout() })
+        } else if let overview = viewModel.overview {
+            ProfileContent(
+                overview: overview,
+                profile: profile,
+                setups: setups,
+                onGameSelect: onGameSelect,
+                onStatusSelect: onStatusSelect,
+                onEditProfile: onEditProfile,
+                onViewStats: onViewStats,
+                onViewSetup: onViewSetup
+            )
+        } else if viewModel.hasError {
+            EmptyState(
+                icon: .info,
+                title: "Couldn't load your profile",
+                message: "Check your connection and try again.",
+                actionTitle: "Try again",
+                onAction: { Task { await viewModel.load() } }
+            )
+        } else {
+            ProgressView()
+                .tint(Color.appPrimary)
         }
     }
 }
 
 #Preview("Signed in") {
-    ProfileView()
+    let viewModel = ProfileViewModel(repository: FakeProfileOverviewRepository(latency: .zero))
+    return ProfileView(viewModel: viewModel)
+        .task { await viewModel.loadFor(1) }
         .environment(AuthStore())
+        .preferredColorScheme(.dark)
+}
+
+#Preview("Error") {
+    let viewModel = ProfileViewModel(repository: FakeProfileOverviewRepository(
+        failure: APIError.networkFailure,
+        latency: .zero
+    ))
+    return ProfileView(viewModel: viewModel)
+        .task { await viewModel.loadFor(1) }
+        .environment(AuthStore())
+        .preferredColorScheme(.dark)
+}
+
+#Preview("Guest") {
+    let authStore = AuthStore()
+    authStore.continueAsGuest()
+    return ProfileView(viewModel: ProfileViewModel(repository: FakeProfileOverviewRepository()))
+        .environment(authStore)
         .preferredColorScheme(.dark)
 }

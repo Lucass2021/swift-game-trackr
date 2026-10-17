@@ -1,5 +1,15 @@
 import SwiftUI
 
+private enum Constants {
+    static let borderWidth: CGFloat = 1
+    static let labelWidth: CGFloat = 84
+    static let countWidth: CGFloat = 30
+    static let barHeight: CGFloat = 7
+    static let barMinWidth: CGFloat = 6
+    static let labelSize: CGFloat = 14
+    static let wishlistAlpha = 0.55
+}
+
 extension LibraryStatus {
     var barTint: Color {
         switch self {
@@ -8,7 +18,7 @@ extension LibraryStatus {
         case .backlog: .appTextSecondary
         case .platinum: .appTextPrimary
         case .abandoned: .appTertiary
-        case .wishlist: .appSecondary.opacity(0.55)
+        case .wishlist: .appSecondary.opacity(Constants.wishlistAlpha)
         }
     }
 }
@@ -22,7 +32,7 @@ struct ProfileBreakdownSection: View {
     }
 
     var body: some View {
-        VStack(spacing: 12) {
+        VStack(spacing: Spacing.sm) {
             ForEach(breakdown) { item in
                 Button {
                     onSelect(item.status)
@@ -32,30 +42,30 @@ struct ProfileBreakdownSection: View {
                 .buttonStyle(PressableButtonStyle())
             }
         }
-        .padding(16)
+        .padding(Spacing.md)
         .background(
-            RoundedRectangle(cornerRadius: 18, style: .continuous)
+            RoundedRectangle(cornerRadius: Radius.lg, style: .continuous)
                 .fill(Color.appSurfaceCard)
         )
         .overlay(
-            RoundedRectangle(cornerRadius: 18, style: .continuous)
-                .stroke(Color.appOutline, lineWidth: 1)
+            RoundedRectangle(cornerRadius: Radius.lg, style: .continuous)
+                .stroke(Color.appOutline, lineWidth: Constants.borderWidth)
         )
     }
 
     private func row(_ item: StatusCount) -> some View {
-        HStack(spacing: 12) {
+        HStack(spacing: Spacing.sm) {
             Text(item.status.rawValue)
-                .font(.appBody(14))
+                .font(.appBody(Constants.labelSize))
                 .foregroundStyle(Color.appTextPrimary)
-                .frame(width: 84, alignment: .leading)
+                .frame(width: Constants.labelWidth, alignment: .leading)
 
             bar(fraction: Double(item.count) / Double(maxCount), tint: item.status.barTint)
 
             Text("\(item.count)")
-                .font(.appLabel(14))
+                .font(.appLabel(Constants.labelSize))
                 .foregroundStyle(Color.appTextSecondary)
-                .frame(width: 30, alignment: .trailing)
+                .frame(width: Constants.countWidth, alignment: .trailing)
         }
         .contentShape(Rectangle())
         .accessibilityElement(children: .combine)
@@ -70,16 +80,16 @@ struct ProfileBreakdownSection: View {
 
                 Capsule()
                     .fill(tint)
-                    .frame(width: max(geo.size.width * fraction, 6))
+                    .frame(width: max(geo.size.width * fraction, Constants.barMinWidth))
             }
         }
-        .frame(height: 7)
+        .frame(height: Constants.barHeight)
     }
 }
 
 #Preview {
     ProfileBreakdownSection(breakdown: ProfileMockData.breakdown)
-        .padding(20)
+        .padding(Spacing.lg)
         .background(Color.appBackground)
         .preferredColorScheme(.dark)
 }

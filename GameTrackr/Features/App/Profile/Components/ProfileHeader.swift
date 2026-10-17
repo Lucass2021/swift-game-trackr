@@ -1,5 +1,18 @@
 import SwiftUI
 
+private enum Constants {
+    static let avatarSize: CGFloat = 88
+    static let avatarOverhang: CGFloat = 44
+    static let avatarBorderWidth: CGFloat = 4
+    static let bannerHeight: CGFloat = 150
+    static let bannerIconSize: CGFloat = 64
+    static let bannerIconAlpha = 0.08
+    static let nameSize: CGFloat = 24
+    static let usernameSize: CGFloat = 14
+    static let bioSize: CGFloat = 15
+    static let joinedSize: CGFloat = 13
+}
+
 struct ProfileHeader: View {
     private static let joinedFormat = Date.FormatStyle(locale: Locale(identifier: "en_US"), timeZone: .gmt).month(.wide)
         .year()
@@ -16,46 +29,53 @@ struct ProfileHeader: View {
         VStack(alignment: .leading, spacing: 0) {
             banner
 
-            VStack(alignment: .leading, spacing: 14) {
-                HStack(alignment: .bottom, spacing: 14) {
-                    CommunityAvatar(start: profile.avatarStart, end: profile.avatarEnd, size: 88)
+            VStack(alignment: .leading, spacing: Spacing.sm) {
+                HStack(alignment: .bottom, spacing: Spacing.sm) {
+                    CommunityAvatar(start: profile.avatarStart, end: profile.avatarEnd, size: Constants.avatarSize)
                         .overlay(
-                            Circle().stroke(Color.appBackground, lineWidth: 4)
+                            Circle().stroke(Color.appBackground, lineWidth: Constants.avatarBorderWidth)
                         )
 
-                    VStack(alignment: .leading, spacing: 3) {
+                    VStack(alignment: .leading, spacing: Spacing.xxxs) {
                         Text(profile.name)
-                            .font(.appHeadline(24, weight: .heavy))
+                            .font(.appHeadline(Constants.nameSize, weight: .heavy))
                             .foregroundStyle(Color.appTextPrimary)
                             .lineLimit(1)
 
                         Text(profile.username)
-                            .font(.appBody(14))
+                            .font(.appBody(Constants.usernameSize))
                             .foregroundStyle(Color.appPrimary)
                     }
-                    .padding(.bottom, 6)
+                    .padding(.bottom, Spacing.xxs)
 
                     Spacer(minLength: 0)
                 }
 
                 if !profile.bio.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
                     Text(profile.bio)
-                        .font(.appBody(15))
+                        .font(.appBody(Constants.bioSize))
                         .foregroundStyle(Color.appTextSecondary)
                         .fixedSize(horizontal: false, vertical: true)
                 }
 
                 if let joinedAt = profile.joinedAt {
                     Text("Joined \(joinedAt.formatted(Self.joinedFormat))")
-                        .font(.appBody(13))
+                        .font(.appBody(Constants.joinedSize))
                         .foregroundStyle(Color.appTextSecondary)
                 }
 
-                actions
+                ProfileHeaderActions(
+                    mode: mode,
+                    isGuest: isGuest,
+                    shareText: shareText,
+                    onEdit: onEdit,
+                    onAddFriend: onAddFriend,
+                    onMessage: onMessage
+                )
             }
-            .padding(.horizontal, 20)
-            .offset(y: -44)
-            .padding(.bottom, -30)
+            .padding(.horizontal, Spacing.lg)
+            .offset(y: -Constants.avatarOverhang)
+            .padding(.bottom, Spacing.sm - Constants.avatarOverhang)
         }
     }
 
@@ -65,7 +85,7 @@ struct ProfileHeader: View {
             startPoint: .topLeading,
             endPoint: .bottomTrailing
         )
-        .frame(height: 150)
+        .frame(height: Constants.bannerHeight)
         .overlay {
             LinearGradient(
                 colors: [.clear, Color.appBackground],
@@ -74,88 +94,9 @@ struct ProfileHeader: View {
             )
         }
         .overlay {
-            AppIconView(icon: .brand, size: 64)
-                .foregroundStyle(Color.white.opacity(0.08))
+            AppIconView(icon: .brand, size: Constants.bannerIconSize)
+                .foregroundStyle(Color.white.opacity(Constants.bannerIconAlpha))
         }
-    }
-
-    @ViewBuilder
-    private var actions: some View {
-        switch mode {
-        case .own:
-            HStack(spacing: 12) {
-                primaryPill(icon: .editProfile, title: "Edit profile", action: onEdit)
-                circleShareLink(label: "Share profile")
-            }
-        case let .other(isFriend):
-            HStack(spacing: 12) {
-                if !isGuest {
-                    if isFriend {
-                        secondaryPill(icon: .check, title: "Friends", action: onAddFriend)
-                    } else {
-                        primaryPill(icon: .addFriend, title: "Add friend", action: onAddFriend)
-                    }
-                    circleAction(icon: .envelope, label: "Send message", action: onMessage)
-                }
-                circleShareLink(label: "Share profile")
-            }
-        }
-    }
-
-    private func primaryPill(icon: AppIcon, title: String, action: @escaping () -> Void) -> some View {
-        Button(action: action) {
-            HStack(spacing: 8) {
-                AppIconView(icon: icon, size: 18)
-                Text(title)
-                    .font(.appLabel(15))
-            }
-            .foregroundStyle(Color.appOnPrimary)
-            .frame(maxWidth: .infinity)
-            .frame(height: 46)
-            .background(Capsule().fill(Color.appPrimary))
-            .contentShape(Capsule())
-        }
-        .buttonStyle(PressableButtonStyle())
-    }
-
-    private func secondaryPill(icon: AppIcon, title: String, action: @escaping () -> Void) -> some View {
-        Button(action: action) {
-            HStack(spacing: 8) {
-                AppIconView(icon: icon, size: 18)
-                Text(title)
-                    .font(.appLabel(15))
-            }
-            .foregroundStyle(Color.appTextPrimary)
-            .frame(maxWidth: .infinity)
-            .frame(height: 46)
-            .background(Capsule().stroke(Color.appOutline, lineWidth: 1))
-            .contentShape(Capsule())
-        }
-        .buttonStyle(PressableButtonStyle())
-    }
-
-    private func circleAction(icon: AppIcon, label: String, action: @escaping () -> Void) -> some View {
-        Button(action: action) {
-            AppIconView(icon: icon, size: 20)
-                .foregroundStyle(Color.appTextPrimary)
-                .frame(width: 46, height: 46)
-                .background(Circle().stroke(Color.appOutline, lineWidth: 1))
-                .contentShape(Circle())
-        }
-        .buttonStyle(PressableButtonStyle())
-        .accessibilityLabel(label)
-    }
-
-    private func circleShareLink(label: String) -> some View {
-        ShareLink(item: shareText) {
-            AppIconView(icon: .share, size: 20)
-                .foregroundStyle(Color.appTextPrimary)
-                .frame(width: 46, height: 46)
-                .background(Circle().stroke(Color.appOutline, lineWidth: 1))
-                .contentShape(Circle())
-        }
-        .buttonStyle(PressableButtonStyle())
-        .accessibilityLabel(label)
     }
 }
 

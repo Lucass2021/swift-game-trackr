@@ -13,6 +13,7 @@ struct MainTabView: View {
     @State private var profile = ProfileMockData.profile
     @State private var mySetupViewModel = MySetupViewModel()
     @State private var libraryViewModel = LibraryViewModel(repository: FakeLibraryRepository())
+    @State private var profileViewModel = ProfileViewModel(repository: FakeProfileOverviewRepository())
 
     var body: some View {
         NavigationStack {
@@ -46,7 +47,8 @@ struct MainTabView: View {
                 let userId = authStore.isGuest ? nil : authStore.currentUser?.id
                 async let setups: Void = mySetupViewModel.loadFor(userId)
                 async let library: Void = libraryViewModel.loadFor(userId)
-                _ = await (setups, library)
+                async let profileOverview: Void = profileViewModel.loadFor(userId)
+                _ = await (setups, library, profileOverview)
             }
         }
     }
@@ -66,6 +68,7 @@ struct MainTabView: View {
             CommunityView()
         case .profile:
             ProfileView(
+                viewModel: profileViewModel,
                 profile: profile,
                 setups: mySetupViewModel.setups,
                 onGameSelect: { detailSlug = $0 },

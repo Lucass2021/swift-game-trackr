@@ -1,5 +1,15 @@
 import SwiftUI
 
+private enum Constants {
+    static let borderWidth: CGFloat = 1
+    static let forwardIconSize: CGFloat = 14
+    static let dividerHeight: CGFloat = 34
+    static let valueSize: CGFloat = 19
+    static let captionSize: CGFloat = 12
+    static let labelSize: CGFloat = 11
+    static let labelTracking: CGFloat = 0.8
+}
+
 struct ProfileStatsBar: View {
     let stats: ProfileStats
     var onTap: (() -> Void)?
@@ -9,9 +19,9 @@ struct ProfileStatsBar: View {
             Button(action: onTap) {
                 card
                     .overlay(alignment: .topTrailing) {
-                        AppIconView(icon: .forward, size: 14)
+                        AppIconView(icon: .forward, size: Constants.forwardIconSize)
                             .foregroundStyle(Color.appTextSecondary)
-                            .padding(12)
+                            .padding(Spacing.sm)
                     }
                     .contentShape(Rectangle())
             }
@@ -30,40 +40,40 @@ struct ProfileStatsBar: View {
             divider
             stat(value: "\(stats.platinum)", label: "Platinum", caption: "\(stats.platinumRate)%")
         }
-        .padding(.vertical, 18)
+        .padding(.vertical, Spacing.md)
         .background(
-            RoundedRectangle(cornerRadius: 16, style: .continuous)
+            RoundedRectangle(cornerRadius: Radius.lg, style: .continuous)
                 .fill(Color.appSurfaceCard)
         )
         .overlay(
-            RoundedRectangle(cornerRadius: 16, style: .continuous)
-                .stroke(Color.appOutline, lineWidth: 1)
+            RoundedRectangle(cornerRadius: Radius.lg, style: .continuous)
+                .stroke(Color.appOutline, lineWidth: Constants.borderWidth)
         )
     }
 
     private var divider: some View {
         Rectangle()
             .fill(Color.appOutline)
-            .frame(width: 1, height: 34)
+            .frame(width: Constants.borderWidth, height: Constants.dividerHeight)
     }
 
     private func stat(value: String, label: String, caption: String? = nil) -> some View {
-        VStack(spacing: 5) {
-            HStack(alignment: .firstTextBaseline, spacing: 5) {
+        VStack(spacing: Spacing.xxs) {
+            HStack(alignment: .firstTextBaseline, spacing: Spacing.xxs) {
                 Text(value)
-                    .font(.appHeadline(19))
+                    .font(.appHeadline(Constants.valueSize))
                     .foregroundStyle(Color.appTextPrimary)
 
                 if let caption {
                     Text(caption)
-                        .font(.appBody(12))
+                        .font(.appBody(Constants.captionSize))
                         .foregroundStyle(Color.appPrimary)
                 }
             }
 
             Text(label.uppercased())
-                .font(.appLabel(11))
-                .kerning(0.8)
+                .font(.appLabel(Constants.labelSize))
+                .kerning(Constants.labelTracking)
                 .foregroundStyle(Color.appTextSecondary)
         }
         .frame(maxWidth: .infinity)
@@ -72,8 +82,8 @@ struct ProfileStatsBar: View {
 }
 
 #Preview {
-    ProfileStatsBar(stats: ProfileMockData.profile.stats)
-        .padding(20)
+    ProfileStatsBar(stats: ProfileMockData.stats, onTap: {})
+        .padding(Spacing.lg)
         .background(Color.appBackground)
         .preferredColorScheme(.dark)
 }

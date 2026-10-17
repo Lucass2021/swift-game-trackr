@@ -16,6 +16,8 @@ enum UserProfileMockData {
         isFriend: true
     )
 
+    static let stats = ProfileStats(totalGames: 87, hours: 934, platinum: 12)
+
     static func profile(for user: UserProfile) -> Profile {
         Profile(
             name: user.name,
@@ -23,7 +25,7 @@ enum UserProfileMockData {
             bio: "Co-op enjoyer and lore hunter. Always down for a raid night or a slow-burn RPG.",
             joinedAt: Date(timeIntervalSince1970: 1_705_320_000),
             avatarHex: user.avatarStart.hexString,
-            stats: ProfileStats(totalGames: 87, hours: 934, platinum: 12)
+            stats: stats
         )
     }
 
@@ -102,4 +104,12 @@ enum UserProfileMockData {
         ActivityEvent(id: 4, kind: .started, gameTitle: "Baldur's Gate 3", timeAgo: "2w"),
         ActivityEvent(id: 5, kind: .added, gameTitle: "Metaphor: ReFantazio", timeAgo: "3w")
     ]
+
+    static let overview = ProfileOverview(
+        stats: stats,
+        breakdown: breakdown,
+        favorites: favorites,
+        currentlyPlaying: currentlyPlaying,
+        activity: activity
+    )
 }

@@ -1,12 +1,18 @@
 import SwiftUI
 
+private enum Constants {
+    static let coverWidth: CGFloat = 104
+    static let coverHeight: CGFloat = 138
+    static let titleSize: CGFloat = 13
+}
+
 struct ProfileFavoritesSection: View {
     let favorites: [LibraryEntry]
     var onSelect: (LibraryEntry) -> Void = { _ in }
 
     var body: some View {
         ScrollView(.horizontal, showsIndicators: false) {
-            HStack(spacing: 14) {
+            HStack(spacing: Spacing.sm) {
                 ForEach(favorites) { entry in
                     Button {
                         onSelect(entry)
@@ -16,20 +22,25 @@ struct ProfileFavoritesSection: View {
                     .buttonStyle(PressableButtonStyle())
                 }
             }
-            .padding(.horizontal, 20)
+            .padding(.horizontal, Spacing.lg)
         }
     }
 
     private func card(_ entry: LibraryEntry) -> some View {
-        VStack(alignment: .leading, spacing: 8) {
-            GameCoverArt(start: entry.coverStart, end: entry.coverEnd, width: 104, height: 138)
+        VStack(alignment: .leading, spacing: Spacing.xs) {
+            GameCoverArt(
+                start: entry.coverStart,
+                end: entry.coverEnd,
+                width: Constants.coverWidth,
+                height: Constants.coverHeight
+            )
 
             Text(entry.title)
-                .font(.appBody(13))
+                .font(.appBody(Constants.titleSize))
                 .foregroundStyle(Color.appTextSecondary)
                 .lineLimit(2)
                 .multilineTextAlignment(.leading)
-                .frame(width: 104, alignment: .leading)
+                .frame(width: Constants.coverWidth, alignment: .leading)
                 .fixedSize(horizontal: false, vertical: true)
         }
         .contentShape(Rectangle())
@@ -38,7 +49,7 @@ struct ProfileFavoritesSection: View {
 
 #Preview {
     ProfileFavoritesSection(favorites: ProfileMockData.favorites)
-        .padding(.vertical, 20)
+        .padding(.vertical, Spacing.lg)
         .background(Color.appBackground)
         .preferredColorScheme(.dark)
 }

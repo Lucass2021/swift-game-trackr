@@ -138,6 +138,7 @@ struct ActivityEvent: Identifiable {
 }
 
 struct ProfileOverview {
+    let stats: ProfileStats
     let breakdown: [StatusCount]
     let favorites: [LibraryEntry]
     let currentlyPlaying: [LibraryEntry]

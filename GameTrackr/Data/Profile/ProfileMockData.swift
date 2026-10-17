@@ -1,13 +1,15 @@
 import SwiftUI
 
 enum ProfileMockData {
+    static let stats = ProfileStats(totalGames: 142, hours: 1248, platinum: 21)
+
     static let profile = Profile(
         name: "Lucas Dias",
         username: "@lucasdias",
         bio: "Backlog eterno, platina ocasional. RPGs de turno e speedruns de fim de semana.",
         joinedAt: Date(timeIntervalSince1970: 1_710_504_000),
         avatarHex: "#8B5CF6",
-        stats: ProfileStats(totalGames: 142, hours: 1248, platinum: 21)
+        stats: stats
     )
 
     static let colors = [
@@ -112,4 +114,12 @@ enum ProfileMockData {
         ActivityEvent(id: 4, kind: .started, gameTitle: "Final Fantasy VII Rebirth", timeAgo: "2w"),
         ActivityEvent(id: 5, kind: .added, gameTitle: "Silksong", timeAgo: "3w")
     ]
+
+    static let overview = ProfileOverview(
+        stats: stats,
+        breakdown: breakdown,
+        favorites: favorites,
+        currentlyPlaying: currentlyPlaying,
+        activity: activity
+    )
 }
