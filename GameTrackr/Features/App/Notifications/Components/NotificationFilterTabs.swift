@@ -1,35 +1,41 @@
 import SwiftUI
 
+private enum Constants {
+    static let borderWidth: CGFloat = 1
+    static let labelSize: CGFloat = 14
+}
+
 struct NotificationFilterTabs: View {
-    @Binding var selection: NotificationFilter
+    let selection: NotificationFilter
+    let onSelect: (NotificationFilter) -> Void
 
     var body: some View {
-        HStack(spacing: 10) {
+        HStack(spacing: Spacing.xs) {
             ForEach(NotificationFilter.allCases) { filter in
                 chip(filter)
             }
             Spacer(minLength: 0)
         }
-        .padding(.horizontal, 20)
+        .padding(.horizontal, Spacing.lg)
     }
 
     private func chip(_ filter: NotificationFilter) -> some View {
         let isSelected = selection == filter
         return Button {
-            selection = filter
+            onSelect(filter)
         } label: {
             Text(filter.rawValue)
-                .font(.appLabel(14))
+                .font(.appLabel(Constants.labelSize))
                 .foregroundStyle(isSelected ? Color.appOnPrimary : Color.appTextPrimary)
-                .padding(.horizontal, 18)
-                .padding(.vertical, 9)
+                .padding(.horizontal, Spacing.md)
+                .padding(.vertical, Spacing.xs)
                 .background(
                     Capsule()
                         .fill(isSelected ? Color.appPrimary : Color.clear)
                 )
                 .overlay(
                     Capsule()
-                        .stroke(isSelected ? Color.clear : Color.appOutline, lineWidth: 1)
+                        .stroke(isSelected ? Color.clear : Color.appOutline, lineWidth: Constants.borderWidth)
                 )
                 .contentShape(Capsule())
         }
@@ -38,8 +44,7 @@ struct NotificationFilterTabs: View {
 }
 
 #Preview {
-    @Previewable @State var selection: NotificationFilter = .all
-    NotificationFilterTabs(selection: $selection)
+    NotificationFilterTabs(selection: .all, onSelect: { _ in })
         .background(Color.appBackground)
         .preferredColorScheme(.dark)
 }

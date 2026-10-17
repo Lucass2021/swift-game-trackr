@@ -1,36 +1,36 @@
 import SwiftUI
 
-enum NotificationSection: String, CaseIterable {
+nonisolated enum NotificationSection: String, CaseIterable {
     case new = "New"
     case today = "Today"
     case thisWeek = "This week"
 }
 
-enum NotificationSpanStyle {
+nonisolated enum NotificationSpanStyle {
     case actor
     case text
     case link
     case highlight
 }
 
-struct NotificationSpan: Identifiable {
+nonisolated struct NotificationSpan: Identifiable {
     let id = UUID()
     let text: String
     let style: NotificationSpanStyle
 }
 
-enum AvatarBadge {
+nonisolated enum AvatarBadge {
     case online
     case accepted
 }
 
-enum NotificationLeading {
+nonisolated enum NotificationLeading {
     case avatar(start: Color, end: Color, badge: AvatarBadge?)
     case iconBox(icon: AppIcon, tint: Color)
     case thumbnail(start: Color, end: Color)
 }
 
-struct NotificationItem: Identifiable {
+nonisolated struct NotificationItem: Identifiable {
     let id: Int
     let section: NotificationSection
     let leading: NotificationLeading

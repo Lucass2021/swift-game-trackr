@@ -1,5 +1,11 @@
 import SwiftUI
 
+private enum Constants {
+    static let iconSize: CGFloat = 22
+    static let buttonSize: CGFloat = 40
+    static let titleSize: CGFloat = 22
+}
+
 struct NotificationsTopBar: View {
     let onBack: () -> Void
     let onMarkAllRead: () -> Void
@@ -7,17 +13,17 @@ struct NotificationsTopBar: View {
     var showActions = true
 
     var body: some View {
-        HStack(spacing: 12) {
+        HStack(spacing: Spacing.sm) {
             Button(action: onBack) {
-                AppIconView(icon: .back, size: 22)
+                AppIconView(icon: .back, size: Constants.iconSize)
                     .foregroundStyle(Color.appTextPrimary)
-                    .frame(width: 40, height: 40, alignment: .leading)
+                    .frame(width: Constants.buttonSize, height: Constants.buttonSize, alignment: .leading)
                     .contentShape(Rectangle())
             }
             .buttonStyle(PressableButtonStyle())
 
             Text("Notifications")
-                .font(.appHeadline(22))
+                .font(.appHeadline(Constants.titleSize))
                 .foregroundStyle(Color.appTextPrimary)
 
             Spacer()
@@ -31,15 +37,16 @@ struct NotificationsTopBar: View {
                         Label("Clear all", image: "trash")
                     }
                 } label: {
-                    AppIconView(icon: .overflow, size: 22)
+                    AppIconView(icon: .overflow, size: Constants.iconSize)
                         .foregroundStyle(Color.appTextPrimary)
-                        .frame(width: 40, height: 40, alignment: .trailing)
+                        .frame(width: Constants.buttonSize, height: Constants.buttonSize, alignment: .trailing)
                         .contentShape(Rectangle())
                 }
+                .accessibilityLabel("More options")
             }
         }
-        .padding(.horizontal, 20)
-        .padding(.vertical, 12)
+        .padding(.horizontal, Spacing.lg)
+        .padding(.vertical, Spacing.sm)
         .background(Color.appBackground)
     }
 }
