@@ -1,5 +1,11 @@
 import SwiftUI
 
+private enum Constants {
+    static let dividerThickness: CGFloat = 1
+    static let indicatorHeight: CGFloat = 2
+    static let labelSize: CGFloat = 15
+}
+
 struct CommunityDetailTabs: View {
     @Binding var selection: CommunityDetailTab
 
@@ -14,9 +20,9 @@ struct CommunityDetailTabs: View {
         .overlay(alignment: .bottom) {
             Rectangle()
                 .fill(Color.appOutline)
-                .frame(height: 1)
+                .frame(height: Constants.dividerThickness)
         }
-        .padding(.horizontal, 20)
+        .padding(.horizontal, Spacing.lg)
     }
 
     private func tabButton(_ tab: CommunityDetailTab) -> some View {
@@ -27,14 +33,14 @@ struct CommunityDetailTabs: View {
             }
         } label: {
             Text(tab.rawValue)
-                .font(.appLabel(15))
+                .font(.appLabel(Constants.labelSize))
                 .foregroundStyle(isSelected ? Color.appPrimary : Color.appTextSecondary)
-                .padding(.horizontal, 18)
-                .padding(.vertical, 12)
+                .padding(.horizontal, Spacing.md)
+                .padding(.vertical, Spacing.sm)
                 .overlay(alignment: .bottom) {
                     Rectangle()
                         .fill(isSelected ? Color.appPrimary : Color.clear)
-                        .frame(height: 2)
+                        .frame(height: Constants.indicatorHeight)
                 }
                 .contentShape(Rectangle())
         }

@@ -1,5 +1,16 @@
 import SwiftUI
 
+private enum Constants {
+    static let bannerHeight: CGFloat = 180
+    static let bannerIconSize: CGFloat = 72
+    static let bannerIconAlpha = 0.08
+    static let iconSize: CGFloat = 80
+    static let iconOverhang: CGFloat = 40
+    static let iconBorderWidth: CGFloat = 3
+    static let nameSize: CGFloat = 24
+    static let subtitleSize: CGFloat = 13
+}
+
 struct CommunityDetailHeader: View {
     let community: Community
 
@@ -7,30 +18,35 @@ struct CommunityDetailHeader: View {
         VStack(alignment: .leading, spacing: 0) {
             banner
 
-            HStack(alignment: .center, spacing: 14) {
-                CommunityIcon(start: community.iconStart, end: community.iconEnd, size: 80, cornerRadius: 18)
-                    .overlay(
-                        RoundedRectangle(cornerRadius: 18, style: .continuous)
-                            .stroke(Color.appBackground, lineWidth: 3)
-                    )
+            HStack(alignment: .center, spacing: Spacing.sm) {
+                CommunityIcon(
+                    start: community.iconStart,
+                    end: community.iconEnd,
+                    size: Constants.iconSize,
+                    cornerRadius: Radius.lg
+                )
+                .overlay(
+                    RoundedRectangle(cornerRadius: Radius.lg, style: .continuous)
+                        .stroke(Color.appBackground, lineWidth: Constants.iconBorderWidth)
+                )
 
-                VStack(alignment: .leading, spacing: 4) {
+                VStack(alignment: .leading, spacing: Spacing.xxs) {
                     Text(community.name)
-                        .font(.appHeadline(24, weight: .heavy))
+                        .font(.appHeadline(Constants.nameSize, weight: .heavy))
                         .foregroundStyle(Color.appTextPrimary)
                         .lineLimit(2)
                         .fixedSize(horizontal: false, vertical: true)
 
                     Text(community.detailSubtitle)
-                        .font(.appBody(13))
+                        .font(.appBody(Constants.subtitleSize))
                         .foregroundStyle(Color.appTextSecondary)
                 }
 
                 Spacer(minLength: 0)
             }
-            .padding(.horizontal, 20)
-            .offset(y: -40)
-            .padding(.bottom, -28)
+            .padding(.horizontal, Spacing.lg)
+            .offset(y: -Constants.iconOverhang)
+            .padding(.bottom, Spacing.sm - Constants.iconOverhang)
         }
     }
 
@@ -40,7 +56,7 @@ struct CommunityDetailHeader: View {
             startPoint: .topLeading,
             endPoint: .bottomTrailing
         )
-        .frame(height: 180)
+        .frame(height: Constants.bannerHeight)
         .overlay {
             LinearGradient(
                 colors: [.clear, Color.appBackground],
@@ -49,8 +65,8 @@ struct CommunityDetailHeader: View {
             )
         }
         .overlay {
-            AppIconView(icon: .community, size: 72)
-                .foregroundStyle(Color.white.opacity(0.08))
+            AppIconView(icon: .community, size: Constants.bannerIconSize)
+                .foregroundStyle(Color.appTextPrimary.opacity(Constants.bannerIconAlpha))
         }
     }
 }

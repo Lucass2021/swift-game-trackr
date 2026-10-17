@@ -1,5 +1,13 @@
 import SwiftUI
 
+private enum Constants {
+    static let avatarSize: CGFloat = 44
+    static let forwardIconSize: CGFloat = 16
+    static let dividerThickness: CGFloat = 1
+    static let nameSize: CGFloat = 15
+    static let roleSize: CGFloat = 13
+}
+
 struct CommunityMembersSection: View {
     let members: [CommunityMember]
     var onSelect: (CommunityMember) -> Void = { _ in }
@@ -10,26 +18,26 @@ struct CommunityMembersSection: View {
                 Button {
                     onSelect(member)
                 } label: {
-                    HStack(spacing: 14) {
-                        CommunityAvatar(start: member.avatarStart, end: member.avatarEnd, size: 44)
+                    HStack(spacing: Spacing.sm) {
+                        CommunityAvatar(start: member.avatarStart, end: member.avatarEnd, size: Constants.avatarSize)
 
-                        VStack(alignment: .leading, spacing: 2) {
+                        VStack(alignment: .leading, spacing: Spacing.xxxs) {
                             Text(member.author)
-                                .font(.appLabel(15))
+                                .font(.appLabel(Constants.nameSize))
                                 .foregroundStyle(Color.appPrimary)
 
                             Text(member.role)
-                                .font(.appBody(13))
+                                .font(.appBody(Constants.roleSize))
                                 .foregroundStyle(Color.appTextSecondary)
                         }
 
                         Spacer()
 
-                        AppIconView(icon: .forward, size: 16)
+                        AppIconView(icon: .forward, size: Constants.forwardIconSize)
                             .foregroundStyle(Color.appTextSecondary)
                     }
-                    .padding(.horizontal, 20)
-                    .padding(.vertical, 12)
+                    .padding(.horizontal, Spacing.lg)
+                    .padding(.vertical, Spacing.sm)
                     .contentShape(Rectangle())
                 }
                 .buttonStyle(PressableButtonStyle())
@@ -38,12 +46,12 @@ struct CommunityMembersSection: View {
                 if member.id != members.last?.id {
                     Rectangle()
                         .fill(Color.appOutline)
-                        .frame(height: 1)
-                        .padding(.horizontal, 20)
+                        .frame(height: Constants.dividerThickness)
+                        .padding(.horizontal, Spacing.lg)
                 }
             }
         }
-        .padding(.top, 4)
+        .padding(.top, Spacing.xxs)
     }
 }
 

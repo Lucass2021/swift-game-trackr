@@ -179,7 +179,8 @@ enum CommunityMockData {
             "discuss glitch hunting techniques, and compare splits with the fastest players around.",
         isJoined: false,
         iconStart: .coverEmeraldStart,
-        iconEnd: .coverEmeraldEnd
+        iconEnd: .coverEmeraldEnd,
+        createdMonth: "March 2024"
     )
 
     static let communityPosts: [CommunityPost] = [

@@ -1,5 +1,9 @@
 import SwiftUI
 
+private enum Constants {
+    static let floatingInset: CGFloat = 16
+}
+
 struct CommunityDetailView: View {
     let community: Community
     var onPostSelect: (CommunityPost) -> Void = { _ in }
@@ -7,19 +11,10 @@ struct CommunityDetailView: View {
 
     @Environment(AuthStore.self) private var authStore
     @Environment(\.dismiss) private var dismiss
-    @State private var isJoined: Bool
-    @State private var tab: CommunityDetailTab = .posts
-    @State private var postsPagination = PaginationState<CommunityPost>()
-    @State private var members: [CommunityMember] = []
+    @State private var viewModel: CommunityDetailViewModel
     @State private var showCreateTopic = false
     @State private var selectedUser: UserProfile?
-    @State private var viewModel = CommunityViewModel()
-    @State private var postsError = false
-    @State private var showDeleteAlert = false
-    @State private var showLeaveAlert = false
-    @State private var deleteError: String?
-
-    private let repository: CommunityRepository
+    @State private var createTopicViewModel = CommunityViewModel()
 
     init(
         community: Community,
@@ -30,8 +25,7 @@ struct CommunityDetailView: View {
         self.community = community
         self.onPostSelect = onPostSelect
         self.onDelete = onDelete
-        self.repository = repository
-        _isJoined = State(initialValue: community.isJoined)
+        _viewModel = State(initialValue: CommunityDetailViewModel(community: community, repository: repository))
     }
 
     private var isOwner: Bool {
@@ -40,336 +34,87 @@ struct CommunityDetailView: View {
 
     var body: some View {
         ZStack(alignment: .bottomTrailing) {
-            ScrollView(showsIndicators: false) {
-                VStack(alignment: .leading, spacing: 20) {
-                    CommunityDetailHeader(community: community)
-
-                    Text(community.description)
-                        .font(.appBody(15))
-                        .foregroundStyle(Color.appTextSecondary)
-                        .lineLimit(3)
-                        .fixedSize(horizontal: false, vertical: true)
-                        .padding(.horizontal, 20)
-
-                    actions
-
-                    CommunityStatsBar(community: community)
-                        .padding(.horizontal, 20)
-
-                    CommunityDetailTabs(selection: $tab)
-
-                    tabContent
+            CommunityDetailContent(
+                community: community,
+                viewModel: viewModel,
+                isGuest: authStore.isGuest,
+                isOwner: isOwner,
+                onPostSelect: onPostSelect,
+                onCreatePost: { showCreateTopic = true },
+                onMemberSelect: { member in
+                    selectedUser = UserProfile(
+                        handle: member.author,
+                        avatarStart: member.avatarStart,
+                        avatarEnd: member.avatarEnd
+                    )
                 }
-                .padding(.bottom, 96)
-                .remainingHeightContainer()
-            }
-            .refreshable {
-                await loadPosts(reset: true)
-                await loadMembers()
-            }
+            )
 
-            if tab == .posts, isJoined, !authStore.isGuest {
+            if viewModel.tab == .posts, viewModel.isJoined, !authStore.isGuest {
                 CreatePostButton(action: { showCreateTopic = true })
             }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background(Color.appBackground)
-        .task { await loadPosts() }
-        .task { await loadMembers() }
+        .task { await viewModel.loadIfNeeded() }
         .fullScreenCover(isPresented: $showCreateTopic) {
-            CreateTopicView(viewModel: viewModel, community: community)
+            CreateTopicView(viewModel: createTopicViewModel, community: community)
         }
         .toolbar(.hidden, for: .navigationBar)
         .navigationBarBackButtonHidden(true)
-        .navigationDestination(isPresented: showUserBinding) {
-            if let selectedUser {
-                UserProfileView(user: selectedUser)
-            }
+        .navigationDestination(item: $selectedUser) { user in
+            UserProfileView(user: user)
         }
         .overlay(alignment: .topLeading) {
-            floatingButton(icon: .back, label: "Back") { dismiss() }
-                .padding(.leading, 16)
+            CommunityDetailFloatingButton(icon: .back, label: "Back") { dismiss() }
+                .padding(.leading, Constants.floatingInset)
         }
         .overlay(alignment: .topTrailing) {
             if isOwner {
-                ownerMenu
-                    .padding(.trailing, 16)
+                CommunityDetailOwnerMenu(onDeleteRequest: { viewModel.onDeleteRequest() })
+                    .padding(.trailing, Constants.floatingInset)
             }
         }
-        .alert("Leave this community?", isPresented: $showLeaveAlert) {
-            Button("Leave", role: .destructive) { setJoined(false) }
+        .alert("Leave this community?", isPresented: $viewModel.showLeaveConfirmation) {
+            Button("Leave", role: .destructive) { Task { await viewModel.onLeaveConfirmed() } }
             Button("Cancel", role: .cancel) {}
         } message: {
             Text("You'll stop seeing its posts in your feed. You can join again anytime.")
         }
-        .alert("Delete this community?", isPresented: $showDeleteAlert) {
-            Button("Delete", role: .destructive) { deleteCommunity() }
+        .alert("Delete this community?", isPresented: $viewModel.showDeleteConfirmation) {
+            Button("Delete", role: .destructive) { Task { await viewModel.onDeleteConfirmed() } }
             Button("Cancel", role: .cancel) {}
         } message: {
             Text("This removes the community and every post inside it. This can't be undone.")
         }
-        .alert("Couldn't delete", isPresented: deleteErrorBinding) {
-            Button("OK", role: .cancel) { deleteError = nil }
-        } message: {
-            Text(deleteError ?? "")
+        .toast(message: $viewModel.toastMessage)
+        .onChange(of: viewModel.isDeleted) { _, isDeleted in
+            guard isDeleted else { return }
+            onDelete()
+            dismiss()
         }
         .ignoresSafeArea(edges: .top)
     }
-
-    @ViewBuilder
-    private var tabContent: some View {
-        switch tab {
-        case .posts:
-            if postsError, postsPagination.items.isEmpty {
-                EmptyState(
-                    icon: .info,
-                    title: "Couldn't load posts",
-                    message: "Check your connection\nand try again.",
-                    actionTitle: "Try again",
-                    onAction: { Task { await loadPosts() } }
-                )
-                .frame(maxHeight: .infinity)
-            } else if postsPagination.items.isEmpty {
-                EmptyState(
-                    icon: .community,
-                    title: "No posts yet",
-                    message: isJoined
-                        ? "Start the first discussion in this community."
-                        : "Join this community to start posting.",
-                    actionTitle: isJoined ? "Create post" : nil,
-                    onAction: isJoined ? { showCreateTopic = true } : nil
-                )
-                .frame(maxHeight: .infinity)
-            } else {
-                VStack(spacing: 16) {
-                    ForEach(Array(postsPagination.items.enumerated()), id: \.element.id) { index, post in
-                        CommunityPostCard(
-                            post: post,
-                            isGuest: authStore.isGuest,
-                            showsCommunityName: false,
-                            onSelect: { onPostSelect(post) },
-                            onLike: { toggleLike(post) },
-                            onComment: { onPostSelect(post) },
-                            onBookmark: { toggleBookmark(post) }
-                        )
-                        .onAppear {
-                            if index >= postsPagination.items.count - 3 {
-                                Task { await loadPosts(reset: false) }
-                            }
-                        }
-                    }
-
-                    if postsPagination.isLoadingMore {
-                        LoadingMoreIndicator()
-                    }
-                }
-                .padding(.horizontal, 20)
-            }
-        case .about:
-            CommunityAboutSection(
-                community: community,
-                isOwner: isOwner,
-                onDelete: { showDeleteAlert = true }
-            )
-        case .members:
-            CommunityMembersSection(members: members, onSelect: { member in
-                selectedUser = UserProfile(
-                    handle: member.author,
-                    avatarStart: member.avatarStart,
-                    avatarEnd: member.avatarEnd
-                )
-            })
-        }
-    }
-
-    @ViewBuilder
-    private var actions: some View {
-        if !authStore.isGuest {
-            HStack(spacing: 12) {
-                JoinButton(isJoined: isJoined, expanded: true, isEnabled: !isOwner) {
-                    if isJoined {
-                        showLeaveAlert = true
-                    } else {
-                        setJoined(true)
-                    }
-                }
-
-                circleButton(icon: .notifications, label: "Community notifications")
-
-                ShareLink(item: "Join the \(community.name) community on GameTrackr!") {
-                    AppIconView(icon: .share, size: 20)
-                        .foregroundStyle(Color.appTextPrimary)
-                        .frame(width: 50, height: 50)
-                        .background(Circle().stroke(Color.appOutline, lineWidth: 1))
-                        .contentShape(Circle())
-                }
-                .buttonStyle(PressableButtonStyle())
-                .accessibilityLabel("Share community")
-            }
-            .padding(.horizontal, 20)
-        }
-    }
-
-    private var ownerMenu: some View {
-        Menu {
-            Button(role: .destructive) {
-                showDeleteAlert = true
-            } label: {
-                Label {
-                    Text("Delete community")
-                } icon: {
-                    AppIconView(icon: .trash, size: 18)
-                }
-            }
-        } label: {
-            AppIconView(icon: .overflow, size: 20)
-                .foregroundStyle(Color.appTextPrimary)
-                .frame(width: 40, height: 40)
-                .background(Circle().fill(Color.appBackground.opacity(0.55)))
-                .contentShape(Circle())
-        }
-        .padding(.top, 60)
-        .accessibilityLabel("More options")
-    }
-
-    private var deleteErrorBinding: Binding<Bool> {
-        Binding(
-            get: { deleteError != nil },
-            set: { if !$0 { deleteError = nil } }
-        )
-    }
-
-    private func deleteCommunity() {
-        Task {
-            do {
-                try await repository.deleteCommunity(id: community.id)
-                onDelete()
-                dismiss()
-            } catch APIError.forbidden {
-                deleteError = "Only the community owner can delete it."
-            } catch {
-                deleteError = error.userMessage(fallback: "Couldn't delete this community.")
-            }
-        }
-    }
-
-    private var showUserBinding: Binding<Bool> {
-        Binding(
-            get: { selectedUser != nil },
-            set: { if !$0 { selectedUser = nil } }
-        )
-    }
-
-    private func loadPosts(reset: Bool = true) async {
-        if reset {
-            postsError = false
-            postsPagination.reset()
-        } else {
-            guard postsPagination.canLoadMore else { return }
-            postsPagination.setLoading(true)
-        }
-
-        let nextPage = postsPagination.currentPage + 1
-
-        do {
-            let page = try await repository.fetchPosts(
-                page: nextPage, perPage: Constants.postsPageSize, communityId: community.id
-            )
-            postsPagination.append(page: page)
-        } catch {
-            if reset { postsError = true }
-        }
-        postsPagination.setLoading(false)
-    }
-
-    private func loadMembers() async {
-        if let fetched = try? await repository.fetchCommunityMembers(id: community.id) {
-            members = fetched
-        }
-    }
-
-    private func setJoined(_ joined: Bool) {
-        isJoined = joined
-        Task {
-            do {
-                if joined {
-                    try await repository.joinCommunity(id: community.id)
-                } else {
-                    try await repository.leaveCommunity(id: community.id)
-                }
-            } catch {
-                isJoined = !joined
-            }
-        }
-    }
-
-    private func circleButton(icon: AppIcon, label: String) -> some View {
-        Button {} label: {
-            AppIconView(icon: icon, size: 20)
-                .foregroundStyle(Color.appTextPrimary)
-                .frame(width: 50, height: 50)
-                .background(Circle().stroke(Color.appOutline, lineWidth: 1))
-                .contentShape(Circle())
-        }
-        .buttonStyle(PressableButtonStyle())
-        .accessibilityLabel(label)
-    }
-
-    private func floatingButton(icon: AppIcon, label: String, action: @escaping () -> Void) -> some View {
-        Button(action: action) {
-            AppIconView(icon: icon, size: 20)
-                .foregroundStyle(Color.appTextPrimary)
-                .frame(width: 40, height: 40)
-                .background(Circle().fill(Color.appBackground.opacity(0.55)))
-                .contentShape(Circle())
-        }
-        .buttonStyle(PressableButtonStyle())
-        .padding(.top, 60)
-        .accessibilityLabel(label)
-    }
-
-    private func toggleLike(_ post: CommunityPost) {
-        guard let index = postsPagination.items.firstIndex(where: { $0.id == post.id }) else { return }
-        var updated = postsPagination.items[index]
-        updated.isLiked.toggle()
-        updated.likes += updated.isLiked ? 1 : -1
-        postsPagination.updateItem(at: index, with: updated)
-
-        Task {
-            do {
-                let status = try await repository.togglePostLike(id: post.id)
-                if let idx = postsPagination.items.firstIndex(where: { $0.id == post.id }) {
-                    var item = postsPagination.items[idx]
-                    item.isLiked = status.isLiked
-                    item.likes = status.likes
-                    postsPagination.updateItem(at: idx, with: item)
-                }
-            } catch {
-                if let idx = postsPagination.items.firstIndex(where: { $0.id == post.id }) {
-                    var item = postsPagination.items[idx]
-                    item.isLiked.toggle()
-                    item.likes += item.isLiked ? 1 : -1
-                    postsPagination.updateItem(at: idx, with: item)
-                }
-            }
-        }
-    }
-
-    private func toggleBookmark(_ post: CommunityPost) {
-        guard let index = postsPagination.items.firstIndex(where: { $0.id == post.id }) else { return }
-        var updated = postsPagination.items[index]
-        updated.isBookmarked.toggle()
-        postsPagination.updateItem(at: index, with: updated)
-    }
 }
 
-private enum Constants {
-    static let postsPageSize = 30
-}
-
-#Preview {
+#Preview("Signed in") {
     NavigationStack {
-        CommunityDetailView(community: CommunityMockData.detailCommunity)
+        CommunityDetailView(
+            community: CommunityMockData.detailCommunity,
+            repository: FakeCommunityRepository(latency: .zero)
+        )
     }
+    .environment(AuthStore())
+    .preferredColorScheme(.dark)
+}
+
+#Preview("Error") {
+    NavigationStack {
+        CommunityDetailView(
+            community: CommunityMockData.detailCommunity,
+            repository: FakeCommunityRepository(failure: APIError.networkFailure, latency: .zero)
+        )
+    }
+    .environment(AuthStore())
     .preferredColorScheme(.dark)
 }

@@ -1,5 +1,14 @@
 import SwiftUI
 
+private enum Constants {
+    static let borderWidth: CGFloat = 1
+    static let dividerHeight: CGFloat = 34
+    static let liveDotSize: CGFloat = 6
+    static let valueSize: CGFloat = 19
+    static let labelSize: CGFloat = 11
+    static let labelTracking: CGFloat = 0.8
+}
+
 struct CommunityStatsBar: View {
     let community: Community
 
@@ -11,40 +20,40 @@ struct CommunityStatsBar: View {
             divider
             stat(value: community.online, label: "Online", isLive: true)
         }
-        .padding(.vertical, 18)
+        .padding(.vertical, Spacing.md)
         .background(
-            RoundedRectangle(cornerRadius: 16, style: .continuous)
+            RoundedRectangle(cornerRadius: Radius.lg, style: .continuous)
                 .fill(Color.appSurfaceCard)
         )
         .overlay(
-            RoundedRectangle(cornerRadius: 16, style: .continuous)
-                .stroke(Color.appOutline, lineWidth: 1)
+            RoundedRectangle(cornerRadius: Radius.lg, style: .continuous)
+                .stroke(Color.appOutline, lineWidth: Constants.borderWidth)
         )
     }
 
     private var divider: some View {
         Rectangle()
             .fill(Color.appOutline)
-            .frame(width: 1, height: 34)
+            .frame(width: Constants.borderWidth, height: Constants.dividerHeight)
     }
 
     private func stat(value: String, label: String, isLive: Bool = false) -> some View {
-        VStack(spacing: 5) {
-            HStack(spacing: 6) {
+        VStack(spacing: Spacing.xxs) {
+            HStack(spacing: Spacing.xxs) {
                 Text(value)
-                    .font(.appHeadline(19))
+                    .font(.appHeadline(Constants.valueSize))
                     .foregroundStyle(Color.appTextPrimary)
 
                 if isLive {
                     Circle()
                         .fill(Color.appPrimary)
-                        .frame(width: 6, height: 6)
+                        .frame(width: Constants.liveDotSize, height: Constants.liveDotSize)
                 }
             }
 
             Text(label.uppercased())
-                .font(.appLabel(11))
-                .kerning(0.8)
+                .font(.appLabel(Constants.labelSize))
+                .kerning(Constants.labelTracking)
                 .foregroundStyle(Color.appTextSecondary)
         }
         .frame(maxWidth: .infinity)
@@ -53,7 +62,7 @@ struct CommunityStatsBar: View {
 
 #Preview {
     CommunityStatsBar(community: CommunityMockData.detailCommunity)
-        .padding(20)
+        .padding(Spacing.lg)
         .background(Color.appBackground)
         .preferredColorScheme(.dark)
 }

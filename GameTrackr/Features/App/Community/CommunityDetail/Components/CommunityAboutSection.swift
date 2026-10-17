@@ -1,91 +1,98 @@
 import SwiftUI
 
+private enum Constants {
+    static let borderWidth: CGFloat = 1
+    static let iconSize: CGFloat = 18
+    static let bodySize: CGFloat = 15
+    static let noteSize: CGFloat = 13
+}
+
 struct CommunityAboutSection: View {
     let community: Community
     var isOwner = false
     var onDelete: () -> Void = {}
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 16) {
+        VStack(alignment: .leading, spacing: Spacing.md) {
             Text(community.description)
-                .font(.appBody(15))
+                .font(.appBody(Constants.bodySize))
                 .foregroundStyle(Color.appTextSecondary)
                 .fixedSize(horizontal: false, vertical: true)
 
             VStack(spacing: 0) {
                 infoRow(icon: .community, label: "Category", value: "#\(community.category)")
-                Rectangle().fill(Color.appOutline).frame(height: 1)
-                infoRow(icon: .calendar, label: "Created", value: "March 2024")
-                Rectangle().fill(Color.appOutline).frame(height: 1)
-                infoRow(icon: .medal, label: "Moderators", value: "3")
+                if let createdMonth = community.createdMonth {
+                    Rectangle().fill(Color.appOutline).frame(height: Constants.borderWidth)
+                    infoRow(icon: .calendar, label: "Created", value: createdMonth)
+                }
             }
             .background(
-                RoundedRectangle(cornerRadius: 16, style: .continuous)
+                RoundedRectangle(cornerRadius: Radius.lg, style: .continuous)
                     .fill(Color.appSurfaceCard)
             )
             .overlay(
-                RoundedRectangle(cornerRadius: 16, style: .continuous)
-                    .stroke(Color.appOutline, lineWidth: 1)
+                RoundedRectangle(cornerRadius: Radius.lg, style: .continuous)
+                    .stroke(Color.appOutline, lineWidth: Constants.borderWidth)
             )
 
             if isOwner {
                 Button(action: onDelete) {
-                    HStack(spacing: 12) {
-                        AppIconView(icon: .trash, size: 18)
+                    HStack(spacing: Spacing.sm) {
+                        AppIconView(icon: .trash, size: Constants.iconSize)
                             .foregroundStyle(Color.appTertiary)
 
                         Text("Delete community")
-                            .font(.appLabel(15))
+                            .font(.appLabel(Constants.bodySize))
                             .foregroundStyle(Color.appTertiary)
 
                         Spacer()
                     }
-                    .padding(.horizontal, 16)
-                    .padding(.vertical, 15)
+                    .padding(.horizontal, Spacing.md)
+                    .padding(.vertical, Spacing.md)
                     .frame(maxWidth: .infinity)
                     .background(
-                        RoundedRectangle(cornerRadius: 16, style: .continuous)
+                        RoundedRectangle(cornerRadius: Radius.lg, style: .continuous)
                             .fill(Color.appSurfaceCard)
                     )
                     .overlay(
-                        RoundedRectangle(cornerRadius: 16, style: .continuous)
-                            .stroke(Color.appOutline, lineWidth: 1)
+                        RoundedRectangle(cornerRadius: Radius.lg, style: .continuous)
+                            .stroke(Color.appOutline, lineWidth: Constants.borderWidth)
                     )
-                    .contentShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
+                    .contentShape(RoundedRectangle(cornerRadius: Radius.lg, style: .continuous))
                 }
                 .buttonStyle(PressableButtonStyle())
 
                 Text("Only you can see this — you created this community.")
-                    .font(.appBody(13))
+                    .font(.appBody(Constants.noteSize))
                     .foregroundStyle(Color.appTextSecondary)
             }
         }
-        .padding(.horizontal, 20)
-        .padding(.top, 4)
+        .padding(.horizontal, Spacing.lg)
+        .padding(.top, Spacing.xxs)
     }
 
     private func infoRow(icon: AppIcon, label: String, value: String) -> some View {
-        HStack(spacing: 12) {
-            AppIconView(icon: icon, size: 18)
+        HStack(spacing: Spacing.sm) {
+            AppIconView(icon: icon, size: Constants.iconSize)
                 .foregroundStyle(Color.appTextSecondary)
 
             Text(label)
-                .font(.appBody(15))
+                .font(.appBody(Constants.bodySize))
                 .foregroundStyle(Color.appTextSecondary)
 
             Spacer()
 
             Text(value)
-                .font(.appLabel(15))
+                .font(.appLabel(Constants.bodySize))
                 .foregroundStyle(Color.appTextPrimary)
         }
-        .padding(.horizontal, 16)
-        .padding(.vertical, 15)
+        .padding(.horizontal, Spacing.md)
+        .padding(.vertical, Spacing.md)
     }
 }
 
 #Preview {
-    CommunityAboutSection(community: CommunityMockData.detailCommunity)
+    CommunityAboutSection(community: CommunityMockData.detailCommunity, isOwner: true)
         .background(Color.appBackground)
         .preferredColorScheme(.dark)
 }

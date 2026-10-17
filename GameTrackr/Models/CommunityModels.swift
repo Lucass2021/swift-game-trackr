@@ -13,6 +13,7 @@ struct Community: Identifiable, Hashable {
     let coverUrl: String?
     let iconStart: Color
     let iconEnd: Color
+    let createdMonth: String?
 
     let online: String
 
@@ -45,7 +46,8 @@ struct Community: Identifiable, Hashable {
         avatarUrl: String? = nil,
         coverUrl: String? = nil,
         iconStart: Color? = nil,
-        iconEnd: Color? = nil
+        iconEnd: Color? = nil,
+        createdMonth: String? = nil
     ) {
         self.id = id
         self.name = name
@@ -61,6 +63,7 @@ struct Community: Identifiable, Hashable {
         let colors = GradientPalette.pair(for: id)
         self.iconStart = iconStart ?? colors.0
         self.iconEnd = iconEnd ?? colors.1
+        self.createdMonth = createdMonth
     }
 
     init(dto: CommunityDTO) {
@@ -74,8 +77,22 @@ struct Community: Identifiable, Hashable {
             description: dto.description ?? "",
             isJoined: dto.isMember ?? false,
             avatarUrl: avatar,
-            coverUrl: cover
+            coverUrl: cover,
+            createdMonth: Self.monthYear(from: dto.createdAt)
         )
+    }
+
+    private static let monthYearFormat = Date.FormatStyle(locale: Locale(identifier: "en_US"), timeZone: .gmt)
+        .month(.wide)
+        .year()
+
+    private static func monthYear(from iso: String?) -> String? {
+        guard let iso else { return nil }
+        let day = String(iso.prefix(10))
+        guard let date = try? Date(day, strategy: Date.ISO8601FormatStyle(timeZone: .gmt).year().month().day()) else {
+            return nil
+        }
+        return date.formatted(monthYearFormat)
     }
 }
 
