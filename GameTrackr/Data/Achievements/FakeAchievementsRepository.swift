@@ -1,5 +1,6 @@
 actor FakeAchievementsRepository: AchievementsRepository {
     private(set) var fetchCount = 0
+    private(set) var gameFetchCount = 0
     private let games: [GameAchievements]
     private var failure: Error?
     private let latency: Duration
@@ -36,6 +37,7 @@ actor FakeAchievementsRepository: AchievementsRepository {
     }
 
     func fetchGameAchievements(id: Int) async throws -> GameAchievements {
+        gameFetchCount += 1
         try await respond()
         guard let game = games.first(where: { $0.id == id }) else { throw APIError.notFound }
         return game
