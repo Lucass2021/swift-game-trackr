@@ -5,10 +5,13 @@ actor FakeCommunityRepository: CommunityRepository {
     private(set) var fetchMembersCount = 0
     private(set) var likeCount = 0
     private(set) var deleteCount = 0
+    private(set) var fetchCommentsCount = 0
+    private(set) var sendCommentCount = 0
+    private(set) var commentLikeCount = 0
     private var communities: [Community]
     private var posts: [CommunityPost]
     private let members: [CommunityMember]
-    private let comments: [PostComment]
+    private var comments: [PostComment]
     private var joinedIds: Set<Int>
     private var failure: Error?
     private let latency: Duration
@@ -98,6 +101,7 @@ actor FakeCommunityRepository: CommunityRepository {
     }
 
     func fetchPostComments(postId _: Int) async throws -> [PostComment] {
+        fetchCommentsCount += 1
         try await respond()
         return comments
     }
@@ -138,21 +142,33 @@ actor FakeCommunityRepository: CommunityRepository {
         return LikeStatus(isLiked: posts[index].isLiked, likes: posts[index].likes)
     }
 
-    func addComment(postId _: Int, comment _: String) async throws -> PostComment {
+    func addComment(postId _: Int, comment: String) async throws -> PostComment {
+        sendCommentCount += 1
         try await respond()
-        guard let first = comments.first else { throw APIError.notFound }
-        return first
+        let created = await newComment(comment)
+        comments.append(created)
+        return created
     }
 
-    func replyToComment(postId _: Int, commentId _: Int, comment _: String) async throws -> PostComment {
+    func replyToComment(postId _: Int, commentId: Int, comment: String) async throws -> PostComment {
+        sendCommentCount += 1
         try await respond()
-        guard let first = comments.first else { throw APIError.notFound }
-        return first
+        guard self.comment(commentId) != nil else { throw APIError.notFound }
+        let created = await newComment(comment)
+        comments = comments.addingReply(to: commentId, created)
+        return created
     }
 
-    func toggleCommentLike(postId _: Int, commentId _: Int) async throws -> LikeStatus {
+    func toggleCommentLike(postId _: Int, commentId: Int) async throws -> LikeStatus {
+        commentLikeCount += 1
         try await respond()
-        return LikeStatus(isLiked: true, likes: 1)
+        guard let current = comment(commentId) else { throw APIError.notFound }
+        let status = LikeStatus(isLiked: !current.isLiked, likes: current.likes + (current.isLiked ? -1 : 1))
+        comments = comments.replacingComment(id: commentId) { comment in
+            comment.isLiked = status.isLiked
+            comment.likes = status.likes
+        }
+        return status
     }
 
     func isJoined(_ communityId: Int) -> Bool {
@@ -161,6 +177,17 @@ actor FakeCommunityRepository: CommunityRepository {
 
     func post(_ id: Int) -> CommunityPost? {
         posts.first { $0.id == id }
+    }
+
+    func comment(_ id: Int) -> PostComment? {
+        comments.findComment(id: id)
+    }
+
+    private func newComment(_ content: String) async -> PostComment {
+        let nextId = (comments.flatMap { [$0] + $0.replies }.map(\.id).max() ?? 0) + 1
+        return await MainActor.run {
+            PostComment(id: nextId, author: "@you", timeAgo: "now", content: content, likes: 0)
+        }
     }
 
     func setFailure(_ error: Error?) {

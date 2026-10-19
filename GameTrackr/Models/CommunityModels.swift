@@ -241,7 +241,6 @@ struct PostComment: Identifiable, Hashable {
     let avatarStart: Color
     let avatarEnd: Color
     var replies: [PostComment] = []
-    var hiddenReplies = 0
 
     init(
         id: Int,
@@ -254,8 +253,7 @@ struct PostComment: Identifiable, Hashable {
         avatarUrl: String? = nil,
         avatarStart: Color? = nil,
         avatarEnd: Color? = nil,
-        replies: [PostComment] = [],
-        hiddenReplies: Int = 0
+        replies: [PostComment] = []
     ) {
         self.id = id
         self.author = author
@@ -269,7 +267,6 @@ struct PostComment: Identifiable, Hashable {
         self.avatarStart = avatarStart ?? colors.0
         self.avatarEnd = avatarEnd ?? colors.1
         self.replies = replies
-        self.hiddenReplies = hiddenReplies
     }
 
     init(dto: CommentDTO) {
@@ -299,7 +296,7 @@ struct PostComment: Identifiable, Hashable {
 
 extension [PostComment] {
     var totalCount: Int {
-        reduce(0) { $0 + 1 + $1.replies.count + $1.hiddenReplies }
+        reduce(0) { $0 + 1 + $1.replies.count }
     }
 }
 

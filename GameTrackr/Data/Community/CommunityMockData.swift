@@ -264,8 +264,7 @@ enum CommunityMockData {
                     avatarStart: .coverEmeraldStart,
                     avatarEnd: .coverEmeraldEnd
                 )
-            ],
-            hiddenReplies: 3
+            ]
         ),
         PostComment(
             id: 303,

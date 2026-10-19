@@ -1,44 +1,47 @@
 import SwiftUI
 
+private enum Constants {
+    static let avatarSize: CGFloat = 36
+    static let replyAvatarSize: CGFloat = 28
+    static let likeIconSize: CGFloat = 16
+    static let authorSize: CGFloat = 14
+    static let timeSize: CGFloat = 12
+    static let contentSize: CGFloat = 14
+    static let metaSize: CGFloat = 12
+}
+
 struct CommentRow: View {
     let comment: PostComment
     var isReply = false
     var isGuest = false
-    var currentUserId: Int?
     var onLike: () -> Void = {}
     var onReply: () -> Void = {}
-    var onDelete: () -> Void = {}
-
-    private var avatarSize: CGFloat {
-        isReply ? 28 : 36
-    }
-
-    private var isOwnComment: Bool {
-        guard let currentUserId, let authorId = comment.authorId else { return false }
-        return authorId == currentUserId
-    }
 
     var body: some View {
-        HStack(alignment: .top, spacing: 12) {
-            CommunityAvatar(start: comment.avatarStart, end: comment.avatarEnd, size: avatarSize)
+        HStack(alignment: .top, spacing: Spacing.sm) {
+            CommunityAvatar(
+                start: comment.avatarStart,
+                end: comment.avatarEnd,
+                size: isReply ? Constants.replyAvatarSize : Constants.avatarSize
+            )
 
-            VStack(alignment: .leading, spacing: 6) {
-                HStack(spacing: 8) {
+            VStack(alignment: .leading, spacing: Spacing.xxs) {
+                HStack(spacing: Spacing.xs) {
                     Text(comment.author)
-                        .font(.appLabel(14))
+                        .font(.appLabel(Constants.authorSize))
                         .foregroundStyle(Color.appPrimary)
 
                     Text(comment.timeAgo)
-                        .font(.appBody(12))
+                        .font(.appBody(Constants.timeSize))
                         .foregroundStyle(Color.appTextSecondary)
                 }
 
                 Text(comment.content)
-                    .font(.appBody(14))
+                    .font(.appBody(Constants.contentSize))
                     .foregroundStyle(Color.appTextPrimary)
                     .fixedSize(horizontal: false, vertical: true)
 
-                HStack(spacing: 6) {
+                HStack(spacing: Spacing.xxs) {
                     Text("\(comment.likes) likes")
                     if !isGuest {
                         Text("·")
@@ -48,44 +51,32 @@ struct CommentRow: View {
                         .buttonStyle(PressableButtonStyle())
                     }
                 }
-                .font(.appLabel(12))
+                .font(.appLabel(Constants.metaSize))
                 .foregroundStyle(Color.appTextSecondary)
             }
-
-            Spacer(minLength: 8)
+            .frame(maxWidth: .infinity, alignment: .leading)
 
             if !isGuest {
-                HStack(spacing: 8) {
-                    if isOwnComment {
-                        Button(action: onDelete) {
-                            AppIconView(icon: .trash, size: 16)
-                                .foregroundStyle(Color.appTextSecondary)
-                                .contentShape(Rectangle())
-                        }
-                        .buttonStyle(PressableButtonStyle())
-                        .accessibilityLabel("Delete comment")
-                    }
-
-                    Button(action: onLike) {
-                        AppIconView(icon: .like, filled: comment.isLiked, size: 16)
-                            .foregroundStyle(comment.isLiked ? Color.appPrimary : Color.appTextSecondary)
-                            .contentShape(Rectangle())
-                    }
-                    .buttonStyle(PressableButtonStyle())
-                    .accessibilityLabel(comment.isLiked ? "Unlike comment" : "Like comment")
+                Button(action: onLike) {
+                    AppIconView(icon: .like, filled: comment.isLiked, size: Constants.likeIconSize)
+                        .foregroundStyle(comment.isLiked ? Color.appPrimary : Color.appTextSecondary)
+                        .contentShape(Rectangle())
                 }
+                .buttonStyle(PressableButtonStyle())
+                .accessibilityLabel(comment.isLiked ? "Unlike comment" : "Like comment")
             }
         }
-        .padding(.leading, isReply ? 40 : 0)
+        .padding(.leading, isReply ? Spacing.xxxl : 0)
     }
 }
 
 #Preview {
-    VStack(alignment: .leading, spacing: 22) {
+    VStack(alignment: .leading, spacing: Spacing.md) {
         CommentRow(comment: CommunityMockData.comments[0])
         CommentRow(comment: CommunityMockData.comments[0].replies[0], isReply: true)
+        CommentRow(comment: CommunityMockData.comments[1], isGuest: true)
     }
-    .padding(20)
+    .padding(Spacing.lg)
     .background(Color.appSurfaceCard)
     .preferredColorScheme(.dark)
 }
