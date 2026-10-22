@@ -1,5 +1,10 @@
 import SwiftUI
 
+private enum Constants {
+    static let titleSize: CGFloat = 22
+    static let viewAllSize: CGFloat = 15
+}
+
 struct HomeSectionHeader: View {
     let title: String
     let onViewAll: () -> Void
@@ -7,20 +12,20 @@ struct HomeSectionHeader: View {
     var body: some View {
         HStack(alignment: .firstTextBaseline) {
             Text(title)
-                .font(.appHeadline(22))
+                .font(.appHeadline(Constants.titleSize))
                 .foregroundStyle(Color.appTextPrimary)
 
             Spacer()
 
             Button(action: onViewAll) {
                 Text("View All")
-                    .font(.appLabel(15))
+                    .font(.appLabel(Constants.viewAllSize))
                     .foregroundStyle(Color.appPrimary)
                     .contentShape(Rectangle())
             }
             .buttonStyle(PressableButtonStyle())
         }
-        .padding(.horizontal, 20)
+        .padding(.horizontal, Spacing.lg)
     }
 }
 

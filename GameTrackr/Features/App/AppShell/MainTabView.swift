@@ -15,6 +15,7 @@ struct MainTabView: View {
     @State private var libraryViewModel = LibraryViewModel(repository: FakeLibraryRepository())
     @State private var profileViewModel = ProfileViewModel(repository: FakeProfileOverviewRepository())
     @State private var community = CommunityDependencies()
+    @State private var homeViewModel = HomeViewModel(repository: RemoteGameRepository())
 
     var body: some View {
         NavigationStack {
@@ -58,7 +59,7 @@ struct MainTabView: View {
     private var content: some View {
         switch selection {
         case .home:
-            HomeView(onViewAll: { searchScope = $0 }, onGameSelect: { detailSlug = $0 })
+            HomeView(viewModel: homeViewModel, onViewAll: { searchScope = $0 }, onGameSelect: { detailSlug = $0 })
         case .library:
             LibraryView(
                 viewModel: libraryViewModel,

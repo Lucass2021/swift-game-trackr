@@ -1,5 +1,14 @@
 import SwiftUI
 
+private enum Constants {
+    static let brandSize: CGFloat = 44
+    static let brandRatio: CGFloat = 0.32
+    static let brandOpacity = 0.18
+    static let borderWidth: CGFloat = 1
+    static let previewWidth: CGFloat = 150
+    static let previewHeight: CGFloat = 200
+}
+
 struct GameCoverArt: View {
     let start: Color
     let end: Color
@@ -7,13 +16,13 @@ struct GameCoverArt: View {
     var width: CGFloat?
     var height: CGFloat?
 
-    private let shape = RoundedRectangle(cornerRadius: 14, style: .continuous)
+    private let shape = RoundedRectangle(cornerRadius: Radius.md, style: .continuous)
 
     private var brandSize: CGFloat {
         if let width, let height {
-            return min(width, height) * 0.32
+            return min(width, height) * Constants.brandRatio
         }
-        return 44
+        return Constants.brandSize
     }
 
     private var imageURL: URL? {
@@ -26,14 +35,17 @@ struct GameCoverArt: View {
             .frame(width: width, height: height)
             .clipShape(shape)
             .overlay {
-                shape.stroke(Color.appOutline, lineWidth: 1)
+                shape.stroke(Color.appOutline, lineWidth: Constants.borderWidth)
             }
     }
 
     @ViewBuilder
     private var cover: some View {
         if let imageURL {
-            AsyncImage(url: imageURL, transaction: Transaction(animation: .easeOut(duration: 0.2))) { phase in
+            AsyncImage(
+                url: imageURL,
+                transaction: Transaction(animation: .easeOut(duration: Durations.short))
+            ) { phase in
                 switch phase {
                 case let .success(image):
                     image
@@ -62,7 +74,19 @@ struct GameCoverArt: View {
         )
         .overlay {
             AppIconView(icon: .brand, size: brandSize)
-                .foregroundStyle(Color.white.opacity(0.18))
+                .foregroundStyle(Color.white.opacity(Constants.brandOpacity))
         }
     }
+}
+
+#Preview {
+    GameCoverArt(
+        start: .coverVioletStart,
+        end: .coverVioletEnd,
+        width: Constants.previewWidth,
+        height: Constants.previewHeight
+    )
+    .padding(Spacing.lg)
+    .background(Color.appBackground)
+    .preferredColorScheme(.dark)
 }

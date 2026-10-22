@@ -1,7 +1,19 @@
 import SwiftUI
 
-struct FakeGameRepository: GameRepository {
+actor FakeGameRepository: GameRepository {
     private static let games = [HomeMockData.sampleGame]
+
+    private(set) var fetchNewReleasesCount = 0
+    private(set) var fetchMostAnticipatedCount = 0
+    private let homeGames: [Game]
+    private var newReleasesFailure: Error?
+    private var mostAnticipatedFailure: Error?
+    private let latency: Duration
+
+    init(homeGames: [Game] = FakeGameRepository.games, latency: Duration = FakeLatency.responseDelay) {
+        self.homeGames = homeGames
+        self.latency = latency
+    }
 
     private static let gameDetail = GameDetail(
         title: "Neon Ascent: Revival",
@@ -33,13 +45,25 @@ struct FakeGameRepository: GameRepository {
     )
 
     func fetchNewReleases(limit: Int) async throws -> [Game] {
-        try await Task.sleep(for: FakeLatency.responseDelay)
-        return Array(Self.games.prefix(limit))
+        fetchNewReleasesCount += 1
+        try await Task.sleep(for: latency)
+        if let newReleasesFailure { throw newReleasesFailure }
+        return Array(homeGames.prefix(limit))
     }
 
     func fetchMostAnticipated(limit: Int) async throws -> [Game] {
-        try await Task.sleep(for: FakeLatency.responseDelay)
-        return Array(Self.games.prefix(limit))
+        fetchMostAnticipatedCount += 1
+        try await Task.sleep(for: latency)
+        if let mostAnticipatedFailure { throw mostAnticipatedFailure }
+        return Array(homeGames.prefix(limit))
+    }
+
+    func setNewReleasesFailure(_ error: Error?) {
+        newReleasesFailure = error
+    }
+
+    func setMostAnticipatedFailure(_ error: Error?) {
+        mostAnticipatedFailure = error
     }
 
     func fetchGame(slug _: String) async throws -> GameDetail {
