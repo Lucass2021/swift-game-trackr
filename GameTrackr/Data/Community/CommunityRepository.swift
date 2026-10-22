@@ -1,5 +1,6 @@
 protocol CommunityRepository: Sendable {
     func fetchCommunities(page: Int, perPage: Int, search: String?) async throws -> Page<Community>
+    func fetchCommunity(id: Int) async throws -> Community
     func fetchJoinedCommunities() async throws -> [Community]
     func fetchCommunityMembers(id: Int) async throws -> [CommunityMember]
     func createCommunity(title: String, description: String) async throws -> Community

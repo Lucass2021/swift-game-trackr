@@ -12,8 +12,27 @@ struct RemoteCommunityRepository: CommunityRepository {
         return toPage(response) { Community(dto: $0) }
     }
 
+    func fetchCommunity(id: Int) async throws -> Community {
+        let dto: CommunityDTO = try await apiClient.request(.community(id: id))
+        var community = Community(dto: dto)
+        community.isJoined = try await isMember(community)
+        return community
+    }
+
+    private func isMember(_ community: Community) async throws -> Bool {
+        do {
+            let joined: PaginatedResponse<CommunityDTO> = try await apiClient.request(
+                .joinedCommunities(search: community.name, perPage: Constants.joinedLookupSize)
+            )
+            return joined.data.contains { $0.id == community.id }
+        } catch {
+            try Task.checkCancellation()
+            return false
+        }
+    }
+
     func fetchJoinedCommunities() async throws -> [Community] {
-        let response: PaginatedResponse<CommunityDTO> = try await apiClient.request(.joinedCommunities)
+        let response: PaginatedResponse<CommunityDTO> = try await apiClient.request(.joinedCommunities())
         return response.data.map { Community(dto: $0) }
     }
 
@@ -118,4 +137,8 @@ struct RemoteCommunityRepository: CommunityRepository {
             return thread
         }
     }
+}
+
+private enum Constants {
+    static let joinedLookupSize = 100
 }

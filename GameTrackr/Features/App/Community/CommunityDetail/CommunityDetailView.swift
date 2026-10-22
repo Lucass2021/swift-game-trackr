@@ -35,10 +35,7 @@ struct CommunityDetailView: View {
             postUpdates: postUpdates,
             communityUpdates: communityUpdates
         ))
-        _createTopicViewModel = State(initialValue: CommunityViewModel(
-            repository: repository,
-            communityUpdates: communityUpdates
-        ))
+        _createTopicViewModel = State(initialValue: CommunityViewModel(repository: repository))
     }
 
     private var isOwner: Bool {

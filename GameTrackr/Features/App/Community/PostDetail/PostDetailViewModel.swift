@@ -14,6 +14,7 @@ final class PostDetailViewModel {
     private(set) var isSubmitting = false
     var showDeleteConfirmation = false
     private(set) var isDeleted = false
+    private(set) var communityToOpen: Community?
     var toastMessage: String?
 
     var commentCount: Int {
@@ -26,6 +27,7 @@ final class PostDetailViewModel {
     private var commentsTask: Task<Void, Never>?
     private var isPostLikePending = false
     private var isBookmarkPending = false
+    private var isCommunityPending = false
     private var pendingCommentLikeIds: Set<Int> = []
 
     init(
@@ -71,6 +73,21 @@ final class PostDetailViewModel {
             post.likes = previous.likes
             toastMessage = "Couldn't update the like. Please try again."
         }
+    }
+
+    func onCommunityTap() async {
+        guard let communityId = post.communityId, !isCommunityPending else { return }
+        isCommunityPending = true
+        defer { isCommunityPending = false }
+        do {
+            communityToOpen = try await repository.fetchCommunity(id: communityId)
+        } catch {
+            toastMessage = "Couldn't open this community. Please try again."
+        }
+    }
+
+    func onCommunityOpened() {
+        communityToOpen = nil
     }
 
     func onBookmark() async {

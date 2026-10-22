@@ -1,3 +1,5 @@
+import Foundation
+import Synchronization
 import Testing
 @testable import GameTrackr
 
@@ -28,6 +30,14 @@ extension RepositoryTests {
         {"id":\#(nestedReplyId),"content":"Nested","author_id":1,"post_id":\#(postId),"parent_id":\#(replyId)}]}
         """#
 
+        private static let httpUnauthorized = 401
+        private static let communityId = 5
+        private static let communityTitle = "Retro Club"
+        private static let communityBody = #"{"id":\#(communityId),"title":"\#(communityTitle)","slug":"retro-club","author_id":1}"#
+        private static let joinedBody = #"""
+        {"data":[\#(communityBody)],"current_page":1,"last_page":1,"per_page":100,"total":1}
+        """#
+
         private let repository: RemoteCommunityRepository
 
         init() {
@@ -53,6 +63,53 @@ extension RepositoryTests {
 
             #expect(comments.map(\.id) == [Self.rootCommentId])
             #expect(comments.first?.replies.map(\.id) == [Self.replyId, Self.nestedReplyId])
+        }
+
+        @Test func fetchCommunityReadsTheMembershipFromAJoinedSearchByTitle() async throws {
+            StubURLProtocol.requests = []
+            StubURLProtocol.stubsByPath = [
+                "/communities/\(Self.communityId)": .init(statusCode: Self.httpOK, body: Self.communityBody),
+                "/communities/joined": .init(statusCode: Self.httpOK, body: Self.joinedBody)
+            ]
+            defer { StubURLProtocol.stubsByPath = [:] }
+
+            let community = try await repository.fetchCommunity(id: Self.communityId)
+
+            #expect(community.isJoined)
+            let lookup = try #require(StubURLProtocol.requests.last?.url)
+            let items = URLComponents(url: lookup, resolvingAgainstBaseURL: false)?.queryItems ?? []
+            #expect(lookup.path.hasSuffix("/communities/joined"))
+            #expect(items.contains(URLQueryItem(name: "search", value: Self.communityTitle)))
+            #expect(items.contains(URLQueryItem(name: "per_page", value: "100")))
+        }
+
+        @Test func fetchCommunityIsNotJoinedWhenTheJoinedLookupFails() async throws {
+            StubURLProtocol.stubsByPath = [
+                "/communities/\(Self.communityId)": .init(statusCode: Self.httpOK, body: Self.communityBody),
+                "/communities/joined": .init(statusCode: Self.httpUnauthorized, body: "{}")
+            ]
+            defer { StubURLProtocol.stubsByPath = [:] }
+
+            let community = try await repository.fetchCommunity(id: Self.communityId)
+
+            #expect(!community.isJoined)
+        }
+
+        @Test func aGuestJoinedLookupDoesNotEndTheSession() async throws {
+            let apiClient = APIClient(session: StubURLProtocol.makeSession(), tokenStore: FakeTokenStore())
+            let refreshFailures = Mutex(0)
+            await apiClient.setRefreshFailureHandler { refreshFailures.withLock { $0 += 1 } }
+            let repository = RemoteCommunityRepository(apiClient: apiClient)
+            StubURLProtocol.stubsByPath = [
+                "/communities/\(Self.communityId)": .init(statusCode: Self.httpOK, body: Self.communityBody),
+                "/communities/joined": .init(statusCode: Self.httpUnauthorized, body: "{}")
+            ]
+            defer { StubURLProtocol.stubsByPath = [:] }
+
+            let community = try await repository.fetchCommunity(id: Self.communityId)
+
+            #expect(!community.isJoined)
+            #expect(refreshFailures.withLock { $0 } == 0)
         }
 
         @Test func togglePostLikeReturnsTheLikeStatusFromTheAPI() async throws {

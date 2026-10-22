@@ -1,14 +1,11 @@
 import SwiftUI
 
 struct CommunityDiscoverSegment: View {
-    let viewModel: CommunityViewModel
+    let viewModel: DiscoverCommunitiesViewModel
     let isGuest: Bool
     var currentUserId: Int?
     var onCommunitySelect: (Community) -> Void = { _ in }
     var onCreateAccount: () -> Void = {}
-
-    @State private var category = "All"
-    @State private var communityToLeave: Community?
 
     var body: some View {
         if isGuest {
@@ -21,25 +18,18 @@ struct CommunityDiscoverSegment: View {
             )
             .frame(maxHeight: .infinity)
         } else {
-            DiscoverCommunitiesView(
-                category: $category,
-                communities: viewModel.communities,
+            DiscoverCommunitiesContent(
+                viewModel: viewModel,
                 currentUserId: currentUserId,
-                isLoadingMore: viewModel.communitiesPagination.isLoadingMore,
-                canLoadMore: viewModel.communitiesPagination.canLoadMore,
-                onSelect: onCommunitySelect,
-                onJoin: { community in
-                    if community.isJoined {
-                        communityToLeave = community
-                    } else {
-                        viewModel.joinCommunity(community)
-                    }
-                },
-                onLoadMore: { Task { await viewModel.loadMoreCommunities() } }
+                onCommunitySelect: onCommunitySelect
             )
-            .alert("Leave this community?", isPresented: leaveAlertBinding, presenting: communityToLeave) { community in
-                Button("Leave", role: .destructive) { viewModel.leaveCommunity(community) }
-                Button("Cancel", role: .cancel) {}
+            .alert(
+                "Leave this community?",
+                isPresented: leaveAlertBinding,
+                presenting: viewModel.communityToLeave
+            ) { _ in
+                Button("Leave", role: .destructive) { Task { await viewModel.onLeaveConfirmed() } }
+                Button("Cancel", role: .cancel) { viewModel.onLeaveDismissed() }
             } message: { _ in
                 Text("You'll stop seeing its posts in your feed. You can join again anytime.")
             }
@@ -48,19 +38,19 @@ struct CommunityDiscoverSegment: View {
 
     private var leaveAlertBinding: Binding<Bool> {
         Binding(
-            get: { communityToLeave != nil },
-            set: { if !$0 { communityToLeave = nil } }
+            get: { viewModel.communityToLeave != nil },
+            set: { if !$0 { viewModel.onLeaveDismissed() } }
         )
     }
 }
 
 #Preview {
-    let viewModel = CommunityViewModel(
-        repository: FakeCommunityRepository(latency: .zero),
+    let viewModel = DiscoverCommunitiesViewModel(
+        repository: FakeDiscoverCommunitiesRepository(remote: FakeCommunityRepository(latency: .zero), latency: .zero),
         communityUpdates: CommunityUpdates()
     )
     return CommunityDiscoverSegment(viewModel: viewModel, isGuest: false)
-        .task { await viewModel.loadCommunities() }
+        .task { await viewModel.loadIfNeeded() }
         .background(Color.appBackground)
         .preferredColorScheme(.dark)
 }

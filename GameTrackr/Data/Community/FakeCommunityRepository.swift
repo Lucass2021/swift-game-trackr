@@ -43,6 +43,13 @@ actor FakeCommunityRepository: CommunityRepository {
         return fakePage(items: matches, page: page, perPage: perPage)
     }
 
+    func fetchCommunity(id: Int) async throws -> Community {
+        try await respond()
+        guard var community = communities.first(where: { $0.id == id }) else { throw APIError.notFound }
+        community.isJoined = joinedIds.contains(id)
+        return community
+    }
+
     func fetchJoinedCommunities() async throws -> [Community] {
         try await respond()
         return communities.filter { joinedIds.contains($0.id) }

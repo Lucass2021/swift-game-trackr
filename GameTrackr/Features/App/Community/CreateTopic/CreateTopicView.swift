@@ -205,7 +205,7 @@ struct CreateTopicView: View {
 #Preview {
     Color.appBackground
         .fullScreenCover(isPresented: .constant(true)) {
-            CreateTopicView(viewModel: CommunityViewModel(communityUpdates: CommunityUpdates()))
+            CreateTopicView(viewModel: CommunityViewModel())
         }
         .environment(AuthStore())
         .preferredColorScheme(.dark)

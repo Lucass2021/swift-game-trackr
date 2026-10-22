@@ -57,7 +57,7 @@ actor APIClient {
         do {
             return try await perform(endpoint, payload: payload, token: token)
         } catch APIError.unauthorized {
-            guard endpoint.requiresAuth else { throw APIError.unauthorized }
+            guard endpoint.requiresAuth, token != nil else { throw APIError.unauthorized }
             let newToken = try await refreshToken()
             return try await perform(endpoint, payload: payload, token: newToken)
         }

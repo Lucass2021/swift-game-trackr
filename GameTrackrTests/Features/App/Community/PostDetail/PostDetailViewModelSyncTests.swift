@@ -60,4 +60,51 @@ struct PostDetailViewModelSyncTests {
         #expect(try !feedPost().isBookmarked)
         #expect(viewModel.toastMessage == "Couldn't update the bookmark. Please try again.")
     }
+
+    private func post(communityId: Int) -> CommunityPost {
+        CommunityPost(
+            id: Self.post.id,
+            author: Self.post.author,
+            timeAgo: Self.post.timeAgo,
+            communityName: Self.post.communityName,
+            communityId: communityId,
+            title: Self.post.title,
+            preview: Self.post.preview,
+            likes: Self.post.likes,
+            comments: Self.post.comments,
+            hasMedia: false
+        )
+    }
+
+    @Test func tappingTheCommunityOpensThePostsOwnCommunity() async throws {
+        let community = try #require(CommunityMockData.all.last)
+        let viewModel = PostDetailViewModel(
+            post: post(communityId: community.id),
+            repository: repository,
+            feedRepository: feedRepository,
+            postUpdates: postUpdates
+        )
+
+        await viewModel.onCommunityTap()
+
+        #expect(viewModel.communityToOpen?.id == community.id)
+
+        viewModel.onCommunityOpened()
+
+        #expect(viewModel.communityToOpen == nil)
+    }
+
+    @Test func aCommunityThatCannotBeLoadedShowsAnError() async {
+        let viewModel = PostDetailViewModel(
+            post: post(communityId: 9999),
+            repository: repository,
+            feedRepository: feedRepository,
+            postUpdates: postUpdates
+        )
+
+        await viewModel.onCommunityTap()
+
+        #expect(viewModel.communityToOpen == nil)
+        #expect(viewModel.toastMessage == "Couldn't open this community. Please try again.")
+    }
 }

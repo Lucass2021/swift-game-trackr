@@ -25,6 +25,7 @@ struct PostDetailCommunityChip: View {
             .contentShape(Capsule())
         }
         .buttonStyle(PressableButtonStyle())
+        .accessibilityLabel("Open community \(name)")
     }
 }
 

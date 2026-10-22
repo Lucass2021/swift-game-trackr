@@ -2,7 +2,7 @@ import SwiftUI
 
 struct PostDetailView: View {
     let post: CommunityPost
-    var onCommunitySelect: () -> Void = {}
+    var onCommunitySelect: (Community) -> Void = { _ in }
     var onDelete: () -> Void = {}
 
     @Environment(AuthStore.self) private var authStore
@@ -12,7 +12,7 @@ struct PostDetailView: View {
 
     init(
         post: CommunityPost,
-        onCommunitySelect: @escaping () -> Void = {},
+        onCommunitySelect: @escaping (Community) -> Void = { _ in },
         onDelete: @escaping () -> Void = {},
         repository: CommunityRepository = RemoteCommunityRepository(),
         feedRepository: CommunityFeedRepository,
@@ -59,7 +59,7 @@ struct PostDetailView: View {
                         avatarEnd: post.avatarEnd
                     )
                 },
-                onCommunitySelect: onCommunitySelect,
+                onCommunitySelect: { Task { await viewModel.onCommunityTap() } },
                 onLike: { Task { await viewModel.onLike() } },
                 onComment: { viewModel.onCommentsOpen() },
                 onBookmark: { Task { await viewModel.onBookmark() } },
@@ -83,6 +83,11 @@ struct PostDetailView: View {
             Button("Cancel", role: .cancel) {}
         } message: {
             Text("This action cannot be undone. The post and all its comments will be permanently deleted.")
+        }
+        .onChange(of: viewModel.communityToOpen) { _, community in
+            guard let community else { return }
+            onCommunitySelect(community)
+            viewModel.onCommunityOpened()
         }
         .onChange(of: viewModel.isDeleted) { _, isDeleted in
             guard isDeleted else { return }

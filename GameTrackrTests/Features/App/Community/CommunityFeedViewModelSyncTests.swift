@@ -9,7 +9,7 @@ struct CommunityFeedViewModelSyncTests {
     private let repository = FakeCommunityRepository(latency: .zero)
     private let communityUpdates = CommunityUpdates()
     private let feed: CommunityFeedViewModel
-    private let discover: CommunityViewModel
+    private let discover: DiscoverCommunitiesViewModel
 
     init() {
         feed = CommunityFeedViewModel(
@@ -18,12 +18,15 @@ struct CommunityFeedViewModelSyncTests {
             postUpdates: PostUpdates(),
             communityUpdates: communityUpdates
         )
-        discover = CommunityViewModel(repository: repository, communityUpdates: communityUpdates)
+        discover = DiscoverCommunitiesViewModel(
+            repository: FakeDiscoverCommunitiesRepository(remote: repository, latency: .zero),
+            communityUpdates: communityUpdates
+        )
     }
 
     private func loaded() async {
         await feed.loadIfNeeded()
-        await discover.loadCommunities()
+        await discover.loadIfNeeded()
     }
 
     private static func manyPosts() -> [CommunityPost] {
@@ -48,11 +51,7 @@ struct CommunityFeedViewModelSyncTests {
         let suggestion = try #require(feed.suggestedCommunity)
         let community = try #require(discover.communities.first { $0.id == suggestion.id })
 
-        discover.joinCommunity(community)
-        while await !repository.isJoined(community.id) {
-            await Task.yield()
-        }
-        await Task.yield()
+        await discover.onJoinTap(community)
 
         #expect(feed.suggestedCommunity?.isJoined == true)
     }

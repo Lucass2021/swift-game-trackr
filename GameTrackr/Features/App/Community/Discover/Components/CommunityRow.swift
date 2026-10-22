@@ -1,5 +1,11 @@
 import SwiftUI
 
+private enum Constants {
+    static let iconSize: CGFloat = 56
+    static let nameSize: CGFloat = 17
+    static let detailSize: CGFloat = 13
+}
+
 struct CommunityRow: View {
     let community: Community
     var isOwner = false
@@ -7,23 +13,23 @@ struct CommunityRow: View {
     var onJoin: () -> Void = {}
 
     var body: some View {
-        HStack(spacing: 14) {
+        HStack(spacing: Spacing.sm) {
             Button(action: onSelect) {
-                HStack(spacing: 14) {
-                    CommunityIcon(start: community.iconStart, end: community.iconEnd, size: 56)
+                HStack(spacing: Spacing.sm) {
+                    CommunityIcon(start: community.iconStart, end: community.iconEnd, size: Constants.iconSize)
 
-                    VStack(alignment: .leading, spacing: 3) {
+                    VStack(alignment: .leading, spacing: Spacing.xxxs) {
                         Text(community.name)
-                            .font(.appHeadline(17))
+                            .font(.appHeadline(Constants.nameSize))
                             .foregroundStyle(Color.appTextPrimary)
                             .lineLimit(1)
 
                         Text(community.subtitle)
-                            .font(.appBody(13))
+                            .font(.appBody(Constants.detailSize))
                             .foregroundStyle(Color.appTextSecondary)
 
                         Text(community.description)
-                            .font(.appBody(13))
+                            .font(.appBody(Constants.detailSize))
                             .foregroundStyle(Color.appTextSecondary)
                             .lineLimit(1)
                     }
@@ -36,8 +42,8 @@ struct CommunityRow: View {
 
             JoinButton(isJoined: community.isJoined, isEnabled: !isOwner, action: onJoin)
         }
-        .padding(.horizontal, 20)
-        .padding(.vertical, 14)
+        .padding(.horizontal, Spacing.lg)
+        .padding(.vertical, Spacing.sm)
     }
 }
 

@@ -189,7 +189,7 @@ struct CreateCommunityView: View {
 #Preview {
     Color.appBackground
         .fullScreenCover(isPresented: .constant(true)) {
-            CreateCommunityView(viewModel: CommunityViewModel(communityUpdates: CommunityUpdates()))
+            CreateCommunityView(viewModel: CommunityViewModel())
         }
         .preferredColorScheme(.dark)
 }

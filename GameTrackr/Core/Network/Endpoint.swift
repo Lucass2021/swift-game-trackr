@@ -32,7 +32,7 @@ enum Endpoint {
     case platforms
 
     case communities(search: String? = nil, perPage: Int? = nil, page: Int? = nil)
-    case joinedCommunities
+    case joinedCommunities(search: String? = nil, perPage: Int? = nil)
     case community(id: Int)
     case createCommunity
     case deleteCommunity(id: Int)
@@ -133,6 +133,11 @@ enum Endpoint {
             if let perPage { items.append(.init(name: "per_page", value: "\(perPage)")) }
             if let search, !search.isEmpty { items.append(.init(name: "search", value: search)) }
             items.append(contentsOf: platforms.map { URLQueryItem(name: "platform[]", value: $0) })
+            return items.isEmpty ? nil : items
+        case let .joinedCommunities(search, perPage):
+            var items: [URLQueryItem] = []
+            if let search, !search.isEmpty { items.append(.init(name: "search", value: search)) }
+            if let perPage { items.append(.init(name: "per_page", value: "\(perPage)")) }
             return items.isEmpty ? nil : items
         case let .communities(search, perPage, page):
             var items: [URLQueryItem] = []
