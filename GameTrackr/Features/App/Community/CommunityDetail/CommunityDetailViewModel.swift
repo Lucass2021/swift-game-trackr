@@ -31,15 +31,31 @@ final class CommunityDetailViewModel {
 
     private let repository: CommunityRepository
     private let community: Community
+    private let communityUpdates: CommunityUpdates
     private var postsTask: Task<Void, Never>?
     private var membersTask: Task<Void, Never>?
+    @ObservationIgnored private var postActions: PostListActions?
     private var isJoinPending = false
-    private var pendingLikeIds: Set<Int> = []
 
-    init(community: Community, repository: CommunityRepository) {
+    init(
+        community: Community,
+        repository: CommunityRepository,
+        feedRepository: CommunityFeedRepository,
+        postUpdates: PostUpdates,
+        communityUpdates: CommunityUpdates
+    ) {
         self.community = community
         self.repository = repository
+        self.communityUpdates = communityUpdates
         isJoined = community.isJoined
+        postActions = PostListActions(
+            repository: repository,
+            feedRepository: feedRepository,
+            postUpdates: postUpdates,
+            posts: { [weak self] in self?.posts ?? [] },
+            replacePost: { [weak self] in self?.replacePost($0) },
+            showToast: { [weak self] in self?.toastMessage = $0 }
+        )
     }
 
     func loadIfNeeded() async {
@@ -95,23 +111,11 @@ final class CommunityDetailViewModel {
     }
 
     func onLike(_ postId: Int) async {
-        guard let previous = posts.first(where: { $0.id == postId }), !pendingLikeIds.contains(postId) else { return }
-        pendingLikeIds.insert(postId)
-        defer { pendingLikeIds.remove(postId) }
-        let liked = !previous.isLiked
-        updateLike(postId, isLiked: liked, likes: previous.likes + (liked ? 1 : -1))
-        do {
-            let status = try await repository.togglePostLike(id: postId)
-            updateLike(postId, isLiked: status.isLiked, likes: status.likes)
-        } catch {
-            updateLike(postId, isLiked: previous.isLiked, likes: previous.likes)
-            toastMessage = "Couldn't update the like. Please try again."
-        }
+        await postActions?.onLike(postId)
     }
 
-    func onBookmark(_ postId: Int) {
-        guard let index = posts.firstIndex(where: { $0.id == postId }) else { return }
-        posts[index].isBookmarked.toggle()
+    func onBookmark(_ postId: Int) async {
+        await postActions?.onBookmark(postId)
     }
 
     private func setJoined(_ joined: Bool) async {
@@ -124,6 +128,7 @@ final class CommunityDetailViewModel {
             } else {
                 try await repository.leaveCommunity(id: community.id)
             }
+            communityUpdates.publish(communityId: community.id, isJoined: joined)
         } catch {
             isJoined = !joined
             toastMessage = joined
@@ -138,10 +143,9 @@ final class CommunityDetailViewModel {
         _ = await (postsLoad, membersLoad)
     }
 
-    private func updateLike(_ postId: Int, isLiked: Bool, likes: Int) {
-        guard let index = posts.firstIndex(where: { $0.id == postId }) else { return }
-        posts[index].isLiked = isLiked
-        posts[index].likes = likes
+    private func replacePost(_ post: CommunityPost) {
+        guard let index = posts.firstIndex(where: { $0.id == post.id }) else { return }
+        posts[index] = post
     }
 
     private func loadPosts(page: Int, isRefresh: Bool) async {

@@ -83,9 +83,13 @@ struct CommunityDetailContent: View {
 }
 
 #Preview {
+    let repository = FakeCommunityRepository(latency: .zero)
     let viewModel = CommunityDetailViewModel(
         community: CommunityMockData.detailCommunity,
-        repository: FakeCommunityRepository(latency: .zero)
+        repository: repository,
+        feedRepository: FakeCommunityFeedRepository(remote: repository, latency: .zero),
+        postUpdates: PostUpdates(),
+        communityUpdates: CommunityUpdates()
     )
     return CommunityDetailContent(
         community: CommunityMockData.detailCommunity,

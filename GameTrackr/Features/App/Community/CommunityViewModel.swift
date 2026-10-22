@@ -3,16 +3,9 @@ import SwiftUI
 @MainActor
 @Observable
 final class CommunityViewModel {
-    let feedPagination = PaginationState<CommunityPost>()
     let communitiesPagination = PaginationState<Community>()
-    private(set) var isLoadingFeed = false
     private(set) var isLoadingCommunities = false
-    private(set) var feedError: String?
     private(set) var communitiesError: String?
-
-    var feed: [CommunityPost] {
-        feedPagination.items
-    }
 
     var communities: [Community] {
         communitiesPagination.items
@@ -20,40 +13,17 @@ final class CommunityViewModel {
 
     private let repository: CommunityRepository
 
-    init(repository: CommunityRepository = RemoteCommunityRepository()) {
+    private let communityUpdates: CommunityUpdates
+
+    init(repository: CommunityRepository = RemoteCommunityRepository(), communityUpdates: CommunityUpdates) {
         self.repository = repository
-    }
-
-    func loadFeed(reset: Bool = true) async {
-        if reset {
-            guard !isLoadingFeed else { return }
-            isLoadingFeed = true
-            feedError = nil
-            feedPagination.reset()
-        } else {
-            guard feedPagination.canLoadMore else { return }
-            feedPagination.setLoading(true)
+        self.communityUpdates = communityUpdates
+        communityUpdates.observe(self) { [weak self] join in
+            guard let self, let index = communities.firstIndex(where: { $0.id == join.communityId }) else { return }
+            var updated = communities[index]
+            updated.isJoined = join.isJoined
+            communitiesPagination.updateItem(at: index, with: updated)
         }
-
-        let nextPage = feedPagination.currentPage + 1
-
-        do {
-            let page = try await repository.fetchPosts(
-                page: nextPage,
-                perPage: Constants.feedPageSize,
-                communityId: nil
-            )
-            feedPagination.append(page: page)
-        } catch {
-            if reset { feedError = error.localizedDescription }
-        }
-
-        if reset { isLoadingFeed = false }
-        feedPagination.setLoading(false)
-    }
-
-    func loadMoreFeed() async {
-        await loadFeed(reset: false)
     }
 
     func loadCommunities(search: String? = nil, reset: Bool = true) async {
@@ -88,40 +58,6 @@ final class CommunityViewModel {
         await loadCommunities(search: search, reset: false)
     }
 
-    func toggleLike(_ post: CommunityPost) {
-        guard let index = feed.firstIndex(where: { $0.id == post.id }) else { return }
-        var updated = feed[index]
-        updated.isLiked.toggle()
-        updated.likes += updated.isLiked ? 1 : -1
-        feedPagination.updateItem(at: index, with: updated)
-
-        Task {
-            do {
-                let status = try await repository.togglePostLike(id: post.id)
-                if let idx = feed.firstIndex(where: { $0.id == post.id }) {
-                    var item = feed[idx]
-                    item.isLiked = status.isLiked
-                    item.likes = status.likes
-                    feedPagination.updateItem(at: idx, with: item)
-                }
-            } catch {
-                if let idx = feed.firstIndex(where: { $0.id == post.id }) {
-                    var item = feed[idx]
-                    item.isLiked.toggle()
-                    item.likes += item.isLiked ? 1 : -1
-                    feedPagination.updateItem(at: idx, with: item)
-                }
-            }
-        }
-    }
-
-    func toggleBookmark(_ post: CommunityPost) {
-        guard let index = feed.firstIndex(where: { $0.id == post.id }) else { return }
-        var updated = feed[index]
-        updated.isBookmarked.toggle()
-        feedPagination.updateItem(at: index, with: updated)
-    }
-
     func joinCommunity(_ community: Community) {
         guard let index = communities.firstIndex(where: { $0.id == community.id }) else { return }
         var updated = communities[index]
@@ -131,6 +67,7 @@ final class CommunityViewModel {
         Task {
             do {
                 try await repository.joinCommunity(id: community.id)
+                communityUpdates.publish(communityId: community.id, isJoined: true)
             } catch {
                 if let idx = communities.firstIndex(where: { $0.id == community.id }) {
                     var item = communities[idx]
@@ -150,6 +87,7 @@ final class CommunityViewModel {
         Task {
             do {
                 try await repository.leaveCommunity(id: community.id)
+                communityUpdates.publish(communityId: community.id, isJoined: false)
             } catch {
                 if let idx = communities.firstIndex(where: { $0.id == community.id }) {
                     var item = communities[idx]
@@ -170,27 +108,14 @@ final class CommunityViewModel {
 
     func removeCommunity(id: Int) {
         communitiesPagination.removeAll { $0.id == id }
-        feedPagination.removeAll { $0.communityId == id }
     }
 
     func createPost(title: String, body: String, communityId: Int) async -> CommunityPost? {
-        do {
-            let post = try await repository.createPost(
-                title: title,
-                description: body,
-                communityId: communityId
-            )
-            feedPagination.insert(post, at: 0)
-            return post
-        } catch {
-            feedError = error.localizedDescription
-            return nil
-        }
+        try? await repository.createPost(title: title, description: body, communityId: communityId)
     }
 }
 
 private enum Constants {
-    static let feedPageSize = 20
     static let communitiesPageSize = 30
     static let firstMemberCount = 1
 }

@@ -14,12 +14,19 @@ struct PostDetailView: View {
         post: CommunityPost,
         onCommunitySelect: @escaping () -> Void = {},
         onDelete: @escaping () -> Void = {},
-        repository: CommunityRepository = RemoteCommunityRepository()
+        repository: CommunityRepository = RemoteCommunityRepository(),
+        feedRepository: CommunityFeedRepository,
+        postUpdates: PostUpdates
     ) {
         self.post = post
         self.onCommunitySelect = onCommunitySelect
         self.onDelete = onDelete
-        _viewModel = State(initialValue: PostDetailViewModel(post: post, repository: repository))
+        _viewModel = State(initialValue: PostDetailViewModel(
+            post: post,
+            repository: repository,
+            feedRepository: feedRepository,
+            postUpdates: postUpdates
+        ))
     }
 
     private var isOwnPost: Bool {
@@ -55,7 +62,7 @@ struct PostDetailView: View {
                 onCommunitySelect: onCommunitySelect,
                 onLike: { Task { await viewModel.onLike() } },
                 onComment: { viewModel.onCommentsOpen() },
-                onBookmark: { viewModel.onBookmark() },
+                onBookmark: { Task { await viewModel.onBookmark() } },
                 onCreateAccount: { authStore.logout() }
             )
         }
@@ -89,7 +96,9 @@ struct PostDetailView: View {
     NavigationStack {
         PostDetailView(
             post: CommunityMockData.detailPost,
-            repository: FakeCommunityRepository(posts: [CommunityMockData.detailPost])
+            repository: FakeCommunityRepository(posts: [CommunityMockData.detailPost]),
+            feedRepository: FakeCommunityFeedRepository(remote: FakeCommunityRepository()),
+            postUpdates: PostUpdates()
         )
     }
     .environment(AuthStore())

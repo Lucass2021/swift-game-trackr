@@ -14,18 +14,31 @@ struct CommunityDetailView: View {
     @State private var viewModel: CommunityDetailViewModel
     @State private var showCreateTopic = false
     @State private var selectedUser: UserProfile?
-    @State private var createTopicViewModel = CommunityViewModel()
+    @State private var createTopicViewModel: CommunityViewModel
 
     init(
         community: Community,
         onPostSelect: @escaping (CommunityPost) -> Void = { _ in },
         onDelete: @escaping () -> Void = {},
-        repository: CommunityRepository = RemoteCommunityRepository()
+        repository: CommunityRepository = RemoteCommunityRepository(),
+        feedRepository: CommunityFeedRepository,
+        postUpdates: PostUpdates,
+        communityUpdates: CommunityUpdates
     ) {
         self.community = community
         self.onPostSelect = onPostSelect
         self.onDelete = onDelete
-        _viewModel = State(initialValue: CommunityDetailViewModel(community: community, repository: repository))
+        _viewModel = State(initialValue: CommunityDetailViewModel(
+            community: community,
+            repository: repository,
+            feedRepository: feedRepository,
+            postUpdates: postUpdates,
+            communityUpdates: communityUpdates
+        ))
+        _createTopicViewModel = State(initialValue: CommunityViewModel(
+            repository: repository,
+            communityUpdates: communityUpdates
+        ))
     }
 
     private var isOwner: Bool {
@@ -101,7 +114,13 @@ struct CommunityDetailView: View {
     NavigationStack {
         CommunityDetailView(
             community: CommunityMockData.detailCommunity,
-            repository: FakeCommunityRepository(latency: .zero)
+            repository: FakeCommunityRepository(latency: .zero),
+            feedRepository: FakeCommunityFeedRepository(
+                remote: FakeCommunityRepository(latency: .zero),
+                latency: .zero
+            ),
+            postUpdates: PostUpdates(),
+            communityUpdates: CommunityUpdates()
         )
     }
     .environment(AuthStore())
@@ -112,7 +131,13 @@ struct CommunityDetailView: View {
     NavigationStack {
         CommunityDetailView(
             community: CommunityMockData.detailCommunity,
-            repository: FakeCommunityRepository(failure: APIError.networkFailure, latency: .zero)
+            repository: FakeCommunityRepository(failure: APIError.networkFailure, latency: .zero),
+            feedRepository: FakeCommunityFeedRepository(
+                remote: FakeCommunityRepository(latency: .zero),
+                latency: .zero
+            ),
+            postUpdates: PostUpdates(),
+            communityUpdates: CommunityUpdates()
         )
     }
     .environment(AuthStore())

@@ -9,10 +9,19 @@ struct CommunityDetailViewModelActionsTests {
     private static let overlapLatency: Duration = .milliseconds(50)
 
     private let repository = FakeCommunityRepository(communities: [Self.community], latency: .zero)
+    private let feedRepository: FakeCommunityFeedRepository
+    private let postUpdates = PostUpdates()
     private let viewModel: CommunityDetailViewModel
 
     init() {
-        viewModel = CommunityDetailViewModel(community: Self.community, repository: repository)
+        feedRepository = FakeCommunityFeedRepository(remote: repository, latency: .zero)
+        viewModel = CommunityDetailViewModel(
+            community: Self.community,
+            repository: repository,
+            feedRepository: feedRepository,
+            postUpdates: postUpdates,
+            communityUpdates: CommunityUpdates()
+        )
     }
 
     @Test func joiningSavesItInTheRepository() async {
@@ -52,7 +61,16 @@ struct CommunityDetailViewModelActionsTests {
 
     @Test func aLikeIsShownRightAwayAndSyncedWithTheRepository() async {
         let repository = FakeCommunityRepository(latency: Self.overlapLatency)
-        let viewModel = CommunityDetailViewModel(community: Self.community, repository: repository)
+        let viewModel = CommunityDetailViewModel(
+            community: Self.community,
+            repository: repository,
+            feedRepository: FakeCommunityFeedRepository(
+                remote: repository,
+                latency: .zero
+            ),
+            postUpdates: PostUpdates(),
+            communityUpdates: CommunityUpdates()
+        )
         await viewModel.loadIfNeeded()
 
         let liking = Task { await viewModel.onLike(Self.post.id) }
@@ -83,7 +101,16 @@ struct CommunityDetailViewModelActionsTests {
 
     @Test func aSecondTapOnAPendingLikeIsIgnored() async {
         let repository = FakeCommunityRepository(latency: Self.overlapLatency)
-        let viewModel = CommunityDetailViewModel(community: Self.community, repository: repository)
+        let viewModel = CommunityDetailViewModel(
+            community: Self.community,
+            repository: repository,
+            feedRepository: FakeCommunityFeedRepository(
+                remote: repository,
+                latency: .zero
+            ),
+            postUpdates: PostUpdates(),
+            communityUpdates: CommunityUpdates()
+        )
         await viewModel.loadIfNeeded()
 
         async let first: Void = viewModel.onLike(Self.post.id)
@@ -115,12 +142,31 @@ struct CommunityDetailViewModelActionsTests {
         #expect(viewModel.toastMessage == "Only the community owner can delete it.")
     }
 
-    @Test func aBookmarkTogglesOnlyOnScreen() async {
+    @Test func aBookmarkIsSavedInTheRepositoryAndAFailureRollsBack() async {
         await viewModel.loadIfNeeded()
 
-        viewModel.onBookmark(Self.post.id)
+        await viewModel.onBookmark(Self.post.id)
 
         #expect(likedPost().isBookmarked)
+        #expect(await feedRepository.isBookmarked(Self.post.id))
+
+        await feedRepository.setFailure(APIError.networkFailure)
+        await viewModel.onBookmark(Self.post.id)
+
+        #expect(likedPost().isBookmarked)
+        #expect(viewModel.toastMessage == "Couldn't update the bookmark. Please try again.")
+    }
+
+    @Test func aPostChangedInAnotherScreenIsUpdatedInTheCommunityPosts() async {
+        await viewModel.loadIfNeeded()
+        var changed = Self.post
+        changed.isLiked = !Self.post.isLiked
+        changed.likes = Self.post.likes + 1
+
+        postUpdates.publish(changed)
+
+        #expect(likedPost().isLiked == !Self.post.isLiked)
+        #expect(likedPost().likes == Self.post.likes + 1)
     }
 
     private func likedPost() -> CommunityPost {

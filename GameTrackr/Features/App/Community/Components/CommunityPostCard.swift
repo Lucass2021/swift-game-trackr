@@ -1,5 +1,18 @@
 import SwiftUI
 
+private enum Constants {
+    static let borderWidth: CGFloat = 1
+    static let avatarSize: CGFloat = 40
+    static let mediaIconSize: CGFloat = 40
+    static let titleSize: CGFloat = 19
+    static let previewSize: CGFloat = 15
+    static let authorSize: CGFloat = 15
+    static let metadataSize: CGFloat = 13
+    static let mediaAspectRatio: CGFloat = 16 / 9
+    static let mediaIconOpacity = 0.15
+    static let previewLineLimit = 2
+}
+
 struct CommunityPostCard: View {
     let post: CommunityPost
     var isGuest = false
@@ -7,7 +20,6 @@ struct CommunityPostCard: View {
     var onSelect: () -> Void = {}
     var onLike: () -> Void = {}
     var onComment: () -> Void = {}
-    var onShare: () -> Void = {}
     var onBookmark: () -> Void = {}
 
     private var metadata: String {
@@ -15,9 +27,9 @@ struct CommunityPostCard: View {
     }
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 12) {
+        VStack(alignment: .leading, spacing: Spacing.sm) {
             Button(action: onSelect) {
-                VStack(alignment: .leading, spacing: 12) {
+                VStack(alignment: .leading, spacing: Spacing.sm) {
                     header
                     text
                     if post.hasMedia {
@@ -28,56 +40,62 @@ struct CommunityPostCard: View {
             }
             .buttonStyle(PressableButtonStyle())
 
-            actions
+            CommunityPostActions(
+                post: post,
+                isGuest: isGuest,
+                onLike: onLike,
+                onComment: onComment,
+                onBookmark: onBookmark
+            )
         }
-        .padding(16)
+        .padding(Spacing.md)
         .background(
-            RoundedRectangle(cornerRadius: 16, style: .continuous)
+            RoundedRectangle(cornerRadius: Radius.lg, style: .continuous)
                 .fill(Color.appSurfaceCard)
         )
         .overlay(
-            RoundedRectangle(cornerRadius: 16, style: .continuous)
-                .stroke(Color.appOutline, lineWidth: 1)
+            RoundedRectangle(cornerRadius: Radius.lg, style: .continuous)
+                .stroke(Color.appOutline, lineWidth: Constants.borderWidth)
         )
     }
 
     private var header: some View {
-        HStack(spacing: 12) {
-            CommunityAvatar(start: post.avatarStart, end: post.avatarEnd, size: 40)
+        HStack(spacing: Spacing.sm) {
+            CommunityAvatar(start: post.avatarStart, end: post.avatarEnd, size: Constants.avatarSize)
 
-            VStack(alignment: .leading, spacing: 2) {
+            VStack(alignment: .leading, spacing: Spacing.xxxs) {
                 Text(post.author)
-                    .font(.appLabel(15))
+                    .font(.appLabel(Constants.authorSize))
                     .foregroundStyle(Color.appPrimary)
 
                 Text(metadata)
-                    .font(.appBody(13))
+                    .font(.appBody(Constants.metadataSize))
                     .foregroundStyle(Color.appTextSecondary)
             }
 
-            Spacer(minLength: 8)
+            Spacer(minLength: Spacing.xs)
         }
     }
 
     private var text: some View {
-        VStack(alignment: .leading, spacing: 8) {
+        VStack(alignment: .leading, spacing: Spacing.xs) {
             Text(post.title)
-                .font(.appHeadline(19))
+                .font(.appHeadline(Constants.titleSize))
                 .foregroundStyle(Color.appTextPrimary)
                 .multilineTextAlignment(.leading)
                 .fixedSize(horizontal: false, vertical: true)
 
             Text(post.preview)
-                .font(.appBody(15))
+                .font(.appBody(Constants.previewSize))
                 .foregroundStyle(Color.appTextSecondary)
                 .multilineTextAlignment(.leading)
-                .lineLimit(2)
+                .lineLimit(Constants.previewLineLimit)
                 .fixedSize(horizontal: false, vertical: true)
         }
     }
 
     private var media: some View {
-        RoundedRectangle(cornerRadius: 12, style: .continuous)
+        RoundedRectangle(cornerRadius: Radius.md, style: .continuous)
             .fill(
                 LinearGradient(
                     colors: [post.mediaStart, post.mediaEnd],
@@ -85,81 +103,25 @@ struct CommunityPostCard: View {
                     endPoint: .bottomTrailing
                 )
             )
-            .aspectRatio(16 / 9, contentMode: .fit)
+            .aspectRatio(Constants.mediaAspectRatio, contentMode: .fit)
             .overlay {
-                AppIconView(icon: .brand, size: 40)
-                    .foregroundStyle(Color.white.opacity(0.15))
+                AppIconView(icon: .brand, size: Constants.mediaIconSize)
+                    .foregroundStyle(Color.white.opacity(Constants.mediaIconOpacity))
             }
             .overlay {
-                RoundedRectangle(cornerRadius: 12, style: .continuous)
-                    .stroke(Color.appOutline, lineWidth: 1)
+                RoundedRectangle(cornerRadius: Radius.md, style: .continuous)
+                    .stroke(Color.appOutline, lineWidth: Constants.borderWidth)
             }
-    }
-
-    private var actions: some View {
-        HStack(spacing: 20) {
-            if !isGuest {
-                action(
-                    icon: .like,
-                    label: post.isLiked ? "Unlike" : "Like",
-                    filled: post.isLiked,
-                    tint: post.isLiked ? .appPrimary : .appTextSecondary,
-                    value: post.likes.abbreviated,
-                    action: onLike
-                )
-            }
-            action(icon: .comment, label: "Comment", value: post.comments.abbreviated, action: onComment)
-            if !isGuest {
-                action(icon: .share, label: "Share", action: onShare)
-            }
-
-            Spacer()
-
-            if !isGuest {
-                action(
-                    icon: .bookmark,
-                    label: post.isBookmarked ? "Remove bookmark" : "Bookmark",
-                    filled: post.isBookmarked,
-                    tint: post.isBookmarked ? .appPrimary : .appTextSecondary,
-                    action: onBookmark
-                )
-            }
-        }
-    }
-
-    private func action(
-        icon: AppIcon,
-        label: String,
-        filled: Bool = false,
-        tint: Color = .appTextSecondary,
-        value: String? = nil,
-        action: @escaping () -> Void
-    ) -> some View {
-        Button(action: action) {
-            HStack(spacing: 7) {
-                AppIconView(icon: icon, filled: filled, size: 20)
-                if let value {
-                    Text(value)
-                        .font(.appBody(14))
-                }
-            }
-            .foregroundStyle(tint)
-            .contentShape(Rectangle())
-        }
-        .buttonStyle(PressableButtonStyle())
-        .accessibilityLabel(label)
-        .accessibilityValue(value ?? "")
     }
 }
 
 #Preview {
     ScrollView {
-        VStack(spacing: 16) {
-            ForEach(CommunityMockData.feed) { post in
-                CommunityPostCard(post: post)
-            }
+        VStack(spacing: Spacing.md) {
+            CommunityPostCard(post: CommunityMockData.feed[0])
+            CommunityPostCard(post: CommunityMockData.feed[CommunityMockData.feed.count - 1], isGuest: true)
         }
-        .padding(20)
+        .padding(Spacing.lg)
     }
     .background(Color.appBackground)
     .preferredColorScheme(.dark)

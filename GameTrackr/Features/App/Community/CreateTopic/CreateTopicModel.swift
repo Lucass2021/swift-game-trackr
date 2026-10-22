@@ -70,9 +70,9 @@ final class CreateTopicModel {
         hasAttemptedSubmit ? error : nil
     }
 
-    func submit(using viewModel: CommunityViewModel) async -> Bool {
+    func submit(using viewModel: CommunityViewModel) async -> CommunityPost? {
         hasAttemptedSubmit = true
-        guard canSubmit, let community else { return false }
+        guard canSubmit, let community else { return nil }
 
         isSubmitting = true
         let result = await viewModel.createPost(
@@ -81,6 +81,6 @@ final class CreateTopicModel {
             communityId: community.id
         )
         isSubmitting = false
-        return result != nil
+        return result
     }
 }

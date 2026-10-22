@@ -48,7 +48,7 @@ struct CommunityDetailPosts: View {
                     onSelect: { onPostSelect(post) },
                     onLike: { Task { await viewModel.onLike(post.id) } },
                     onComment: { onPostSelect(post) },
-                    onBookmark: { viewModel.onBookmark(post.id) }
+                    onBookmark: { Task { await viewModel.onBookmark(post.id) } }
                 )
                 .onAppear {
                     if viewModel.canLoadMore, index >= viewModel.posts.count - Constants.loadMoreThreshold {
@@ -70,9 +70,13 @@ struct CommunityDetailPosts: View {
 }
 
 #Preview {
+    let repository = FakeCommunityRepository(latency: .zero)
     let viewModel = CommunityDetailViewModel(
         community: CommunityMockData.detailCommunity,
-        repository: FakeCommunityRepository(latency: .zero)
+        repository: repository,
+        feedRepository: FakeCommunityFeedRepository(remote: repository, latency: .zero),
+        postUpdates: PostUpdates(),
+        communityUpdates: CommunityUpdates()
     )
     return ScrollView {
         CommunityDetailPosts(viewModel: viewModel, isGuest: false)

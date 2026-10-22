@@ -14,12 +14,28 @@ struct PostDetailViewModelActionsTests {
     private let viewModel: PostDetailViewModel
 
     init() {
-        viewModel = PostDetailViewModel(post: Self.post, repository: repository)
+        viewModel = PostDetailViewModel(
+            post: Self.post,
+            repository: repository,
+            feedRepository: FakeCommunityFeedRepository(
+                remote: repository,
+                latency: .zero
+            ),
+            postUpdates: PostUpdates()
+        )
     }
 
     @Test func aPostLikeIsShownRightAwayAndSyncedWithTheRepository() async {
         let repository = FakeCommunityRepository(latency: Self.overlapLatency)
-        let viewModel = PostDetailViewModel(post: Self.post, repository: repository)
+        let viewModel = PostDetailViewModel(
+            post: Self.post,
+            repository: repository,
+            feedRepository: FakeCommunityFeedRepository(
+                remote: repository,
+                latency: .zero
+            ),
+            postUpdates: PostUpdates()
+        )
 
         let liking = Task { await viewModel.onLike() }
         while await repository.likeCount == 0 {
@@ -47,7 +63,15 @@ struct PostDetailViewModelActionsTests {
 
     @Test func aSecondLikeTapWhileOneIsPendingIsIgnored() async {
         let repository = FakeCommunityRepository(latency: Self.overlapLatency)
-        let viewModel = PostDetailViewModel(post: Self.post, repository: repository)
+        let viewModel = PostDetailViewModel(
+            post: Self.post,
+            repository: repository,
+            feedRepository: FakeCommunityFeedRepository(
+                remote: repository,
+                latency: .zero
+            ),
+            postUpdates: PostUpdates()
+        )
 
         async let first: Void = viewModel.onLike()
         async let second: Void = viewModel.onLike()
@@ -115,7 +139,15 @@ struct PostDetailViewModelActionsTests {
 
     @Test func aDoubleTapOnSendSendsOnce() async {
         let repository = FakeCommunityRepository(latency: Self.overlapLatency)
-        let viewModel = PostDetailViewModel(post: Self.post, repository: repository)
+        let viewModel = PostDetailViewModel(
+            post: Self.post,
+            repository: repository,
+            feedRepository: FakeCommunityFeedRepository(
+                remote: repository,
+                latency: .zero
+            ),
+            postUpdates: PostUpdates()
+        )
         await viewModel.loadIfNeeded()
 
         viewModel.draft = "Once"

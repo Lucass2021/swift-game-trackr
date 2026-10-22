@@ -24,11 +24,18 @@ struct CommunityDetailViewModelTests {
         }
     }
 
-    @Test func loadShowsThePostsAndTheMembers() async {
-        let viewModel = CommunityDetailViewModel(
-            community: Self.community,
-            repository: FakeCommunityRepository(latency: .zero)
+    private static func viewModel(_ repository: FakeCommunityRepository) -> CommunityDetailViewModel {
+        CommunityDetailViewModel(
+            community: community,
+            repository: repository,
+            feedRepository: FakeCommunityFeedRepository(remote: repository, latency: .zero),
+            postUpdates: PostUpdates(),
+            communityUpdates: CommunityUpdates()
         )
+    }
+
+    @Test func loadShowsThePostsAndTheMembers() async {
+        let viewModel = Self.viewModel(FakeCommunityRepository(latency: .zero))
 
         await viewModel.loadIfNeeded()
 
@@ -39,7 +46,7 @@ struct CommunityDetailViewModelTests {
 
     @Test func theEmptyStateWaitsForTheFirstPage() async {
         let repository = FakeCommunityRepository(posts: [], latency: Self.overlapLatency)
-        let viewModel = CommunityDetailViewModel(community: Self.community, repository: repository)
+        let viewModel = Self.viewModel(repository)
 
         let loading = Task { await viewModel.loadIfNeeded() }
         while await repository.fetchPostsCount == 0 {
@@ -54,10 +61,7 @@ struct CommunityDetailViewModelTests {
     }
 
     @Test func loadFailureShowsTheErrorStateInsteadOfLoadingForever() async {
-        let viewModel = CommunityDetailViewModel(
-            community: Self.community,
-            repository: FakeCommunityRepository(failure: APIError.networkFailure, latency: .zero)
-        )
+        let viewModel = Self.viewModel(FakeCommunityRepository(failure: APIError.networkFailure, latency: .zero))
 
         await viewModel.loadIfNeeded()
 
@@ -67,7 +71,7 @@ struct CommunityDetailViewModelTests {
 
     @Test func aRetryAfterALoadFailureReloadsPostsAndMembers() async {
         let repository = FakeCommunityRepository(failure: APIError.networkFailure, latency: .zero)
-        let viewModel = CommunityDetailViewModel(community: Self.community, repository: repository)
+        let viewModel = Self.viewModel(repository)
         await viewModel.loadIfNeeded()
 
         await repository.setFailure(nil)
@@ -82,7 +86,7 @@ struct CommunityDetailViewModelTests {
 
     @Test func leavingTheScreenWhileMembersLoadDoesNotShowAnError() async {
         let repository = FakeCommunityRepository(latency: Self.overlapLatency)
-        let viewModel = CommunityDetailViewModel(community: Self.community, repository: repository)
+        let viewModel = Self.viewModel(repository)
 
         let loading = Task { await viewModel.loadIfNeeded() }
         while await repository.fetchMembersCount == 0 {
@@ -97,7 +101,7 @@ struct CommunityDetailViewModelTests {
     @Test func aLoadMoreFailureShowsTheRetryRowAndPausesInfiniteScroll() async {
         let posts = Self.manyPosts()
         let repository = FakeCommunityRepository(posts: posts, latency: .zero)
-        let viewModel = CommunityDetailViewModel(community: Self.community, repository: repository)
+        let viewModel = Self.viewModel(repository)
         await viewModel.loadIfNeeded()
 
         await repository.setFailure(APIError.networkFailure)
@@ -115,7 +119,7 @@ struct CommunityDetailViewModelTests {
 
     @Test func aMembersFailureShowsTheMembersErrorAndRetryLoadsThem() async {
         let repository = FakeCommunityRepository(failure: APIError.networkFailure, latency: .zero)
-        let viewModel = CommunityDetailViewModel(community: Self.community, repository: repository)
+        let viewModel = Self.viewModel(repository)
         await viewModel.loadIfNeeded()
 
         #expect(viewModel.membersFailed)
@@ -129,7 +133,7 @@ struct CommunityDetailViewModelTests {
 
     @Test func refreshReloadsTheFirstPageAndKeepsThePostsWhileLoading() async {
         let repository = FakeCommunityRepository(latency: Self.overlapLatency)
-        let viewModel = CommunityDetailViewModel(community: Self.community, repository: repository)
+        let viewModel = Self.viewModel(repository)
         await viewModel.loadIfNeeded()
 
         let refreshing = Task { await viewModel.refresh() }
@@ -146,7 +150,7 @@ struct CommunityDetailViewModelTests {
 
     @Test func returningToTheScreenKeepsThePostsWithoutFetchingAgain() async {
         let repository = FakeCommunityRepository(latency: .zero)
-        let viewModel = CommunityDetailViewModel(community: Self.community, repository: repository)
+        let viewModel = Self.viewModel(repository)
         await viewModel.loadIfNeeded()
 
         await viewModel.loadIfNeeded()

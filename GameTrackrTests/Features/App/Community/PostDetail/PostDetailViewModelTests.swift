@@ -11,7 +11,15 @@ struct PostDetailViewModelTests {
     private let viewModel: PostDetailViewModel
 
     init() {
-        viewModel = PostDetailViewModel(post: Self.post, repository: repository)
+        viewModel = PostDetailViewModel(
+            post: Self.post,
+            repository: repository,
+            feedRepository: FakeCommunityFeedRepository(
+                remote: repository,
+                latency: .zero
+            ),
+            postUpdates: PostUpdates()
+        )
     }
 
     @Test func loadingShowsTheCommentsAndTheirRealCount() async {
@@ -61,7 +69,15 @@ struct PostDetailViewModelTests {
 
     @Test func theSheetOpensWhileTheCommentsAreStillLoading() async {
         let repository = FakeCommunityRepository(latency: Self.overlapLatency)
-        let viewModel = PostDetailViewModel(post: Self.post, repository: repository)
+        let viewModel = PostDetailViewModel(
+            post: Self.post,
+            repository: repository,
+            feedRepository: FakeCommunityFeedRepository(
+                remote: repository,
+                latency: .zero
+            ),
+            postUpdates: PostUpdates()
+        )
 
         let loading = Task { await viewModel.loadIfNeeded() }
         while await repository.fetchCommentsCount == 0 {
@@ -103,7 +119,9 @@ struct PostDetailViewModelTests {
     @Test func deletingAPostThatIsAlreadyGoneStillCloses() async {
         let viewModel = PostDetailViewModel(
             post: Self.post,
-            repository: FakeCommunityRepository(posts: [], latency: .zero)
+            repository: FakeCommunityRepository(posts: [], latency: .zero),
+            feedRepository: FakeCommunityFeedRepository(remote: FakeCommunityRepository()),
+            postUpdates: PostUpdates()
         )
 
         await viewModel.onDeleteConfirmed()

@@ -1,9 +1,19 @@
 import SwiftUI
 
+private enum Constants {
+    static let avatarSize: CGFloat = 40
+    static let iconSize: CGFloat = 56
+    static let borderWidth: CGFloat = 1
+    static let avatarIconOpacity = 0.55
+    static let avatarIconRatio: CGFloat = 0.55
+    static let iconOpacity = 0.65
+    static let iconRatio: CGFloat = 0.42
+}
+
 struct CommunityAvatar: View {
     let start: Color
     let end: Color
-    var size: CGFloat = 40
+    var size: CGFloat = Constants.avatarSize
 
     var body: some View {
         Circle()
@@ -16,8 +26,8 @@ struct CommunityAvatar: View {
             )
             .frame(width: size, height: size)
             .overlay {
-                AppIconView(icon: .avatar, size: size * 0.55)
-                    .foregroundStyle(Color.white.opacity(0.55))
+                AppIconView(icon: .avatar, size: size * Constants.avatarIconRatio)
+                    .foregroundStyle(Color.white.opacity(Constants.avatarIconOpacity))
             }
     }
 }
@@ -25,8 +35,8 @@ struct CommunityAvatar: View {
 struct CommunityIcon: View {
     let start: Color
     let end: Color
-    var size: CGFloat = 56
-    var cornerRadius: CGFloat = 14
+    var size: CGFloat = Constants.iconSize
+    var cornerRadius: CGFloat = Radius.md
 
     var body: some View {
         RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
@@ -39,18 +49,18 @@ struct CommunityIcon: View {
             )
             .frame(width: size, height: size)
             .overlay {
-                AppIconView(icon: .community, size: size * 0.42)
-                    .foregroundStyle(Color.white.opacity(0.65))
+                AppIconView(icon: .community, size: size * Constants.iconRatio)
+                    .foregroundStyle(Color.white.opacity(Constants.iconOpacity))
             }
             .overlay {
                 RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
-                    .stroke(Color.appOutline, lineWidth: 1)
+                    .stroke(Color.appOutline, lineWidth: Constants.borderWidth)
             }
     }
 }
 
 #Preview {
-    HStack(spacing: 20) {
+    HStack(spacing: Spacing.sm) {
         CommunityAvatar(start: .coverVioletStart, end: .coverVioletEnd)
         CommunityIcon(start: .coverEmeraldStart, end: .coverEmeraldEnd)
     }

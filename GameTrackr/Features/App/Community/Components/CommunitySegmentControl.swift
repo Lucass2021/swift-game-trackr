@@ -1,32 +1,37 @@
 import SwiftUI
 
+private enum Constants {
+    static let labelSize: CGFloat = 15
+    static let borderWidth: CGFloat = 1
+}
+
 struct CommunitySegmentControl: View {
     @Binding var selection: CommunitySegment
 
     var body: some View {
-        HStack(spacing: 4) {
+        HStack(spacing: Spacing.xxs) {
             ForEach(CommunitySegment.allCases) { segment in
                 segmentButton(segment)
             }
         }
-        .padding(4)
+        .padding(Spacing.xxs)
         .background(Capsule().fill(Color.appSurfaceCard))
-        .overlay(Capsule().stroke(Color.appOutline, lineWidth: 1))
-        .padding(.horizontal, 20)
+        .overlay(Capsule().stroke(Color.appOutline, lineWidth: Constants.borderWidth))
+        .padding(.horizontal, Spacing.lg)
     }
 
     private func segmentButton(_ segment: CommunitySegment) -> some View {
         let isSelected = selection == segment
         return Button {
-            withAnimation(.snappy(duration: 0.2)) {
+            withAnimation(.snappy(duration: Durations.short)) {
                 selection = segment
             }
         } label: {
             Text(segment.rawValue)
-                .font(.appLabel(15))
+                .font(.appLabel(Constants.labelSize))
                 .foregroundStyle(isSelected ? Color.appOnPrimary : Color.appTextSecondary)
                 .frame(maxWidth: .infinity)
-                .padding(.vertical, 11)
+                .padding(.vertical, Spacing.sm)
                 .background {
                     if isSelected {
                         Capsule().fill(Color.appPrimary)

@@ -99,7 +99,9 @@ private struct CommentsBody: View {
 #Preview {
     @Previewable @State var viewModel = PostDetailViewModel(
         post: CommunityMockData.detailPost,
-        repository: FakeCommunityRepository()
+        repository: FakeCommunityRepository(),
+        feedRepository: FakeCommunityFeedRepository(remote: FakeCommunityRepository()),
+        postUpdates: PostUpdates()
     )
     Color.appBackground
         .sheet(isPresented: .constant(true)) {
@@ -112,7 +114,9 @@ private struct CommentsBody: View {
 #Preview("Error") {
     @Previewable @State var viewModel = PostDetailViewModel(
         post: CommunityMockData.detailPost,
-        repository: FakeCommunityRepository(failure: APIError.networkFailure)
+        repository: FakeCommunityRepository(failure: APIError.networkFailure),
+        feedRepository: FakeCommunityFeedRepository(remote: FakeCommunityRepository()),
+        postUpdates: PostUpdates()
     )
     Color.appBackground
         .sheet(isPresented: .constant(true)) {

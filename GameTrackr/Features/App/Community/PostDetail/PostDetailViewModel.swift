@@ -21,13 +21,23 @@ final class PostDetailViewModel {
     }
 
     private let repository: CommunityRepository
+    private let feedRepository: CommunityFeedRepository
+    private let postUpdates: PostUpdates
     private var commentsTask: Task<Void, Never>?
     private var isPostLikePending = false
+    private var isBookmarkPending = false
     private var pendingCommentLikeIds: Set<Int> = []
 
-    init(post: CommunityPost, repository: CommunityRepository) {
+    init(
+        post: CommunityPost,
+        repository: CommunityRepository,
+        feedRepository: CommunityFeedRepository,
+        postUpdates: PostUpdates
+    ) {
         self.post = post
         self.repository = repository
+        self.feedRepository = feedRepository
+        self.postUpdates = postUpdates
     }
 
     func loadIfNeeded() async {
@@ -55,6 +65,7 @@ final class PostDetailViewModel {
             let status = try await repository.togglePostLike(id: previous.id)
             post.isLiked = status.isLiked
             post.likes = status.likes
+            postUpdates.publish(post)
         } catch {
             post.isLiked = previous.isLiked
             post.likes = previous.likes
@@ -62,8 +73,19 @@ final class PostDetailViewModel {
         }
     }
 
-    func onBookmark() {
-        post.isBookmarked.toggle()
+    func onBookmark() async {
+        guard !isBookmarkPending else { return }
+        isBookmarkPending = true
+        defer { isBookmarkPending = false }
+        let previous = post.isBookmarked
+        post.isBookmarked = !previous
+        do {
+            try await feedRepository.setBookmark(postId: post.id, isBookmarked: !previous)
+            postUpdates.publish(post)
+        } catch {
+            post.isBookmarked = previous
+            toastMessage = "Couldn't update the bookmark. Please try again."
+        }
     }
 
     func onCommentsOpen() {

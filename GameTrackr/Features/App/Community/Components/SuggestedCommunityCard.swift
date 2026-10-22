@@ -1,28 +1,36 @@
 import SwiftUI
 
+private enum Constants {
+    static let iconSize: CGFloat = 48
+    static let nameSize: CGFloat = 17
+    static let detailSize: CGFloat = 13
+    static let borderOpacity = 0.3
+    static let borderWidth: CGFloat = 1
+}
+
 struct SuggestedCommunityCard: View {
     let community: Community
     var onSelect: () -> Void = {}
     var onJoin: () -> Void = {}
 
     var body: some View {
-        HStack(spacing: 14) {
+        HStack(spacing: Spacing.sm) {
             Button(action: onSelect) {
-                HStack(spacing: 14) {
-                    CommunityIcon(start: community.iconStart, end: community.iconEnd, size: 48)
+                HStack(spacing: Spacing.sm) {
+                    CommunityIcon(start: community.iconStart, end: community.iconEnd, size: Constants.iconSize)
 
-                    VStack(alignment: .leading, spacing: 3) {
+                    VStack(alignment: .leading, spacing: Spacing.xxxs) {
                         Text(community.name)
-                            .font(.appHeadline(17))
+                            .font(.appHeadline(Constants.nameSize))
                             .foregroundStyle(Color.appTextPrimary)
                             .lineLimit(1)
 
                         Text("\(community.members) members")
-                            .font(.appBody(13))
+                            .font(.appBody(Constants.detailSize))
                             .foregroundStyle(Color.appTextSecondary)
 
                         Text(community.description)
-                            .font(.appBody(13))
+                            .font(.appBody(Constants.detailSize))
                             .foregroundStyle(Color.appTextSecondary)
                             .lineLimit(1)
                     }
@@ -35,21 +43,21 @@ struct SuggestedCommunityCard: View {
 
             JoinButton(isJoined: community.isJoined, action: onJoin)
         }
-        .padding(16)
+        .padding(Spacing.md)
         .background(
-            RoundedRectangle(cornerRadius: 16, style: .continuous)
+            RoundedRectangle(cornerRadius: Radius.lg, style: .continuous)
                 .fill(Color.appSurfaceCard)
         )
         .overlay(
-            RoundedRectangle(cornerRadius: 16, style: .continuous)
-                .stroke(Color.appPrimary.opacity(0.3), lineWidth: 1)
+            RoundedRectangle(cornerRadius: Radius.lg, style: .continuous)
+                .stroke(Color.appPrimary.opacity(Constants.borderOpacity), lineWidth: Constants.borderWidth)
         )
     }
 }
 
 #Preview {
     SuggestedCommunityCard(community: CommunityMockData.suggested)
-        .padding(20)
+        .padding(Spacing.lg)
         .background(Color.appBackground)
         .preferredColorScheme(.dark)
 }

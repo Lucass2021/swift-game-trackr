@@ -14,6 +14,7 @@ struct MainTabView: View {
     @State private var mySetupViewModel = MySetupViewModel()
     @State private var libraryViewModel = LibraryViewModel(repository: FakeLibraryRepository())
     @State private var profileViewModel = ProfileViewModel(repository: FakeProfileOverviewRepository())
+    @State private var community = CommunityDependencies()
 
     var body: some View {
         NavigationStack {
@@ -65,7 +66,7 @@ struct MainTabView: View {
                 onGameSelect: { detailSlug = $0 }
             )
         case .community:
-            CommunityView()
+            CommunityView(dependencies: community)
         case .profile:
             ProfileView(
                 viewModel: profileViewModel,

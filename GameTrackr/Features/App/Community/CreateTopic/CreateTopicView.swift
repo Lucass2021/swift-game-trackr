@@ -2,6 +2,7 @@ import SwiftUI
 
 struct CreateTopicView: View {
     let viewModel: CommunityViewModel
+    var onCreated: (CommunityPost) -> Void = { _ in }
 
     @Environment(AuthStore.self) private var authStore
     @Environment(\.dismiss) private var dismiss
@@ -15,8 +16,13 @@ struct CreateTopicView: View {
         case body
     }
 
-    init(viewModel: CommunityViewModel, community: Community? = nil) {
+    init(
+        viewModel: CommunityViewModel,
+        community: Community? = nil,
+        onCreated: @escaping (CommunityPost) -> Void = { _ in }
+    ) {
         self.viewModel = viewModel
+        self.onCreated = onCreated
         _model = State(initialValue: CreateTopicModel(community: community))
     }
 
@@ -188,7 +194,8 @@ struct CreateTopicView: View {
     private func submit() {
         focusedField = nil
         Task {
-            if await model.submit(using: viewModel) {
+            if let post = await model.submit(using: viewModel) {
+                onCreated(post)
                 dismiss()
             }
         }
@@ -198,7 +205,7 @@ struct CreateTopicView: View {
 #Preview {
     Color.appBackground
         .fullScreenCover(isPresented: .constant(true)) {
-            CreateTopicView(viewModel: CommunityViewModel())
+            CreateTopicView(viewModel: CommunityViewModel(communityUpdates: CommunityUpdates()))
         }
         .environment(AuthStore())
         .preferredColorScheme(.dark)

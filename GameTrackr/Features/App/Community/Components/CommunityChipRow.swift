@@ -1,17 +1,22 @@
 import SwiftUI
 
+private enum Constants {
+    static let labelSize: CGFloat = 14
+    static let borderWidth: CGFloat = 1
+}
+
 struct CommunityChipRow: View {
     let titles: [String]
     @Binding var selection: String
 
     var body: some View {
         ScrollView(.horizontal, showsIndicators: false) {
-            HStack(spacing: 10) {
+            HStack(spacing: Spacing.xs) {
                 ForEach(titles, id: \.self) { title in
                     chip(title)
                 }
             }
-            .padding(.horizontal, 20)
+            .padding(.horizontal, Spacing.lg)
         }
     }
 
@@ -21,12 +26,14 @@ struct CommunityChipRow: View {
             selection = title
         } label: {
             Text(title)
-                .font(.appLabel(14))
+                .font(.appLabel(Constants.labelSize))
                 .foregroundStyle(isSelected ? Color.appOnPrimary : Color.appTextPrimary)
-                .padding(.horizontal, 18)
-                .padding(.vertical, 9)
+                .padding(.horizontal, Spacing.md)
+                .padding(.vertical, Spacing.xs)
                 .background(Capsule().fill(isSelected ? Color.appPrimary : Color.clear))
-                .overlay(Capsule().stroke(isSelected ? Color.clear : Color.appOutline, lineWidth: 1))
+                .overlay(
+                    Capsule().stroke(isSelected ? Color.clear : Color.appOutline, lineWidth: Constants.borderWidth)
+                )
                 .contentShape(Capsule())
         }
         .buttonStyle(PressableButtonStyle())
