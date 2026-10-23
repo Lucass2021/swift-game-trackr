@@ -23,7 +23,7 @@ struct EditProfileForm: View {
                     avatarHex: viewModel.avatarHex
                 )
 
-                EditProfileField(label: "Avatar") {
+                FormField(label: "Avatar") {
                     if viewModel.colorsFailed {
                         AvatarColorsRetry { Task { await viewModel.loadColors() } }
                     } else {
@@ -34,8 +34,8 @@ struct EditProfileForm: View {
                     }
                 }
 
-                EditProfileField(label: "Display name", error: viewModel.nameError) {
-                    ProfileTextField(
+                FormField(label: "Display name", error: viewModel.nameError) {
+                    FormTextField(
                         text: binding(viewModel.name, viewModel.onNameChange),
                         placeholder: "How should we call you?"
                     )
@@ -44,8 +44,8 @@ struct EditProfileForm: View {
                     .onSubmit { focusedField.wrappedValue = .username }
                 }
 
-                EditProfileField(label: "Username", error: viewModel.usernameError) {
-                    ProfileTextField(
+                FormField(label: "Username", error: viewModel.usernameError) {
+                    FormTextField(
                         text: binding(viewModel.username, viewModel.onUsernameChange),
                         placeholder: "lucasdias",
                         prefix: EditProfileViewModel.usernamePrefix
@@ -57,8 +57,8 @@ struct EditProfileForm: View {
                     .onSubmit { focusedField.wrappedValue = .bio }
                 }
 
-                EditProfileField(label: "Bio", error: viewModel.bioError, counter: bioCounter) {
-                    ProfileTextField(
+                FormField(label: "Bio", error: viewModel.bioError, counter: bioCounter) {
+                    FormTextField(
                         text: binding(viewModel.bio, viewModel.onBioChange),
                         placeholder: "Tell other players what you're into...",
                         singleLine: false
@@ -66,7 +66,7 @@ struct EditProfileForm: View {
                     .focused(focusedField, equals: .bio)
                 }
 
-                EditProfileField(label: "Profile visibility") {
+                FormField(label: "Profile visibility") {
                     VisibilitySelector(selection: binding(viewModel.visibility, viewModel.onVisibilityChange))
                 }
             }

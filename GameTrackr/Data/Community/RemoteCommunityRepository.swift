@@ -44,7 +44,10 @@ struct RemoteCommunityRepository: CommunityRepository {
     func createCommunity(title: String, description: String) async throws -> Community {
         let body = CreateCommunityRequest(title: title, description: description)
         let response: CreateCommunityResponse = try await apiClient.request(.createCommunity, body: body)
-        return Community(dto: response.community)
+        var created = Community(dto: response.community)
+        created.isJoined = true
+        created.memberCount = creatorMemberCount
+        return created
     }
 
     func deleteCommunity(id: Int) async throws {

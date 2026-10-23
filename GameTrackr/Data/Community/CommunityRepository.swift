@@ -1,3 +1,5 @@
+let creatorMemberCount = 1
+
 protocol CommunityRepository: Sendable {
     func fetchCommunities(page: Int, perPage: Int, search: String?) async throws -> Page<Community>
     func fetchCommunity(id: Int) async throws -> Community

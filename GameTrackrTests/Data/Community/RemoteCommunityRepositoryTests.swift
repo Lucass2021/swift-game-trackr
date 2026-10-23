@@ -31,9 +31,12 @@ extension RepositoryTests {
         """#
 
         private static let httpUnauthorized = 401
+        private static let httpCreated = 201
+        private static let description = "A club for retro games."
         private static let communityId = 5
         private static let communityTitle = "Retro Club"
         private static let communityBody = #"{"id":\#(communityId),"title":"\#(communityTitle)","slug":"retro-club","author_id":1}"#
+        private static let createCommunityBody = #"{"community":\#(communityBody),"message":"Community created successfully"}"#
         private static let joinedBody = #"""
         {"data":[\#(communityBody)],"current_page":1,"last_page":1,"per_page":100,"total":1}
         """#
@@ -118,6 +121,18 @@ extension RepositoryTests {
             let status = try await repository.togglePostLike(id: Self.postId)
 
             #expect(status == LikeStatus(isLiked: true, likes: Self.likes))
+        }
+
+        @Test func createdCommunityHasTheCreatorAsItsOnlyMember() async throws {
+            StubURLProtocol.stub = .init(statusCode: Self.httpCreated, body: Self.createCommunityBody)
+
+            let community = try await repository.createCommunity(
+                title: Self.communityTitle,
+                description: Self.description
+            )
+
+            #expect(community.isJoined)
+            #expect(community.memberCount == creatorMemberCount)
         }
     }
 }

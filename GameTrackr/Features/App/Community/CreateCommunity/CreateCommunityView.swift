@@ -1,187 +1,63 @@
 import SwiftUI
 
 struct CreateCommunityView: View {
-    let viewModel: CommunityViewModel
     var onCreated: (Community) -> Void = { _ in }
 
     @Environment(\.dismiss) private var dismiss
 
-    @State private var model = CreateCommunityModel()
+    @State private var viewModel: CreateCommunityViewModel
     @State private var showDiscardConfirm = false
-    @FocusState private var focusedField: Field?
+    @FocusState private var focusedField: CreateCommunityFocusField?
 
-    private enum Field {
-        case name
-        case description
+    init(repository: CommunityRepository, onCreated: @escaping (Community) -> Void = { _ in }) {
+        self.onCreated = onCreated
+        _viewModel = State(initialValue: CreateCommunityViewModel(repository: repository))
     }
 
     var body: some View {
         VStack(spacing: 0) {
-            header
-            form
+            FormHeader(
+                title: "New community",
+                actionLabel: "Create",
+                closeLabel: "Close",
+                savingLabel: "Creating",
+                isSaving: viewModel.isSubmitting,
+                onClose: requestClose,
+                onAction: submit,
+                closeIcon: .close
+            )
+            CreateCommunityForm(viewModel: viewModel, focusedField: $focusedField)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background(Color.appBackground)
         .preferredColorScheme(.dark)
+        .toast(message: $viewModel.toastMessage)
         .alert("Discard this community?", isPresented: $showDiscardConfirm) {
             Button("Keep editing", role: .cancel) {}
             Button("Discard", role: .destructive) { dismiss() }
         }
     }
 
-    private var header: some View {
-        HStack(spacing: 12) {
-            Button {
-                focusedField = nil
-                if model.hasContent {
-                    showDiscardConfirm = true
-                } else {
-                    dismiss()
-                }
-            } label: {
-                AppIconView(icon: .close, size: 20)
-                    .foregroundStyle(Color.appTextPrimary)
-                    .frame(width: 40, height: 40)
-                    .contentShape(Rectangle())
-            }
-            .buttonStyle(PressableButtonStyle())
-            .accessibilityLabel("Close")
-
-            Text("New community")
-                .font(.appHeadline(20))
-                .foregroundStyle(Color.appTextPrimary)
-
-            Spacer()
-
-            Button(action: submit) {
-                Text(model.isSubmitting ? "Creating..." : "Create")
-                    .font(.appLabel(15))
-                    .foregroundStyle(Color.appOnPrimary)
-                    .padding(.horizontal, 20)
-                    .frame(height: 38)
-                    .background(Capsule().fill(Color.appPrimary))
-                    .contentShape(Capsule())
-            }
-            .buttonStyle(PressableButtonStyle())
+    private func requestClose() {
+        if viewModel.createdCommunity != nil {
+            dismiss()
+            return
         }
-        .padding(.horizontal, 16)
-        .padding(.vertical, 12)
-    }
-
-    private var form: some View {
-        ScrollView(showsIndicators: false) {
-            VStack(alignment: .leading, spacing: 22) {
-                field(
-                    "Name",
-                    error: model.visibleError(model.nameError),
-                    counter: nameCounter,
-                    hint: nameHint
-                ) {
-                    TextField(
-                        "",
-                        text: $model.name,
-                        prompt: Text("RetroCollectors")
-                            .foregroundStyle(Color.appTextSecondary)
-                    )
-                    .font(.appBody(16))
-                    .foregroundStyle(Color.appTextPrimary)
-                    .tint(Color.appPrimary)
-                    .textInputAutocapitalization(.never)
-                    .autocorrectionDisabled()
-                    .submitLabel(.next)
-                    .focused($focusedField, equals: .name)
-                    .onSubmit { focusedField = .description }
-                    .fieldBox()
-                }
-
-                field("Description", error: model.visibleError(model.descriptionError)) {
-                    TextField(
-                        "",
-                        text: $model.description,
-                        prompt: Text("What is this community about?")
-                            .foregroundStyle(Color.appTextSecondary),
-                        axis: .vertical
-                    )
-                    .font(.appBody(16))
-                    .foregroundStyle(Color.appTextPrimary)
-                    .tint(Color.appPrimary)
-                    .lineLimit(6 ... 12)
-                    .focused($focusedField, equals: .description)
-                    .padding(14)
-                    .frame(maxWidth: .infinity, minHeight: 160, alignment: .topLeading)
-                    .background(
-                        RoundedRectangle(cornerRadius: 12, style: .continuous)
-                            .fill(Color.appSurfaceCard)
-                    )
-                    .overlay(
-                        RoundedRectangle(cornerRadius: 12, style: .continuous)
-                            .stroke(Color.appOutline, lineWidth: 1)
-                    )
-                }
-
-                if let submitError = model.submitError {
-                    Text(submitError)
-                        .font(.appBody(13))
-                        .foregroundStyle(Color.appTertiary)
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                }
-            }
-            .padding(.horizontal, 20)
-            .padding(.top, 8)
-            .padding(.bottom, 40)
+        guard !viewModel.isSubmitting else { return }
+        focusedField = nil
+        if viewModel.hasContent {
+            showDiscardConfirm = true
+        } else {
+            dismiss()
         }
-    }
-
-    private var nameHint: String {
-        model.isRenamed
-            ? "Listed as \(model.handle) — spaces are removed."
-            : "No spaces — this is how the community is listed."
-    }
-
-    private var nameCounter: String? {
-        model.nameRemaining <= 20 ? "\(model.nameRemaining)" : nil
-    }
-
-    private func field(
-        _ label: String,
-        error: String?,
-        counter: String? = nil,
-        hint: String? = nil,
-        @ViewBuilder content: () -> some View
-    ) -> some View {
-        VStack(alignment: .leading, spacing: 10) {
-            HStack {
-                SectionLabel(text: label)
-                Spacer()
-                if let counter {
-                    Text(counter)
-                        .font(.appBody(12))
-                        .foregroundStyle(model.nameRemaining < 0 ? Color.appTertiary : Color.appTextSecondary)
-                }
-            }
-
-            content()
-
-            if let error {
-                Text(error)
-                    .font(.appBody(13))
-                    .foregroundStyle(Color.appTertiary)
-            } else if let hint {
-                Text(hint)
-                    .font(.appBody(13))
-                    .foregroundStyle(Color.appTextSecondary)
-            }
-        }
-        .frame(maxWidth: .infinity, alignment: .leading)
     }
 
     private func submit() {
         focusedField = nil
         Task {
-            if let created = await model.submit(using: viewModel) {
-                onCreated(created)
-                dismiss()
-            }
+            guard let created = await viewModel.submit() else { return }
+            onCreated(created)
+            dismiss()
         }
     }
 }
@@ -189,7 +65,7 @@ struct CreateCommunityView: View {
 #Preview {
     Color.appBackground
         .fullScreenCover(isPresented: .constant(true)) {
-            CreateCommunityView(viewModel: CommunityViewModel())
+            CreateCommunityView(repository: FakeCommunityRepository())
         }
         .preferredColorScheme(.dark)
 }

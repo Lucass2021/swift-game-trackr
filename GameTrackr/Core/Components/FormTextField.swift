@@ -2,16 +2,18 @@ import SwiftUI
 
 private enum Constants {
     static let textSize: CGFloat = 16
-    static let multiLineMinHeight: CGFloat = 110
-    static let multiLineLimit = 3 ... 6
+    static let defaultMultiLineMinHeight: CGFloat = 110
+    static let defaultMultiLineLimit = 3 ... 6
     static let borderWidth: CGFloat = 1
 }
 
-struct ProfileTextField: View {
+struct FormTextField: View {
     @Binding var text: String
     let placeholder: String
     var prefix: String?
     var singleLine = true
+    var multiLineMinHeight = Constants.defaultMultiLineMinHeight
+    var multiLineLimit = Constants.defaultMultiLineLimit
 
     var body: some View {
         if singleLine {
@@ -26,9 +28,9 @@ struct ProfileTextField: View {
             .fieldBox()
         } else {
             field
-                .lineLimit(Constants.multiLineLimit)
+                .lineLimit(multiLineLimit)
                 .padding(Spacing.sm)
-                .frame(maxWidth: .infinity, minHeight: Constants.multiLineMinHeight, alignment: .topLeading)
+                .frame(maxWidth: .infinity, minHeight: multiLineMinHeight, alignment: .topLeading)
                 .background(
                     RoundedRectangle(cornerRadius: Radius.md, style: .continuous)
                         .fill(Color.appSurfaceCard)
@@ -58,9 +60,9 @@ struct ProfileTextField: View {
     @Previewable @State var username = "lucasdias"
     @Previewable @State var bio = ""
     VStack(spacing: Spacing.md) {
-        ProfileTextField(text: $name, placeholder: "How should we call you?")
-        ProfileTextField(text: $username, placeholder: "", prefix: "@")
-        ProfileTextField(text: $bio, placeholder: "Tell other players...", singleLine: false)
+        FormTextField(text: $name, placeholder: "How should we call you?")
+        FormTextField(text: $username, placeholder: "", prefix: "@")
+        FormTextField(text: $bio, placeholder: "Tell other players...", singleLine: false)
     }
     .padding()
     .background(Color.appBackground)

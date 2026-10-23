@@ -67,7 +67,7 @@ struct CommunityView: View {
             CreateTopicView(viewModel: viewModel, onCreated: { feedViewModel.onPostCreated($0) })
         }
         .fullScreenCover(isPresented: $showCreateCommunity) {
-            CreateCommunityView(viewModel: viewModel, onCreated: { community in
+            CreateCommunityView(repository: dependencies.repository, onCreated: { community in
                 discoverViewModel.onCommunityCreated(community)
                 selectedCommunity = community
             })

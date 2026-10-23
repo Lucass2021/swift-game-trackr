@@ -1,6 +1,7 @@
 import Foundation
 
 actor FakeCommunityRepository: CommunityRepository {
+    private(set) var createCommunityCount = 0
     private(set) var fetchPostsCount = 0
     private(set) var fetchMembersCount = 0
     private(set) var likeCount = 0
@@ -62,6 +63,7 @@ actor FakeCommunityRepository: CommunityRepository {
     }
 
     func createCommunity(title: String, description: String) async throws -> Community {
+        createCommunityCount += 1
         try await respond()
         let id = (communities.map(\.id).max() ?? 0) + 1
         let created = await MainActor.run {
@@ -69,7 +71,7 @@ actor FakeCommunityRepository: CommunityRepository {
                 id: id,
                 name: title,
                 category: "General",
-                memberCount: 1,
+                memberCount: creatorMemberCount,
                 postCount: 0,
                 online: "1",
                 description: description,

@@ -20,7 +20,15 @@ struct EditProfileView: View {
 
     var body: some View {
         VStack(spacing: 0) {
-            EditProfileHeader(isSaving: viewModel.isSaving, onBack: requestClose, onSave: save)
+            FormHeader(
+                title: "Edit profile",
+                actionLabel: "Save",
+                closeLabel: "Back",
+                savingLabel: "Saving",
+                isSaving: viewModel.isSaving,
+                onClose: requestClose,
+                onAction: save
+            )
             EditProfileForm(viewModel: viewModel, focusedField: $focusedField)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
