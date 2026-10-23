@@ -1,35 +1,30 @@
 import SwiftUI
 
 struct SearchView: View {
-    var scope: SearchScope = .all
-
     @Environment(\.dismiss) private var dismiss
-    @State private var query = ""
-    @State private var platform: GamePlatform?
+    @State private var viewModel: SearchViewModel
     @State private var detailSlug: String?
-    @State private var viewModel = SearchViewModel()
-    @State private var hasPendingFilter = false
     @FocusState private var searchFocused: Bool
 
-    private var trimmedQuery: String {
-        query.trimmingCharacters(in: .whitespaces)
+    init(scope: SearchScope = .all, repository: GameRepository = RemoteGameRepository()) {
+        _viewModel = State(initialValue: SearchViewModel(scope: scope, repository: repository))
     }
 
-    private var isStillSearching: Bool {
-        !viewModel.hasLoaded || viewModel.isLoading || hasPendingFilter
-    }
-
-    private var filterKey: String {
-        "\(platform?.slug ?? "-")|\(trimmedQuery)"
+    private var querySelection: Binding<String> {
+        Binding(get: { viewModel.query }, set: { viewModel.onQueryChange($0) })
     }
 
     var body: some View {
         VStack(spacing: 0) {
-            SearchTopBar(query: $query, isFocused: $searchFocused, onBack: { dismiss() })
+            SearchTopBar(query: querySelection, isFocused: $searchFocused, onBack: { dismiss() })
 
-            SearchFilterChips(platforms: viewModel.platforms, selection: $platform)
-                .padding(.top, 2)
-                .padding(.bottom, 14)
+            SearchFilterChips(
+                platforms: viewModel.platforms,
+                selection: viewModel.platforms.first { $0.slug == viewModel.platformSlug },
+                onSelect: { platform in Task { await viewModel.onPlatformChange(platform?.slug) } }
+            )
+            .padding(.top, Spacing.xxxs)
+            .padding(.bottom, Spacing.sm)
 
             results
         }
@@ -37,19 +32,7 @@ struct SearchView: View {
         .background(Color.appBackground)
         .toolbar(.hidden, for: .navigationBar)
         .navigationBarBackButtonHidden(true)
-        .task {
-            await viewModel.loadPlatforms()
-        }
-        .task(id: filterKey) {
-            if viewModel.hasLoaded, trimmedQuery != viewModel.appliedSearch {
-                hasPendingFilter = true
-                try? await Task.sleep(for: .milliseconds(300))
-                guard !Task.isCancelled else { return }
-            }
-            await viewModel.applyFilters(scope: scope, search: trimmedQuery, platform: platform)
-            guard !Task.isCancelled else { return }
-            hasPendingFilter = false
-        }
+        .task { await viewModel.loadIfNeeded() }
         .navigationDestination(item: $detailSlug) { slug in
             GameDetailView(slug: slug)
         }
@@ -57,86 +40,32 @@ struct SearchView: View {
 
     @ViewBuilder
     private var results: some View {
-        let games = viewModel.games
-
-        if games.isEmpty, isStillSearching {
+        if viewModel.hasError {
+            EmptyState(
+                icon: .info,
+                title: "Couldn't load games",
+                message: "Check your connection\nand try again.",
+                actionTitle: "Try again",
+                onAction: { Task { await viewModel.load() } }
+            )
+            .frame(maxHeight: .infinity)
+        } else if viewModel.isWaiting {
             ProgressView()
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
-        } else if games.isEmpty {
-            SearchResultsEmptyState(query: query) {
-                query = ""
-                platform = nil
+        } else if viewModel.isEmpty {
+            SearchResultsEmptyState(query: viewModel.query) {
+                Task { await viewModel.onClearFilters() }
             }
             .frame(maxHeight: .infinity)
         } else {
-            ScrollView(showsIndicators: false) {
-                VStack(alignment: .leading, spacing: 24) {
-                    sectionHeader(count: viewModel.total)
-                    grid(games)
-                }
-                .padding(.top, 6)
-                .padding(.bottom, 28)
-            }
-            .scrollDismissesKeyboard(.interactively)
-        }
-    }
-
-    private var sectionTitle: String {
-        if !trimmedQuery.isEmpty { return "Results" }
-        return scope.isFiltered ? scope.title : "Popular"
-    }
-
-    private func sectionHeader(count: Int) -> some View {
-        HStack(alignment: .firstTextBaseline) {
-            Text(sectionTitle)
-                .font(.appHeadline(22))
-                .foregroundStyle(Color.appTextPrimary)
-
-            Spacer()
-
-            Text("\(count) result\(count == 1 ? "" : "s")")
-                .font(.appBody(14))
-                .foregroundStyle(Color.appTextSecondary)
-        }
-        .padding(.horizontal, 20)
-    }
-
-    private func grid(_ games: [Game]) -> some View {
-        VStack(spacing: 0) {
-            LazyVGrid(
-                columns: [
-                    GridItem(.flexible(), spacing: 16),
-                    GridItem(.flexible(), spacing: 16)
-                ],
-                alignment: .leading,
-                spacing: 20
-            ) {
-                ForEach(Array(games.enumerated()), id: \.element.id) { index, game in
-                    Button {
-                        detailSlug = game.slug
-                    } label: {
-                        SearchResultCard(game: game)
-                    }
-                    .buttonStyle(PressableButtonStyle())
-                    .onAppear {
-                        if index >= games.count - 2 {
-                            Task { await viewModel.loadMore() }
-                        }
-                    }
-                }
-            }
-            .padding(.horizontal, 20)
-
-            if viewModel.isLoadingMore {
-                LoadingMoreIndicator()
-            }
+            SearchResultsGrid(viewModel: viewModel, onGameSelect: { detailSlug = $0 })
         }
     }
 }
 
 #Preview {
     NavigationStack {
-        SearchView()
+        SearchView(repository: FakeGameRepository(latency: .zero))
     }
     .preferredColorScheme(.dark)
 }

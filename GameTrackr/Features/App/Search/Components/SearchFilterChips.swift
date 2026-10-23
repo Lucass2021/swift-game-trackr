@@ -1,33 +1,42 @@
 import SwiftUI
 
+private enum Constants {
+    static let labelSize: CGFloat = 14
+    static let borderWidth: CGFloat = 1
+}
+
 struct SearchFilterChips: View {
     let platforms: [GamePlatform]
-    @Binding var selection: GamePlatform?
+    let selection: GamePlatform?
+    var onSelect: (GamePlatform?) -> Void = { _ in }
 
     var body: some View {
         ScrollView(.horizontal, showsIndicators: false) {
-            HStack(spacing: 10) {
-                chip(title: "All", isSelected: selection == nil) { selection = nil }
+            HStack(spacing: Spacing.xs) {
+                chip(title: "All", isSelected: selection == nil) { onSelect(nil) }
 
                 ForEach(platforms) { platform in
                     chip(title: platform.label, isSelected: selection == platform) {
-                        selection = platform
+                        onSelect(platform)
                     }
                 }
             }
-            .padding(.horizontal, 20)
+            .padding(.horizontal, Spacing.lg)
         }
     }
 
     private func chip(title: String, isSelected: Bool, action: @escaping () -> Void) -> some View {
         Button(action: action) {
             Text(title)
-                .font(.appLabel(14))
+                .font(.appLabel(Constants.labelSize))
                 .foregroundStyle(isSelected ? Color.appOnPrimary : Color.appTextPrimary)
-                .padding(.horizontal, 18)
-                .padding(.vertical, 9)
+                .padding(.horizontal, Spacing.md)
+                .padding(.vertical, Spacing.xs)
                 .background(Capsule().fill(isSelected ? Color.appPrimary : Color.clear))
-                .overlay(Capsule().stroke(isSelected ? Color.clear : Color.appOutline, lineWidth: 1))
+                .overlay(Capsule().stroke(
+                    isSelected ? Color.clear : Color.appOutline,
+                    lineWidth: Constants.borderWidth
+                ))
                 .contentShape(Capsule())
         }
         .buttonStyle(PressableButtonStyle())
@@ -35,11 +44,7 @@ struct SearchFilterChips: View {
 }
 
 #Preview {
-    @Previewable @State var selection: GamePlatform?
-    SearchFilterChips(
-        platforms: HomeMockData.platforms,
-        selection: $selection
-    )
-    .background(Color.appBackground)
-    .preferredColorScheme(.dark)
+    SearchFilterChips(platforms: HomeMockData.platforms, selection: nil)
+        .background(Color.appBackground)
+        .preferredColorScheme(.dark)
 }

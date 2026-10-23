@@ -1,22 +1,30 @@
 import SwiftUI
 
+private enum Constants {
+    static let backIconSize: CGFloat = 22
+    static let backTapSize: CGFloat = 40
+    static let searchIconSize: CGFloat = 18
+    static let textSize: CGFloat = 16
+    static let borderWidth: CGFloat = 1
+}
+
 struct SearchTopBar: View {
     @Binding var query: String
     var isFocused: FocusState<Bool>.Binding
     let onBack: () -> Void
 
     var body: some View {
-        HStack(spacing: 10) {
+        HStack(spacing: Spacing.xs) {
             Button(action: onBack) {
-                AppIconView(icon: .back, size: 22)
+                AppIconView(icon: .back, size: Constants.backIconSize)
                     .foregroundStyle(Color.appTextPrimary)
-                    .frame(width: 40, height: 40, alignment: .leading)
+                    .frame(width: Constants.backTapSize, height: Constants.backTapSize, alignment: .leading)
                     .contentShape(Rectangle())
             }
             .buttonStyle(PressableButtonStyle())
 
-            HStack(spacing: 10) {
-                AppIconView(icon: .search, size: 18)
+            HStack(spacing: Spacing.xs) {
+                AppIconView(icon: .search, size: Constants.searchIconSize)
                     .foregroundStyle(Color.appTextSecondary)
 
                 TextField(
@@ -26,19 +34,19 @@ struct SearchTopBar: View {
                 )
                 .focused(isFocused)
                 .foregroundStyle(Color.appTextPrimary)
-                .font(.appBody(16))
+                .font(.appBody(Constants.textSize))
                 .tint(Color.appPrimary)
                 .submitLabel(.search)
                 .autocorrectionDisabled()
                 .textInputAutocapitalization(.never)
             }
-            .padding(.horizontal, 16)
-            .padding(.vertical, 12)
+            .padding(.horizontal, Spacing.md)
+            .padding(.vertical, Spacing.sm)
             .background(Capsule().fill(Color.appSurfaceCard))
-            .overlay(Capsule().stroke(Color.appOutline, lineWidth: 1))
+            .overlay(Capsule().stroke(Color.appOutline, lineWidth: Constants.borderWidth))
         }
-        .padding(.horizontal, 20)
-        .padding(.vertical, 12)
+        .padding(.horizontal, Spacing.lg)
+        .padding(.vertical, Spacing.sm)
         .background(Color.appBackground)
     }
 }

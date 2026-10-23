@@ -5,13 +5,23 @@ actor FakeGameRepository: GameRepository {
 
     private(set) var fetchNewReleasesCount = 0
     private(set) var fetchMostAnticipatedCount = 0
+    private(set) var searchCount = 0
+    private(set) var lastSearch: String?
+    private(set) var lastPlatformSlug: String?
     private let homeGames: [Game]
+    private let searchResults: [Game]
+    private var searchFailure: Error?
     private var newReleasesFailure: Error?
     private var mostAnticipatedFailure: Error?
     private let latency: Duration
 
-    init(homeGames: [Game] = FakeGameRepository.games, latency: Duration = FakeLatency.responseDelay) {
+    init(
+        homeGames: [Game] = FakeGameRepository.games,
+        searchResults: [Game] = FakeGameRepository.games,
+        latency: Duration = FakeLatency.responseDelay
+    ) {
         self.homeGames = homeGames
+        self.searchResults = searchResults
         self.latency = latency
     }
 
@@ -71,23 +81,33 @@ actor FakeGameRepository: GameRepository {
         return Self.gameDetail
     }
 
-    func fetchAllNewReleases(page: Int, perPage: Int, search _: String?, platformSlug _: String?) async throws
+    func fetchAllNewReleases(page: Int, perPage: Int, search: String?, platformSlug: String?) async throws
         -> Page<Game>
     {
-        try await Task.sleep(for: FakeLatency.responseDelay)
-        return fakePage(items: Self.games, page: page, perPage: perPage)
+        try await self.search(page: page, perPage: perPage, search: search, platformSlug: platformSlug)
     }
 
-    func fetchAllMostAnticipated(page: Int, perPage: Int, search _: String?, platformSlug _: String?) async throws
+    func fetchAllMostAnticipated(page: Int, perPage: Int, search: String?, platformSlug: String?) async throws
         -> Page<Game>
     {
-        try await Task.sleep(for: FakeLatency.responseDelay)
-        return fakePage(items: Self.games, page: page, perPage: perPage)
+        try await self.search(page: page, perPage: perPage, search: search, platformSlug: platformSlug)
     }
 
-    func searchGames(page: Int, perPage: Int, search _: String?, platformSlug _: String?) async throws -> Page<Game> {
-        try await Task.sleep(for: FakeLatency.responseDelay)
-        return fakePage(items: Self.games, page: page, perPage: perPage)
+    func searchGames(page: Int, perPage: Int, search: String?, platformSlug: String?) async throws -> Page<Game> {
+        try await self.search(page: page, perPage: perPage, search: search, platformSlug: platformSlug)
+    }
+
+    func setSearchFailure(_ error: Error?) {
+        searchFailure = error
+    }
+
+    private func search(page: Int, perPage: Int, search: String?, platformSlug: String?) async throws -> Page<Game> {
+        searchCount += 1
+        lastSearch = search
+        lastPlatformSlug = platformSlug
+        try await Task.sleep(for: latency)
+        if let searchFailure { throw searchFailure }
+        return fakePage(items: searchResults, page: page, perPage: perPage)
     }
 
     func fetchPlatforms() async throws -> [GamePlatform] {
