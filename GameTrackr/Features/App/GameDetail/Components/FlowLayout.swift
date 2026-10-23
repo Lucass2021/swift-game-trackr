@@ -1,8 +1,8 @@
 import SwiftUI
 
 struct FlowLayout: Layout {
-    var spacing: CGFloat = 8
-    var lineSpacing: CGFloat = 8
+    var spacing: CGFloat = Spacing.xs
+    var lineSpacing: CGFloat = Spacing.xs
 
     func sizeThatFits(proposal: ProposedViewSize, subviews: Subviews, cache _: inout Void) -> CGSize {
         let maxWidth = proposal.width ?? .infinity
@@ -44,4 +44,13 @@ struct FlowLayout: Layout {
             rowHeight = max(rowHeight, size.height)
         }
     }
+}
+
+#Preview {
+    FlowLayout {
+        ForEach(["Action RPG", "Open World", "Cyberpunk", "Shooter", "Indie"], id: \.self) { GameGenreChip(text: $0) }
+    }
+    .padding(Spacing.md)
+    .background(Color.appBackground)
+    .preferredColorScheme(.dark)
 }

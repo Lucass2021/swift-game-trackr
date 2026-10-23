@@ -1,5 +1,13 @@
 import SwiftUI
 
+private enum Constants {
+    static let textSize: CGFloat = 13
+    static let borderWidth: CGFloat = 1
+    static let star = "\u{2605}"
+    static let genreFillAlpha = 0.12
+    static let genreBorderAlpha = 0.45
+}
+
 struct GameInfoChip: View {
     enum Style {
         case plain
@@ -9,26 +17,30 @@ struct GameInfoChip: View {
     let text: String
     var style: Style = .plain
 
+    private var color: Color {
+        style == .rating ? .appPrimary : .appTextSecondary
+    }
+
     var body: some View {
-        HStack(spacing: 5) {
+        HStack(spacing: Spacing.xxs) {
             if style == .rating {
-                Text("\u{2605}")
-                    .font(.system(size: 13))
+                Text(Constants.star)
+                    .font(.system(size: Constants.textSize))
                     .foregroundStyle(Color.appPrimary)
             }
             Text(text)
-                .font(.appLabel(13))
-                .foregroundStyle(style == .rating ? Color.appPrimary : Color.appTextSecondary)
+                .font(.appLabel(Constants.textSize))
+                .foregroundStyle(color)
         }
-        .padding(.horizontal, 12)
-        .padding(.vertical, 7)
+        .padding(.horizontal, Spacing.sm)
+        .padding(.vertical, Spacing.xs)
         .background(
-            RoundedRectangle(cornerRadius: 10, style: .continuous)
+            RoundedRectangle(cornerRadius: Radius.sm, style: .continuous)
                 .fill(Color.appSurfaceCard)
         )
         .overlay(
-            RoundedRectangle(cornerRadius: 10, style: .continuous)
-                .stroke(Color.appOutline, lineWidth: 1)
+            RoundedRectangle(cornerRadius: Radius.sm, style: .continuous)
+                .stroke(Color.appOutline, lineWidth: Constants.borderWidth)
         )
     }
 }
@@ -38,15 +50,24 @@ struct GameGenreChip: View {
 
     var body: some View {
         Text(text)
-            .font(.appLabel(13))
+            .font(.appLabel(Constants.textSize))
             .foregroundStyle(Color.appPrimary)
-            .padding(.horizontal, 14)
-            .padding(.vertical, 8)
-            .background(
-                Capsule().fill(Color.appPrimary.opacity(0.12))
-            )
+            .padding(.horizontal, Spacing.sm)
+            .padding(.vertical, Spacing.xs)
+            .background(Capsule().fill(Color.appPrimary.opacity(Constants.genreFillAlpha)))
             .overlay(
-                Capsule().stroke(Color.appPrimary.opacity(0.45), lineWidth: 1)
+                Capsule().stroke(Color.appPrimary.opacity(Constants.genreBorderAlpha), lineWidth: Constants.borderWidth)
             )
     }
+}
+
+#Preview {
+    HStack(spacing: Spacing.xs) {
+        GameInfoChip(text: "2024")
+        GameInfoChip(text: "4.8", style: .rating)
+        GameGenreChip(text: "Action RPG")
+    }
+    .padding(Spacing.md)
+    .background(Color.appBackground)
+    .preferredColorScheme(.dark)
 }

@@ -6,6 +6,7 @@ actor FakeGameRepository: GameRepository {
     private(set) var fetchNewReleasesCount = 0
     private(set) var fetchMostAnticipatedCount = 0
     private(set) var searchCount = 0
+    private(set) var fetchGameCount = 0
     private(set) var lastSearch: String?
     private(set) var lastPlatformSlug: String?
     private let homeGames: [Game]
@@ -13,19 +14,22 @@ actor FakeGameRepository: GameRepository {
     private var searchFailure: Error?
     private var newReleasesFailure: Error?
     private var mostAnticipatedFailure: Error?
+    private var fetchGameFailure: Error?
     private let latency: Duration
 
     init(
         homeGames: [Game] = FakeGameRepository.games,
         searchResults: [Game] = FakeGameRepository.games,
+        fetchGameFailure: Error? = nil,
         latency: Duration = FakeLatency.responseDelay
     ) {
         self.homeGames = homeGames
         self.searchResults = searchResults
+        self.fetchGameFailure = fetchGameFailure
         self.latency = latency
     }
 
-    private static let gameDetail = GameDetail(
+    static let gameDetail = GameDetail(
         title: "Neon Ascent: Revival",
         year: "2024",
         rating: 4.8,
@@ -77,8 +81,14 @@ actor FakeGameRepository: GameRepository {
     }
 
     func fetchGame(slug _: String) async throws -> GameDetail {
-        try await Task.sleep(for: FakeLatency.responseDelay)
+        fetchGameCount += 1
+        try await Task.sleep(for: latency)
+        if let fetchGameFailure { throw fetchGameFailure }
         return Self.gameDetail
+    }
+
+    func setFetchGameFailure(_ error: Error?) {
+        fetchGameFailure = error
     }
 
     func fetchAllNewReleases(page: Int, perPage: Int, search: String?, platformSlug: String?) async throws

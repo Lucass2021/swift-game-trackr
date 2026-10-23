@@ -1,26 +1,23 @@
 import SwiftUI
 
+private enum Constants {
+    static let titleSize: CGFloat = 22
+}
+
 struct GameSectionHeader: View {
     let title: String
-    var actionTitle: String?
-    var action: (() -> Void)?
 
     var body: some View {
-        HStack(alignment: .firstTextBaseline) {
-            Text(title)
-                .font(.appHeadline(22))
-                .foregroundStyle(Color.appTextPrimary)
-
-            Spacer()
-
-            if let actionTitle, let action {
-                Button(action: action) {
-                    Text(actionTitle)
-                        .font(.appLabel(14))
-                        .foregroundStyle(Color.appSecondary)
-                }
-                .buttonStyle(.plain)
-            }
-        }
+        Text(title)
+            .font(.appHeadline(Constants.titleSize))
+            .foregroundStyle(Color.appTextPrimary)
+            .frame(maxWidth: .infinity, alignment: .leading)
     }
+}
+
+#Preview {
+    GameSectionHeader(title: "Screenshots")
+        .padding(Spacing.md)
+        .background(Color.appBackground)
+        .preferredColorScheme(.dark)
 }

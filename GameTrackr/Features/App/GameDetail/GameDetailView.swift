@@ -1,25 +1,24 @@
 import SwiftUI
 
-struct GameDetailView: View {
-    let slug: String
+private enum Constants {
+    static let backButtonSize: CGFloat = 44
+    static let backIconSize: CGFloat = 20
+    static let loadingPreviewLatency: Duration = .seconds(3600)
+}
 
+struct GameDetailView: View {
     @Environment(AuthStore.self) private var authStore
     @Environment(\.dismiss) private var dismiss
     @State private var viewModel: GameDetailViewModel
     @State private var showAddToLibrary = false
 
     init(slug: String, repository: GameRepository = RemoteGameRepository()) {
-        self.slug = slug
-        _viewModel = State(initialValue: GameDetailViewModel(repository: repository))
-    }
-
-    private var game: GameDetail? {
-        viewModel.game
+        _viewModel = State(initialValue: GameDetailViewModel(slug: slug, repository: repository))
     }
 
     var body: some View {
         GeometryReader { proxy in
-            if let game {
+            if let game = viewModel.game {
                 content(game: game, topInset: proxy.safeAreaInsets.top)
             } else {
                 placeholder(topInset: proxy.safeAreaInsets.top)
@@ -28,21 +27,25 @@ struct GameDetailView: View {
         .background(Color.appBackground)
         .toolbar(.hidden, for: .navigationBar)
         .navigationBarBackButtonHidden(true)
-        .task {
-            await viewModel.load(slug: slug)
-        }
+        .task { await viewModel.loadIfNeeded() }
         .sheet(isPresented: $showAddToLibrary) {
-            AddToLibrarySheet(gameTitle: game?.title ?? "")
+            if let game = viewModel.game {
+                AddToLibrarySheet(gameTitle: game.title, coverStart: game.coverStart, coverEnd: game.coverEnd)
+            }
         }
     }
 
     private func content(game: GameDetail, topInset: CGFloat) -> some View {
         ScrollView(showsIndicators: false) {
-            VStack(alignment: .leading, spacing: 28) {
+            VStack(alignment: .leading, spacing: Spacing.xl) {
                 GameDetailHero(game: game, topInset: topInset, onBack: { dismiss() })
 
-                header(game: game)
-                    .padding(.horizontal, 20)
+                GameDetailHeader(
+                    game: game,
+                    isGuest: authStore.isGuest,
+                    onAddToLibrary: { showAddToLibrary = true }
+                )
+                .padding(.horizontal, Spacing.lg)
 
                 if !game.screenshots.isEmpty {
                     GameScreenshotsSection(screenshots: game.screenshots)
@@ -52,7 +55,7 @@ struct GameDetailView: View {
 
                 if !game.specs.isEmpty {
                     GameSpecificationsSection(specs: game.specs)
-                        .padding(.bottom, 32)
+                        .padding(.bottom, Spacing.xxl)
                 }
             }
         }
@@ -60,65 +63,60 @@ struct GameDetailView: View {
     }
 
     private func placeholder(topInset: CGFloat) -> some View {
-        VStack(spacing: 16) {
-            if viewModel.failed {
-                Text("Couldn't load this game.")
-                    .font(.appBody(15))
-                    .foregroundStyle(Color.appTextSecondary)
+        Group {
+            if viewModel.hasError {
+                EmptyState(
+                    icon: .info,
+                    title: "Couldn't load this game",
+                    message: "Check your connection and try again.",
+                    actionTitle: "Try again",
+                    onAction: { Task { await viewModel.load() } }
+                )
             } else {
                 ProgressView()
+                    .tint(Color.appPrimary)
             }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .overlay(alignment: .topLeading) {
             Button { dismiss() } label: {
-                AppIconView(icon: .back, size: 20)
+                AppIconView(icon: .back, size: Constants.backIconSize)
                     .foregroundStyle(Color.appTextPrimary)
-                    .frame(width: 42, height: 42)
+                    .frame(width: Constants.backButtonSize, height: Constants.backButtonSize)
                     .contentShape(Circle())
             }
             .buttonStyle(PressableButtonStyle())
-            .padding(.horizontal, 16)
-            .padding(.top, topInset + 8)
-        }
-    }
-
-    private func header(game: GameDetail) -> some View {
-        VStack(alignment: .leading, spacing: 18) {
-            Text(game.title)
-                .font(.appHeadline(30))
-                .foregroundStyle(Color.appTextPrimary)
-                .fixedSize(horizontal: false, vertical: true)
-
-            FlowLayout(spacing: 8, lineSpacing: 8) {
-                GameInfoChip(text: game.year)
-                if let rating = game.rating {
-                    GameInfoChip(text: String(format: "%.1f", rating), style: .rating)
-                }
-                ForEach(game.platforms, id: \.self) { GameInfoChip(text: $0) }
-            }
-
-            if !game.genres.isEmpty {
-                FlowLayout(spacing: 8, lineSpacing: 8) {
-                    ForEach(game.genres, id: \.self) { GameGenreChip(text: $0) }
-                }
-            }
-
-            if !authStore.isGuest {
-                PrimaryButton(title: "Add to library", icon: .addToLibrary) {
-                    showAddToLibrary = true
-                }
-                .padding(.top, 2)
-            }
+            .accessibilityLabel("Back")
+            .padding(.horizontal, Spacing.md)
+            .padding(.top, topInset + Spacing.xs)
         }
     }
 }
 
-#Preview {
+#Preview("Loaded") {
+    NavigationStack {
+        GameDetailView(slug: "neon-ascent-revival", repository: FakeGameRepository())
+    }
+    .environment(AuthStore())
+    .preferredColorScheme(.dark)
+}
+
+#Preview("Loading") {
     NavigationStack {
         GameDetailView(
             slug: "neon-ascent-revival",
-            repository: FakeGameRepository()
+            repository: FakeGameRepository(latency: Constants.loadingPreviewLatency)
+        )
+    }
+    .environment(AuthStore())
+    .preferredColorScheme(.dark)
+}
+
+#Preview("Error") {
+    NavigationStack {
+        GameDetailView(
+            slug: "neon-ascent-revival",
+            repository: FakeGameRepository(fetchGameFailure: APIError.networkFailure, latency: .zero)
         )
     }
     .environment(AuthStore())
