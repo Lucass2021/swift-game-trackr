@@ -1,6 +1,7 @@
 actor FakeLibraryRepository: LibraryRepository {
     private(set) var fetchCount = 0
     private(set) var setFavoriteCount = 0
+    private(set) var addCount = 0
     private var entries: [LibraryEntry]
     private let stats: LibraryStats
     private var failure: Error?
@@ -35,6 +36,37 @@ actor FakeLibraryRepository: LibraryRepository {
         try await respond()
         guard let index = entries.firstIndex(where: { $0.slug == slug }) else { throw APIError.notFound }
         entries[index].isFavorite = isFavorite
+    }
+
+    func addToLibrary(_ entry: NewLibraryEntry) async throws {
+        addCount += 1
+        try await respond()
+        var added = await MainActor.run {
+            LibraryEntry(
+                title: entry.title,
+                slug: entry.slug,
+                status: entry.status,
+                rating: entry.rating,
+                hours: entry.hours ?? 0,
+                coverStart: entry.coverStart,
+                coverEnd: entry.coverEnd
+            )
+        }
+        if let index = entries.firstIndex(where: { $0.slug == entry.slug }) {
+            added.isFavorite = entries[index].isFavorite
+            entries[index] = added
+        } else {
+            entries.insert(added, at: 0)
+        }
+    }
+
+    func isInLibrary(slug: String) async throws -> Bool {
+        try await respond()
+        return entries.contains { $0.slug == slug }
+    }
+
+    func entry(_ slug: String) -> LibraryEntry? {
+        entries.first { $0.slug == slug }
     }
 
     func isFavorite(_ slug: String) -> Bool {

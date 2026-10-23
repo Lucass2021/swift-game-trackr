@@ -121,6 +121,7 @@ struct CommunityDetailView: View {
         )
     }
     .environment(AuthStore())
+    .environment(LibraryDependencies())
     .preferredColorScheme(.dark)
 }
 
@@ -138,5 +139,6 @@ struct CommunityDetailView: View {
         )
     }
     .environment(AuthStore())
+    .environment(LibraryDependencies())
     .preferredColorScheme(.dark)
 }

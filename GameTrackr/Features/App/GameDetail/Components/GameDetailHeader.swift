@@ -8,6 +8,7 @@ private enum Constants {
 struct GameDetailHeader: View {
     let game: GameDetail
     let isGuest: Bool
+    var isInLibrary = false
     let onAddToLibrary: () -> Void
 
     var body: some View {
@@ -32,7 +33,11 @@ struct GameDetailHeader: View {
             }
 
             if !isGuest {
-                PrimaryButton(title: "Add to library", icon: .addToLibrary, action: onAddToLibrary)
+                if isInLibrary {
+                    SecondaryButton(title: "In library", action: onAddToLibrary)
+                } else {
+                    PrimaryButton(title: "Add to library", icon: .addToLibrary, action: onAddToLibrary)
+                }
             }
         }
     }
@@ -40,6 +45,13 @@ struct GameDetailHeader: View {
 
 #Preview("Signed in") {
     GameDetailHeader(game: FakeGameRepository.gameDetail, isGuest: false, onAddToLibrary: {})
+        .padding(Spacing.lg)
+        .background(Color.appBackground)
+        .preferredColorScheme(.dark)
+}
+
+#Preview("In library") {
+    GameDetailHeader(game: FakeGameRepository.gameDetail, isGuest: false, isInLibrary: true, onAddToLibrary: {})
         .padding(Spacing.lg)
         .background(Color.appBackground)
         .preferredColorScheme(.dark)

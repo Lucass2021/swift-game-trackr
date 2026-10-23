@@ -107,5 +107,6 @@ struct PostDetailView: View {
         )
     }
     .environment(AuthStore())
+    .environment(LibraryDependencies())
     .preferredColorScheme(.dark)
 }

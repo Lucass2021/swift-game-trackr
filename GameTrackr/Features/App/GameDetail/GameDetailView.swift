@@ -7,13 +7,34 @@ private enum Constants {
 }
 
 struct GameDetailView: View {
+    let slug: String
+    var repository: GameRepository = RemoteGameRepository()
+
+    @Environment(LibraryDependencies.self) private var library
+
+    var body: some View {
+        GameDetailScreen(slug: slug, repository: repository, library: library)
+    }
+}
+
+private struct GameDetailScreen: View {
+    let slug: String
+    let library: LibraryDependencies
+
     @Environment(AuthStore.self) private var authStore
     @Environment(\.dismiss) private var dismiss
     @State private var viewModel: GameDetailViewModel
-    @State private var showAddToLibrary = false
+    @State private var addToLibrary: AddToLibraryViewModel?
 
-    init(slug: String, repository: GameRepository = RemoteGameRepository()) {
-        _viewModel = State(initialValue: GameDetailViewModel(slug: slug, repository: repository))
+    init(slug: String, repository: GameRepository, library: LibraryDependencies) {
+        self.slug = slug
+        self.library = library
+        _viewModel = State(initialValue: GameDetailViewModel(
+            slug: slug,
+            repository: repository,
+            libraryRepository: library.repository,
+            libraryUpdates: library.libraryUpdates
+        ))
     }
 
     var body: some View {
@@ -28,9 +49,11 @@ struct GameDetailView: View {
         .toolbar(.hidden, for: .navigationBar)
         .navigationBarBackButtonHidden(true)
         .task { await viewModel.loadIfNeeded() }
-        .sheet(isPresented: $showAddToLibrary) {
-            if let game = viewModel.game {
-                AddToLibrarySheet(gameTitle: game.title, coverStart: game.coverStart, coverEnd: game.coverEnd)
+        .toast(message: $viewModel.toastMessage, style: .success)
+        .sheet(item: $addToLibrary) { addToLibraryViewModel in
+            AddToLibrarySheet(viewModel: addToLibraryViewModel) {
+                addToLibrary = nil
+                viewModel.onAddedToLibrary()
             }
         }
     }
@@ -43,7 +66,8 @@ struct GameDetailView: View {
                 GameDetailHeader(
                     game: game,
                     isGuest: authStore.isGuest,
-                    onAddToLibrary: { showAddToLibrary = true }
+                    isInLibrary: viewModel.isInLibrary,
+                    onAddToLibrary: { openAddToLibrary(game) }
                 )
                 .padding(.horizontal, Spacing.lg)
 
@@ -60,6 +84,15 @@ struct GameDetailView: View {
             }
         }
         .ignoresSafeArea(edges: .top)
+    }
+
+    private func openAddToLibrary(_ game: GameDetail) {
+        addToLibrary = AddToLibraryViewModel(
+            slug: slug,
+            game: game,
+            repository: library.repository,
+            libraryUpdates: library.libraryUpdates
+        )
     }
 
     private func placeholder(topInset: CGFloat) -> some View {
@@ -98,6 +131,7 @@ struct GameDetailView: View {
         GameDetailView(slug: "neon-ascent-revival", repository: FakeGameRepository())
     }
     .environment(AuthStore())
+    .environment(LibraryDependencies())
     .preferredColorScheme(.dark)
 }
 
@@ -109,6 +143,7 @@ struct GameDetailView: View {
         )
     }
     .environment(AuthStore())
+    .environment(LibraryDependencies())
     .preferredColorScheme(.dark)
 }
 
@@ -120,5 +155,6 @@ struct GameDetailView: View {
         )
     }
     .environment(AuthStore())
+    .environment(LibraryDependencies())
     .preferredColorScheme(.dark)
 }

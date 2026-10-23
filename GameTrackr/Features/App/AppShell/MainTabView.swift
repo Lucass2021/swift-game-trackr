@@ -12,7 +12,7 @@ struct MainTabView: View {
     @Environment(AuthStore.self) private var authStore
     @State private var profile = ProfileMockData.profile
     @State private var mySetupViewModel = MySetupViewModel()
-    @State private var libraryViewModel = LibraryViewModel(repository: FakeLibraryRepository())
+    @State private var library = LibraryDependencies()
     @State private var profileViewModel = ProfileViewModel(repository: FakeProfileOverviewRepository())
     @State private var community = CommunityDependencies()
     @State private var homeViewModel = HomeViewModel(repository: RemoteGameRepository())
@@ -48,11 +48,12 @@ struct MainTabView: View {
                 profile = profile.applying(authStore.currentUser)
                 let userId = authStore.isGuest ? nil : authStore.currentUser?.id
                 async let setups: Void = mySetupViewModel.loadFor(userId)
-                async let library: Void = libraryViewModel.loadFor(userId)
+                async let libraryEntries: Void = library.viewModel.loadFor(userId)
                 async let profileOverview: Void = profileViewModel.loadFor(userId)
-                _ = await (setups, library, profileOverview)
+                _ = await (setups, libraryEntries, profileOverview)
             }
         }
+        .environment(library)
     }
 
     @ViewBuilder
@@ -62,7 +63,7 @@ struct MainTabView: View {
             HomeView(viewModel: homeViewModel, onViewAll: { searchScope = $0 }, onGameSelect: { detailSlug = $0 })
         case .library:
             LibraryView(
-                viewModel: libraryViewModel,
+                viewModel: library.viewModel,
                 onBrowseGames: { searchScope = .all },
                 onGameSelect: { detailSlug = $0 }
             )
@@ -76,7 +77,7 @@ struct MainTabView: View {
                 onGameSelect: { detailSlug = $0 },
                 onStatusSelect: { status in
                     selection = .library
-                    Task { await libraryViewModel.onFilterChange(status) }
+                    Task { await library.viewModel.onFilterChange(status) }
                 },
                 onEditProfile: { showEditProfile = true },
                 onViewStats: { showStats = true },

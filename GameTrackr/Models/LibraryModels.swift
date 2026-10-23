@@ -71,3 +71,17 @@ struct LibraryStats {
     let totalGames: Int
     let platinum: Int
 }
+
+struct NewLibraryEntry {
+    let title: String
+    let slug: String
+    let status: LibraryStatus
+    let rating: Int
+    let hours: Int?
+    let platform: String?
+    let startedAt: Date?
+    let finishedAt: Date?
+    let review: String?
+    let coverStart: Color
+    let coverEnd: Color
+}

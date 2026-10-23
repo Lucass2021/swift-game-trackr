@@ -29,9 +29,13 @@ final class LibraryViewModel {
     private var statsTask: Task<Void, Never>?
     private var favoriteTasks: [String: Task<Void, Never>] = [:]
     private var loadedUserId: Int?
+    private(set) var updateTask: Task<Void, Never>?
 
-    init(repository: LibraryRepository) {
+    init(repository: LibraryRepository, libraryUpdates: LibraryUpdates) {
         self.repository = repository
+        libraryUpdates.observe(self) { [weak self] _ in
+            self?.onGameAdded()
+        }
     }
 
     func loadFor(_ userId: Int?) async {
@@ -107,6 +111,12 @@ final class LibraryViewModel {
         }
         isLoading = false
         isLoadingMore = false
+    }
+
+    private func onGameAdded() {
+        guard loadedUserId != nil else { return }
+        loadStats()
+        updateTask = Task { await loadPage(1) }
     }
 
     private func loadStats() {

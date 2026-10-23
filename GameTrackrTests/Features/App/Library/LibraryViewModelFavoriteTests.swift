@@ -83,7 +83,7 @@ struct LibraryViewModelFavoriteTests {
     }
 
     private func loadedViewModel(_ repository: FakeLibraryRepository) async -> LibraryViewModel {
-        let viewModel = LibraryViewModel(repository: repository)
+        let viewModel = LibraryViewModel(repository: repository, libraryUpdates: LibraryUpdates())
         await viewModel.loadFor(Self.userId)
         return viewModel
     }

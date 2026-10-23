@@ -1,29 +1,40 @@
 import SwiftUI
 
+private enum Constants {
+    static let starSize: CGFloat = 30
+    static let maxRating = 5
+    static let emptyAlpha = 0.5
+    static let filledStar = "\u{2605}"
+    static let emptyStar = "\u{2606}"
+    static let previewRating = 4
+}
+
 struct InteractiveStarRating: View {
     @Binding var rating: Int
-    var size: CGFloat = 30
 
     var body: some View {
-        HStack(spacing: 8) {
-            ForEach(1 ... 5, id: \.self) { index in
+        HStack(spacing: Spacing.xs) {
+            ForEach(1 ... Constants.maxRating, id: \.self) { index in
                 Button {
                     rating = (rating == index) ? index - 1 : index
                 } label: {
-                    Text(index <= rating ? "\u{2605}" : "\u{2606}")
-                        .font(.system(size: size))
-                        .foregroundStyle(index <= rating ? Color.appSecondary : Color.appTextSecondary.opacity(0.5))
+                    Text(index <= rating ? Constants.filledStar : Constants.emptyStar)
+                        .font(.system(size: Constants.starSize))
+                        .foregroundStyle(
+                            index <= rating ? Color.appSecondary : Color.appTextSecondary.opacity(Constants.emptyAlpha)
+                        )
                 }
                 .buttonStyle(.plain)
+                .accessibilityLabel("Rate \(index) of \(Constants.maxRating) stars")
             }
         }
     }
 }
 
 #Preview {
-    @Previewable @State var rating = 4
+    @Previewable @State var rating = Constants.previewRating
     InteractiveStarRating(rating: $rating)
-        .padding()
+        .padding(Spacing.md)
         .background(Color.appBackground)
         .preferredColorScheme(.dark)
 }

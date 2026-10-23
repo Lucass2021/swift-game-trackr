@@ -1,5 +1,17 @@
 import SwiftUI
 
+private enum Constants {
+    static let caretSize: CGFloat = 16
+    static let textSize: CGFloat = 16
+    static let dropdownOffset: CGFloat = 58
+    static let dropdownZIndex: Double = 20
+    static let borderWidth: CGFloat = 1
+    static let shadowAlpha = 0.4
+    static let shadowRadius: CGFloat = 16
+    static let shadowY: CGFloat = 8
+    static let openRotation: Double = 180
+}
+
 struct PlatformPicker: View {
     @Binding var selection: String
     let options: [String]
@@ -8,16 +20,16 @@ struct PlatformPicker: View {
 
     var body: some View {
         Button {
-            withAnimation(.easeInOut(duration: 0.15)) { isOpen.toggle() }
+            withAnimation(.easeInOut(duration: Durations.fast)) { isOpen.toggle() }
         } label: {
             HStack {
                 Text(selection)
-                    .font(.appBody(16))
+                    .font(.appBody(Constants.textSize))
                     .foregroundStyle(Color.appTextPrimary)
                 Spacer()
-                AppIconView(icon: .caretDown, size: 16)
+                AppIconView(icon: .caretDown, size: Constants.caretSize)
                     .foregroundStyle(Color.appTextSecondary)
-                    .rotationEffect(.degrees(isOpen ? 180 : 0))
+                    .rotationEffect(.degrees(isOpen ? Constants.openRotation : 0))
             }
             .fieldBox()
             .contentShape(Rectangle())
@@ -26,11 +38,11 @@ struct PlatformPicker: View {
         .overlay(alignment: .topLeading) {
             if isOpen {
                 dropdown
-                    .offset(y: 58)
-                    .zIndex(20)
+                    .offset(y: Constants.dropdownOffset)
+                    .zIndex(Constants.dropdownZIndex)
             }
         }
-        .zIndex(isOpen ? 20 : 0)
+        .zIndex(isOpen ? Constants.dropdownZIndex : 0)
     }
 
     private var dropdown: some View {
@@ -38,14 +50,14 @@ struct PlatformPicker: View {
             ForEach(Array(options.enumerated()), id: \.element) { index, option in
                 Button {
                     selection = option
-                    withAnimation(.easeInOut(duration: 0.15)) { isOpen = false }
+                    withAnimation(.easeInOut(duration: Durations.fast)) { isOpen = false }
                 } label: {
                     Text(option)
-                        .font(.appBody(16))
+                        .font(.appBody(Constants.textSize))
                         .foregroundStyle(option == selection ? Color.appPrimary : Color.appTextPrimary)
                         .frame(maxWidth: .infinity, alignment: .leading)
-                        .padding(.horizontal, 14)
-                        .padding(.vertical, 12)
+                        .padding(.horizontal, Spacing.sm)
+                        .padding(.vertical, Spacing.sm)
                         .contentShape(Rectangle())
                 }
                 .buttonStyle(.plain)
@@ -56,13 +68,21 @@ struct PlatformPicker: View {
             }
         }
         .background(
-            RoundedRectangle(cornerRadius: 12, style: .continuous)
+            RoundedRectangle(cornerRadius: Radius.md, style: .continuous)
                 .fill(Color.appSurfaceCard)
         )
         .overlay(
-            RoundedRectangle(cornerRadius: 12, style: .continuous)
-                .stroke(Color.appOutline, lineWidth: 1)
+            RoundedRectangle(cornerRadius: Radius.md, style: .continuous)
+                .stroke(Color.appOutline, lineWidth: Constants.borderWidth)
         )
-        .shadow(color: .black.opacity(0.4), radius: 16, y: 8)
+        .shadow(color: .black.opacity(Constants.shadowAlpha), radius: Constants.shadowRadius, y: Constants.shadowY)
     }
+}
+
+#Preview {
+    @Previewable @State var selection = "PS5"
+    PlatformPicker(selection: $selection, options: ["PS5", "PC"])
+        .padding(Spacing.md)
+        .background(Color.appBackground)
+        .preferredColorScheme(.dark)
 }

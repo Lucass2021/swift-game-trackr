@@ -10,7 +10,10 @@ struct LibraryViewModelTests {
     private static let firstPage = Array(slugs.prefix(LibraryViewModel.pageSize))
 
     @Test func loadingForAUserShowsTheFirstPageAndTheStats() async {
-        let viewModel = LibraryViewModel(repository: FakeLibraryRepository(latency: .zero))
+        let viewModel = LibraryViewModel(
+            repository: FakeLibraryRepository(latency: .zero),
+            libraryUpdates: LibraryUpdates()
+        )
 
         await viewModel.loadFor(Self.userId)
         await waitForStats(viewModel)
@@ -21,10 +24,13 @@ struct LibraryViewModelTests {
     }
 
     @Test func loadFailureShowsTheErrorStateInsteadOfLoadingForever() async {
-        let viewModel = LibraryViewModel(repository: FakeLibraryRepository(
-            failure: APIError.networkFailure,
-            latency: .zero
-        ))
+        let viewModel = LibraryViewModel(
+            repository: FakeLibraryRepository(
+                failure: APIError.networkFailure,
+                latency: .zero
+            ),
+            libraryUpdates: LibraryUpdates()
+        )
 
         await viewModel.loadFor(Self.userId)
 
@@ -34,7 +40,7 @@ struct LibraryViewModelTests {
 
     @Test func retryAfterAFailureShowsTheEntries() async {
         let repository = FakeLibraryRepository(failure: APIError.networkFailure, latency: .zero)
-        let viewModel = LibraryViewModel(repository: repository)
+        let viewModel = LibraryViewModel(repository: repository, libraryUpdates: LibraryUpdates())
         await viewModel.loadFor(Self.userId)
 
         await repository.setFailure(nil)
@@ -46,7 +52,7 @@ struct LibraryViewModelTests {
 
     @Test func comingBackToTheTabKeepsTheEntriesWithoutFetchingAgain() async {
         let repository = FakeLibraryRepository(latency: .zero)
-        let viewModel = LibraryViewModel(repository: repository)
+        let viewModel = LibraryViewModel(repository: repository, libraryUpdates: LibraryUpdates())
         await viewModel.loadFor(Self.userId)
 
         await viewModel.loadFor(Self.userId)
@@ -57,7 +63,7 @@ struct LibraryViewModelTests {
 
     @Test func switchingToAGuestDropsTheEntriesAndALateResultDoesNotBringThemBack() async {
         let repository = FakeLibraryRepository(latency: Self.overlapLatency)
-        let viewModel = LibraryViewModel(repository: repository)
+        let viewModel = LibraryViewModel(repository: repository, libraryUpdates: LibraryUpdates())
 
         let loading = Task { await viewModel.loadFor(Self.userId) }
         await waitForFetch(repository)
@@ -71,7 +77,10 @@ struct LibraryViewModelTests {
     }
 
     @Test func filteringFindsMatchingGamesBeyondTheFirstPage() async {
-        let viewModel = LibraryViewModel(repository: FakeLibraryRepository(latency: .zero))
+        let viewModel = LibraryViewModel(
+            repository: FakeLibraryRepository(latency: .zero),
+            libraryUpdates: LibraryUpdates()
+        )
         await viewModel.loadFor(Self.userId)
 
         await viewModel.onFilterChange(.platinum)
@@ -82,7 +91,7 @@ struct LibraryViewModelTests {
 
     @Test func aFilterChangeReplacesTheLoadInFlight() async {
         let repository = FakeLibraryRepository(latency: Self.overlapLatency)
-        let viewModel = LibraryViewModel(repository: repository)
+        let viewModel = LibraryViewModel(repository: repository, libraryUpdates: LibraryUpdates())
 
         let loading = Task { await viewModel.loadFor(Self.userId) }
         await waitForFetch(repository)
@@ -93,7 +102,10 @@ struct LibraryViewModelTests {
     }
 
     @Test func loadingMoreAppendsTheNextPageUntilTheLastOne() async {
-        let viewModel = LibraryViewModel(repository: FakeLibraryRepository(latency: .zero))
+        let viewModel = LibraryViewModel(
+            repository: FakeLibraryRepository(latency: .zero),
+            libraryUpdates: LibraryUpdates()
+        )
         await viewModel.loadFor(Self.userId)
 
         await viewModel.loadMore()
@@ -104,7 +116,7 @@ struct LibraryViewModelTests {
 
     @Test func aLoadMoreFailureKeepsTheEntriesAndStopsUntilRetried() async {
         let repository = FakeLibraryRepository(latency: .zero)
-        let viewModel = LibraryViewModel(repository: repository)
+        let viewModel = LibraryViewModel(repository: repository, libraryUpdates: LibraryUpdates())
         await viewModel.loadFor(Self.userId)
 
         await repository.setFailure(APIError.networkFailure)
@@ -127,7 +139,7 @@ struct LibraryViewModelTests {
             stats: LibraryStats(totalGames: 0, platinum: 0),
             latency: .zero
         )
-        let viewModel = LibraryViewModel(repository: repository)
+        let viewModel = LibraryViewModel(repository: repository, libraryUpdates: LibraryUpdates())
         await viewModel.loadFor(Self.userId)
         await waitForStats(viewModel)
 

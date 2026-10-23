@@ -93,7 +93,10 @@ struct LibraryView: View {
 }
 
 #Preview("Library") {
-    @Previewable @State var viewModel = LibraryViewModel(repository: FakeLibraryRepository())
+    @Previewable @State var viewModel = LibraryViewModel(
+        repository: FakeLibraryRepository(),
+        libraryUpdates: LibraryUpdates()
+    )
     LibraryView(viewModel: viewModel)
         .environment(AuthStore())
         .task { await viewModel.loadFor(1) }
@@ -101,10 +104,13 @@ struct LibraryView: View {
 }
 
 #Preview("Error") {
-    @Previewable @State var viewModel = LibraryViewModel(repository: FakeLibraryRepository(
-        failure: APIError.networkFailure,
-        latency: .zero
-    ))
+    @Previewable @State var viewModel = LibraryViewModel(
+        repository: FakeLibraryRepository(
+            failure: APIError.networkFailure,
+            latency: .zero
+        ),
+        libraryUpdates: LibraryUpdates()
+    )
     LibraryView(viewModel: viewModel)
         .environment(AuthStore())
         .task { await viewModel.loadFor(1) }

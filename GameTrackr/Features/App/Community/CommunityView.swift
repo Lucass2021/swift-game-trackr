@@ -107,5 +107,6 @@ struct CommunityView: View {
         CommunityView(dependencies: CommunityDependencies(repository: FakeCommunityRepository(latency: .zero)))
     }
     .environment(AuthStore())
+    .environment(LibraryDependencies())
     .preferredColorScheme(.dark)
 }

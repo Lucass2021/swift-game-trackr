@@ -71,6 +71,7 @@ struct UserProfileView: View {
         UserProfileView(user: UserProfileMockData.user)
     }
     .environment(AuthStore())
+    .environment(LibraryDependencies())
     .preferredColorScheme(.dark)
 }
 
@@ -82,6 +83,7 @@ struct UserProfileView: View {
         )
     }
     .environment(AuthStore())
+    .environment(LibraryDependencies())
     .preferredColorScheme(.dark)
 }
 
@@ -93,5 +95,6 @@ struct UserProfileView: View {
         )
     }
     .environment(AuthStore())
+    .environment(LibraryDependencies())
     .preferredColorScheme(.dark)
 }
