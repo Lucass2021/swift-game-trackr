@@ -1,18 +1,26 @@
 import SwiftUI
 
+private enum Constants {
+    static let swatchSize: CGFloat = 46
+    static let checkSize: CGFloat = 20
+    static let borderWidth: CGFloat = 1
+    static let selectedBorderWidth: CGFloat = 2
+    static let gradientDepth = 0.28
+}
+
 struct AvatarColorPicker: View {
     let colors: [ProfileColor]
     @Binding var selection: String
 
     var body: some View {
         ScrollView(.horizontal, showsIndicators: false) {
-            HStack(spacing: 12) {
+            HStack(spacing: Spacing.sm) {
                 ForEach(colors) { color in
                     swatch(color)
                 }
             }
-            .padding(.horizontal, 2)
-            .padding(.vertical, 3)
+            .padding(.horizontal, Spacing.xxxs)
+            .padding(.vertical, Spacing.xxxs)
         }
     }
 
@@ -25,23 +33,23 @@ struct AvatarColorPicker: View {
             Circle()
                 .fill(
                     LinearGradient(
-                        colors: [profileColor.color, profileColor.color.darkened(by: 0.28)],
+                        colors: [profileColor.color, profileColor.color.darkened(by: Constants.gradientDepth)],
                         startPoint: .topLeading,
                         endPoint: .bottomTrailing
                     )
                 )
-                .frame(width: 46, height: 46)
+                .frame(width: Constants.swatchSize, height: Constants.swatchSize)
                 .overlay {
                     if isSelected {
-                        AppIconView(icon: .check, size: 20)
-                            .foregroundStyle(Color.white)
+                        AppIconView(icon: .check, size: Constants.checkSize)
+                            .foregroundStyle(Color.appTextPrimary)
                     }
                 }
                 .overlay {
                     Circle()
                         .stroke(
                             isSelected ? Color.appPrimary : Color.appOutline,
-                            lineWidth: isSelected ? 2 : 1
+                            lineWidth: isSelected ? Constants.selectedBorderWidth : Constants.borderWidth
                         )
                 }
                 .contentShape(Circle())

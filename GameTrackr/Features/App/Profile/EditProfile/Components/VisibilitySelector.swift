@@ -1,10 +1,19 @@
 import SwiftUI
 
+private enum Constants {
+    static let iconSize: CGFloat = 20
+    static let iconBoxWidth: CGFloat = 24
+    static let titleSize: CGFloat = 15
+    static let detailSize: CGFloat = 13
+    static let detailSelectedOpacity = 0.75
+    static let borderWidth: CGFloat = 1
+}
+
 struct VisibilitySelector: View {
     @Binding var selection: ProfileVisibility
 
     var body: some View {
-        VStack(spacing: 10) {
+        VStack(spacing: Spacing.xs) {
             ForEach(ProfileVisibility.allCases) { option in
                 row(option)
             }
@@ -17,34 +26,38 @@ struct VisibilitySelector: View {
         return Button {
             selection = option
         } label: {
-            HStack(spacing: 12) {
-                AppIconView(icon: option.icon, size: 20)
+            HStack(spacing: Spacing.sm) {
+                AppIconView(icon: option.icon, size: Constants.iconSize)
                     .foregroundStyle(isSelected ? Color.appOnPrimary : Color.appTextSecondary)
-                    .frame(width: 24)
+                    .frame(width: Constants.iconBoxWidth)
 
-                VStack(alignment: .leading, spacing: 3) {
+                VStack(alignment: .leading, spacing: Spacing.xxxs) {
                     Text(option.title)
-                        .font(.appLabel(15))
+                        .font(.appLabel(Constants.titleSize))
                         .foregroundStyle(isSelected ? Color.appOnPrimary : Color.appTextPrimary)
 
                     Text(option.detail)
-                        .font(.appBody(13))
-                        .foregroundStyle(isSelected ? Color.appOnPrimary.opacity(0.75) : Color.appTextSecondary)
+                        .font(.appBody(Constants.detailSize))
+                        .foregroundStyle(
+                            isSelected
+                                ? Color.appOnPrimary.opacity(Constants.detailSelectedOpacity)
+                                : Color.appTextSecondary
+                        )
                         .multilineTextAlignment(.leading)
                         .fixedSize(horizontal: false, vertical: true)
                 }
 
                 Spacer(minLength: 0)
             }
-            .padding(14)
+            .padding(Spacing.sm)
             .frame(maxWidth: .infinity, alignment: .leading)
             .background(
-                RoundedRectangle(cornerRadius: 12, style: .continuous)
+                RoundedRectangle(cornerRadius: Radius.md, style: .continuous)
                     .fill(isSelected ? Color.appPrimary : Color.appSurfaceCard)
             )
             .overlay(
-                RoundedRectangle(cornerRadius: 12, style: .continuous)
-                    .stroke(isSelected ? Color.clear : Color.appOutline, lineWidth: 1)
+                RoundedRectangle(cornerRadius: Radius.md, style: .continuous)
+                    .stroke(isSelected ? Color.clear : Color.appOutline, lineWidth: Constants.borderWidth)
             )
             .contentShape(Rectangle())
         }

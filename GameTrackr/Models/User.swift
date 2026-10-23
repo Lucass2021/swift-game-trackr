@@ -35,3 +35,27 @@ struct User: Decodable, Identifiable {
         try? Date(value, strategy: .iso8601.year().month().day().time(includingFractionalSeconds: true))
     }
 }
+
+extension User {
+    nonisolated init(
+        id: Int,
+        name: String,
+        email: String,
+        avatarUrl: String? = nil,
+        username: String? = nil,
+        profileColor: String? = nil,
+        bio: String? = nil,
+        visibility: ProfileVisibility = .publicProfile,
+        createdAt: Date? = nil
+    ) {
+        self.id = id
+        self.name = name
+        self.email = email
+        self.avatarUrl = avatarUrl
+        self.username = username
+        self.profileColor = profileColor
+        self.bio = bio
+        self.visibility = visibility
+        self.createdAt = createdAt
+    }
+}

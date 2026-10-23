@@ -11,6 +11,16 @@ enum ProfileMockData {
         avatarHex: "#8B5CF6"
     )
 
+    static let user = User(
+        id: 1,
+        name: profile.name,
+        email: "player@example.com",
+        username: String(profile.username.dropFirst()),
+        profileColor: profile.avatarHex,
+        bio: profile.bio,
+        createdAt: profile.joinedAt
+    )
+
     static let colors = [
         ProfileColor(key: "purple", name: "Purple", hex: "#8B5CF6"),
         ProfileColor(key: "emerald", name: "Emerald", hex: "#10B981"),
