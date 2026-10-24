@@ -8,3 +8,9 @@ struct LoadingMoreIndicator: View {
             .padding(.vertical, 20)
     }
 }
+
+#Preview {
+    LoadingMoreIndicator()
+        .background(Color.appBackground)
+        .preferredColorScheme(.dark)
+}

@@ -24,3 +24,13 @@ struct AuthScreenScaffold<Content: View>: View {
         }
     }
 }
+
+#Preview {
+    AuthScreenScaffold {
+        TitleWithSubtitle(
+            title: "Welcome back!",
+            subTitle: "Access your account to continue tracking your gaming journey."
+        )
+    }
+    .preferredColorScheme(.dark)
+}
