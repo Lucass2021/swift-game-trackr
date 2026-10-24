@@ -11,13 +11,14 @@ struct AppHeader: View {
                 .resizable()
                 .scaledToFit()
                 .frame(height: 26)
+                .accessibilityLabel("GameTrackr")
 
             Spacer(minLength: 12)
 
             HStack(spacing: 6) {
-                headerButton(.notifications, action: onNotifications)
-                headerButton(.search, action: onSearch)
-                headerButton(.settings, action: onMenu)
+                headerButton(.notifications, label: "Notifications", action: onNotifications)
+                headerButton(.search, label: "Search", action: onSearch)
+                headerButton(.settings, label: "Menu", action: onMenu)
             }
         }
         .padding(.horizontal, 20)
@@ -25,7 +26,7 @@ struct AppHeader: View {
         .background(Color.appBackground)
     }
 
-    private func headerButton(_ icon: AppIcon, action: @escaping () -> Void) -> some View {
+    private func headerButton(_ icon: AppIcon, label: String, action: @escaping () -> Void) -> some View {
         Button(action: action) {
             AppIconView(icon: icon, size: 22)
                 .foregroundStyle(Color.appTextPrimary)
@@ -33,6 +34,7 @@ struct AppHeader: View {
                 .contentShape(Rectangle())
         }
         .buttonStyle(PressableButtonStyle())
+        .accessibilityLabel(label)
     }
 }
 
