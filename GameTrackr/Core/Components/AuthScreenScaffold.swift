@@ -29,7 +29,7 @@ struct AuthScreenScaffold<Content: View>: View {
     AuthScreenScaffold {
         TitleWithSubtitle(
             title: "Welcome back!",
-            subTitle: "Access your account to continue tracking your gaming journey."
+            subtitle: "Access your account to continue tracking your gaming journey."
         )
     }
     .preferredColorScheme(.dark)

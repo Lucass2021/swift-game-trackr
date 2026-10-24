@@ -19,7 +19,7 @@ struct ResetPasswordView: View {
 
             TitleWithSubtitle(
                 title: "Create new password",
-                subTitle: "Your new password must be different from previously used passwords.",
+                subtitle: "Your new password must be different from previously used passwords.",
                 alignment: .center
             )
             .padding(.top, 16)

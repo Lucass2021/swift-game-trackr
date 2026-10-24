@@ -15,7 +15,7 @@ struct ForgotPasswordView: View {
 
             TitleWithSubtitle(
                 title: "Reset password",
-                subTitle: "Enter your email and we'll send you a code to create a new password."
+                subtitle: "Enter your email and we'll send you a code to create a new password."
             )
             .padding(.top, 16)
             .staggeredAppear(1)

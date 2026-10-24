@@ -14,7 +14,7 @@ struct RegisterView: View {
 
             TitleWithSubtitle(
                 title: "Create your profile",
-                subTitle: "Join the global community of players."
+                subtitle: "Join the global community of players."
             )
             .padding(.top, 16)
             .staggeredAppear(1)

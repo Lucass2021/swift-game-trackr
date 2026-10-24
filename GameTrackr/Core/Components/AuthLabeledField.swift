@@ -5,7 +5,7 @@ struct AuthLabeledField<Content: View>: View {
     @ViewBuilder let content: Content
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 10) {
+        VStack(alignment: .leading, spacing: Spacing.xs) {
             Text(label)
                 .font(.appLabel(15))
                 .foregroundStyle(Color.appTextSecondary)

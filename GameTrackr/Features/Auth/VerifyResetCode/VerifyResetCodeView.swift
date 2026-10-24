@@ -16,7 +16,7 @@ struct VerifyResetCodeView: View {
 
             TitleWithSubtitle(
                 title: "Verify your email",
-                subTitle: "We sent a code to \(viewModel.email)"
+                subtitle: "We sent a code to \(viewModel.email)"
             )
             .padding(.top, 16)
             .staggeredAppear(1)

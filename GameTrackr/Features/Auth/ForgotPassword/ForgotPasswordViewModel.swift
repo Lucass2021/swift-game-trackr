@@ -16,10 +16,7 @@ class ForgotPasswordViewModel {
     }
 
     var emailError: String? {
-        guard submitted else { return nil }
-        if email.trimmingCharacters(in: .whitespaces).isEmpty { return ValidationMessage.emailRequired }
-        if !email.contains("@") || !email.contains(".") { return ValidationMessage.emailInvalid }
-        return nil
+        submitted ? AuthValidation.emailError(email) : nil
     }
 
     func sendCode() async {

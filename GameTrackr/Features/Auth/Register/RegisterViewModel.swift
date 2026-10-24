@@ -29,23 +29,15 @@ class RegisterViewModel {
     }
 
     var emailError: String? {
-        guard submitted else { return nil }
-        if email.trimmingCharacters(in: .whitespaces).isEmpty { return ValidationMessage.emailRequired }
-        if !email.contains("@") || !email.contains(".") { return ValidationMessage.emailInvalid }
-        return nil
+        submitted ? AuthValidation.emailError(email) : nil
     }
 
     var passwordError: String? {
-        guard submitted else { return nil }
-        if password.isEmpty { return ValidationMessage.passwordRequired }
-        if password.count < 6 { return ValidationMessage.passwordTooShort }
-        return nil
+        submitted ? AuthValidation.passwordError(password) : nil
     }
 
     var confirmPasswordError: String? {
-        guard submitted else { return nil }
-        if confirmPassword != password { return ValidationMessage.passwordsDoNotMatch }
-        return nil
+        submitted ? AuthValidation.confirmPasswordError(password: password, confirmation: confirmPassword) : nil
     }
 
     var termsError: String? {

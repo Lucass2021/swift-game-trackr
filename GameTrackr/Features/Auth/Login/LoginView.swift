@@ -17,41 +17,52 @@ struct LoginView: View {
 
             TitleWithSubtitle(
                 title: "Welcome back!",
-                subTitle: "Access your account to continue tracking your gaming journey.",
+                subtitle: "Access your account to continue tracking your gaming journey.",
                 alignment: .center
             )
-            .padding(.top, 16)
+            .padding(.top, Spacing.md)
             .staggeredAppear(1)
 
-            LoginFormSection(viewModel: viewModel)
-                .padding(.top, 28)
-                .staggeredAppear(2)
+            LoginFormSection(
+                email: viewModel.email,
+                password: viewModel.password,
+                emailError: viewModel.emailError,
+                passwordError: viewModel.passwordError,
+                onEmailChange: viewModel.onEmailChange,
+                onPasswordChange: viewModel.onPasswordChange
+            )
+            .padding(.top, Spacing.xl)
+            .staggeredAppear(2)
 
             ForgotPasswordRow(
                 onForgotPassword: { authStore.isResetFlowActive = true }
             )
-            .padding(.top, 20)
+            .padding(.top, Spacing.lg)
             .staggeredAppear(3)
 
             PrimaryButton(title: "Sign in", isLoading: viewModel.isLoading) {
-                Task { await viewModel.signIn(authStore: authStore) }
+                Task { await viewModel.submit(authStore: authStore) }
             }
-            .padding(.top, 24)
+            .padding(.top, Spacing.xl)
             .staggeredAppear(4)
 
             SocialLoginSection(action: {
                 Task { await viewModel.signInWithGoogle(authStore: authStore) }
             })
-            .padding(.top, 28)
+            .padding(.top, Spacing.xl)
             .staggeredAppear(5)
 
-            signUpPrompt
-                .padding(.top, 28)
-                .staggeredAppear(6)
+            AuthPrompt(prefix: "Don't have an account? ", actionText: "Sign up") {
+                showRegister = true
+            }
+            .padding(.top, Spacing.xl)
+            .staggeredAppear(6)
 
-            guestPrompt
-                .padding(.top, 16)
-                .staggeredAppear(7)
+            AuthPrompt(prefix: "Just exploring? ", actionText: "Continue as guest") {
+                authStore.continueAsGuest()
+            }
+            .padding(.top, Spacing.md)
+            .staggeredAppear(7)
 
             Spacer(minLength: 0)
         }
@@ -62,22 +73,7 @@ struct LoginView: View {
         .navigationDestination(isPresented: $authStore.isResetFlowActive) {
             ForgotPasswordView()
         }
-        .toast(message: $viewModel.errorMessage)
-        .onDisappear { viewModel.clear() }
-    }
-
-    private var signUpPrompt: some View {
-        Text("Don't have an account? \(Text("Sign up").font(.appLabel(15)).foregroundStyle(Color.appSecondary))")
-            .font(.appBody(15))
-            .foregroundStyle(Color.appTextSecondary)
-            .onTapGesture { showRegister = true }
-    }
-
-    private var guestPrompt: some View {
-        Text("Just exploring? \(Text("Continue as guest").font(.appLabel(15)).foregroundStyle(Color.appSecondary))")
-            .font(.appBody(15))
-            .foregroundStyle(Color.appTextSecondary)
-            .onTapGesture { authStore.continueAsGuest() }
+        .toast(message: $viewModel.toastMessage)
     }
 }
 

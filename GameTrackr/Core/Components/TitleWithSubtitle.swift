@@ -2,15 +2,15 @@ import SwiftUI
 
 struct TitleWithSubtitle: View {
     let title: String
-    let subTitle: String
+    let subtitle: String
     var alignment: HorizontalAlignment = .leading
 
     var body: some View {
-        VStack(alignment: alignment, spacing: 8) {
+        VStack(alignment: alignment, spacing: Spacing.xs) {
             Text(title)
                 .font(.appHeadline(32, weight: .heavy))
                 .foregroundStyle(Color.appPrimary)
-            Text(subTitle)
+            Text(subtitle)
                 .font(.appBody(17))
                 .foregroundStyle(Color.appTextSecondary)
         }
@@ -28,7 +28,7 @@ struct TitleWithSubtitle: View {
 }
 
 #Preview {
-    TitleWithSubtitle(title: "Title", subTitle: "Subtitle")
+    TitleWithSubtitle(title: "Title", subtitle: "Subtitle")
         .padding()
         .background(Color.appBackground)
 }

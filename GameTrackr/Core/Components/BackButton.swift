@@ -14,6 +14,7 @@ struct BackButton: View {
                     .frame(width: 40, height: 40, alignment: .leading)
             }
             .buttonStyle(.plain)
+            .accessibilityLabel("Back")
             Spacer()
         }
     }

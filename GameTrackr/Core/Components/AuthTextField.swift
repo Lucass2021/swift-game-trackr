@@ -1,5 +1,13 @@
 import SwiftUI
 
+private enum Constants {
+    static let fieldHeight: CGFloat = 56
+    static let borderWidth: CGFloat = 1
+    static let focusedBorderWidth: CGFloat = 2
+    static let leadingIconSize: CGFloat = 20
+    static let revealIconSize: CGFloat = 22
+}
+
 struct AuthTextField: View {
     let placeholder: String
     @Binding var text: String
@@ -18,7 +26,7 @@ struct AuthTextField: View {
     }
 
     private var borderWidth: CGFloat {
-        (error != nil || isFocused) ? 2 : 1
+        (error != nil || isFocused) ? Constants.focusedBorderWidth : Constants.borderWidth
     }
 
     private var disablesAutocapitalization: Bool {
@@ -26,10 +34,10 @@ struct AuthTextField: View {
     }
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 6) {
-            HStack(spacing: 12) {
+        VStack(alignment: .leading, spacing: Spacing.xxs) {
+            HStack(spacing: Spacing.sm) {
                 if let icon {
-                    AppIconView(icon: icon, size: 20)
+                    AppIconView(icon: icon, size: Constants.leadingIconSize)
                         .foregroundStyle(Color.appTextSecondary)
                 }
 
@@ -54,18 +62,18 @@ struct AuthTextField: View {
                     Button {
                         isRevealed.toggle()
                     } label: {
-                        AppIconView(icon: isRevealed ? .eye : .eyeSlash, size: 20)
+                        AppIconView(icon: isRevealed ? .eye : .eyeSlash, size: Constants.revealIconSize)
                             .foregroundStyle(Color.appTextSecondary)
                     }
                     .buttonStyle(.plain)
                 }
             }
-            .padding(.horizontal, 18)
-            .frame(height: 56)
+            .padding(.horizontal, Spacing.md)
+            .frame(height: Constants.fieldHeight)
             .background(Color.appSurfaceCard)
-            .clipShape(RoundedRectangle(cornerRadius: 14))
+            .clipShape(RoundedRectangle(cornerRadius: Radius.md))
             .overlay(
-                RoundedRectangle(cornerRadius: 14)
+                RoundedRectangle(cornerRadius: Radius.md)
                     .stroke(borderColor, lineWidth: borderWidth)
             )
 
@@ -73,7 +81,7 @@ struct AuthTextField: View {
                 Text(error)
                     .font(.appBody(13))
                     .foregroundStyle(Color.appTertiary)
-                    .padding(.horizontal, 4)
+                    .padding(.horizontal, Spacing.xxs)
             }
         }
     }
@@ -85,9 +93,10 @@ struct AuthTextField: View {
 
 #Preview {
     @Previewable @State var text = ""
-    VStack(spacing: 16) {
+    VStack(spacing: Spacing.md) {
         AuthTextField(placeholder: "Ex: CyberNinja", text: $text)
         AuthTextField(placeholder: "••••••••", text: $text, isSecure: true)
+        AuthTextField(placeholder: "you@email.com", text: $text, error: ValidationMessage.emailRequired)
     }
     .padding()
     .background(Color.appBackground)

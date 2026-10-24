@@ -1,27 +1,32 @@
 import SwiftUI
 
 struct LoginFormSection: View {
-    @Bindable var viewModel: LoginViewModel
+    let email: String
+    let password: String
+    let emailError: String?
+    let passwordError: String?
+    let onEmailChange: (String) -> Void
+    let onPasswordChange: (String) -> Void
 
     var body: some View {
-        VStack(spacing: 20) {
+        VStack(spacing: Spacing.lg) {
             AuthLabeledField(label: "Email") {
                 AuthTextField(
                     placeholder: "you@email.com",
-                    text: $viewModel.email,
+                    text: Binding(get: { email }, set: onEmailChange),
                     keyboardType: .emailAddress,
                     contentType: .emailAddress,
-                    error: viewModel.emailError
+                    error: emailError
                 )
             }
 
             AuthLabeledField(label: "Password") {
                 AuthTextField(
                     placeholder: "••••••••",
-                    text: $viewModel.password,
+                    text: Binding(get: { password }, set: onPasswordChange),
                     isSecure: true,
                     contentType: .password,
-                    error: viewModel.passwordError
+                    error: passwordError
                 )
             }
         }
@@ -29,7 +34,14 @@ struct LoginFormSection: View {
 }
 
 #Preview {
-    LoginFormSection(viewModel: LoginViewModel())
-        .padding()
-        .background(Color.appBackground)
+    LoginFormSection(
+        email: "player@gametrackr.com",
+        password: "",
+        emailError: nil,
+        passwordError: ValidationMessage.passwordRequired,
+        onEmailChange: { _ in },
+        onPasswordChange: { _ in }
+    )
+    .padding()
+    .background(Color.appBackground)
 }

@@ -21,16 +21,11 @@ class ResetPasswordViewModel {
     }
 
     var passwordError: String? {
-        guard submitted else { return nil }
-        if password.isEmpty { return ValidationMessage.passwordRequired }
-        if password.count < 6 { return ValidationMessage.passwordTooShort }
-        return nil
+        submitted ? AuthValidation.passwordError(password) : nil
     }
 
     var confirmPasswordError: String? {
-        guard submitted else { return nil }
-        if confirmPassword != password { return ValidationMessage.passwordsDoNotMatch }
-        return nil
+        submitted ? AuthValidation.confirmPasswordError(password: password, confirmation: confirmPassword) : nil
     }
 
     func resetPassword() async {

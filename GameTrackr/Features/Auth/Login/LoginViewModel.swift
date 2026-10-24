@@ -1,64 +1,73 @@
-import SwiftUI
+import Foundation
 
 @MainActor
 @Observable
-class LoginViewModel {
-    var email = ""
-    var password = ""
-    var isLoading = false
-    var errorMessage: String?
-    private var submitted = false
+final class LoginViewModel {
+    private(set) var email = ""
+    private(set) var password = ""
+    private(set) var isSubmitted = false
+    private(set) var isLoading = false
+    var toastMessage: String?
 
     private let repository: AuthRepository
+    private let googleAuth: GoogleAuth
 
-    init(repository: AuthRepository = RemoteAuthRepository()) {
+    init(repository: AuthRepository = RemoteAuthRepository(), googleAuth: GoogleAuth? = nil) {
         self.repository = repository
+        self.googleAuth = googleAuth ?? GoogleAuthService.shared
     }
 
     var emailError: String? {
-        guard submitted else { return nil }
-        if email.trimmingCharacters(in: .whitespaces).isEmpty { return ValidationMessage.emailRequired }
-        if !email.contains("@") || !email.contains(".") { return ValidationMessage.emailInvalid }
-        return nil
+        isSubmitted ? AuthValidation.emailError(email) : nil
     }
 
     var passwordError: String? {
-        guard submitted else { return nil }
-        if password.isEmpty { return ValidationMessage.passwordRequired }
-        if password.count < 6 { return ValidationMessage.passwordTooShort }
-        return nil
+        isSubmitted ? AuthValidation.passwordError(password) : nil
     }
 
-    func signIn(authStore: AuthStore) async {
-        submitted = true
-        guard emailError == nil, passwordError == nil else { return }
+    var canSubmit: Bool {
+        AuthValidation.emailError(email) == nil && AuthValidation.passwordError(password) == nil
+    }
+
+    func onEmailChange(_ value: String) {
+        email = value
+    }
+
+    func onPasswordChange(_ value: String) {
+        password = value
+    }
+
+    func submit(authStore: AuthStore) async {
+        guard !isLoading else { return }
+        isSubmitted = true
+        guard canSubmit else { return }
+
         isLoading = true
+        toastMessage = nil
         defer { isLoading = false }
+
         do {
-            let user = try await repository.login(email: email, password: password)
+            let trimmedEmail = email.trimmingCharacters(in: .whitespacesAndNewlines)
+            let user = try await repository.login(email: trimmedEmail, password: password)
             authStore.authenticate(user: user)
         } catch {
-            errorMessage = error.userMessage()
+            toastMessage = error.userMessage()
         }
     }
 
     func signInWithGoogle(authStore: AuthStore) async {
+        guard !isLoading else { return }
         isLoading = true
+        toastMessage = nil
         defer { isLoading = false }
+
         do {
-            let token = try await GoogleAuthService.shared.signIn()
+            let token = try await googleAuth.signIn()
             let user = try await repository.signInWithGoogle(token: token)
             authStore.authenticate(user: user)
         } catch GoogleAuthError.cancelled {
         } catch {
-            errorMessage = error.userMessage()
+            toastMessage = error.userMessage()
         }
-    }
-
-    func clear() {
-        email = ""
-        password = ""
-        errorMessage = nil
-        submitted = false
     }
 }

@@ -3,8 +3,6 @@ import Foundation
 @MainActor
 @Observable
 final class ChangePasswordViewModel {
-    static let passwordMin = 6
-
     private(set) var currentPassword = ""
     private(set) var newPassword = ""
     private(set) var confirmPassword = ""
@@ -72,7 +70,8 @@ final class ChangePasswordViewModel {
 
     private static func newPasswordError(for password: String) -> String? {
         if password.isEmpty { return "New password is required" }
-        if password.count < passwordMin { return "At least \(passwordMin) characters" }
+        if password.count < AuthValidation
+            .passwordMinLength { return ValidationMessage.passwordTooShort(AuthValidation.passwordMinLength) }
         return nil
     }
 
