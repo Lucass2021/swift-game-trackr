@@ -1,18 +1,15 @@
 import SwiftUI
 
 struct RegisterBottomSection: View {
-    var isLoading: Bool
-    var onCreateAccount: () -> Void
-    var onSignIn: () -> Void
+    let isLoading: Bool
+    let onCreateAccount: () -> Void
+    let onSignIn: () -> Void
 
     var body: some View {
-        VStack(spacing: 20) {
+        VStack(spacing: Spacing.lg) {
             PrimaryButton(title: "Create account", isLoading: isLoading, action: onCreateAccount)
 
-            Text("Already have an account? \(Text("Sign in").font(.appLabel(15)).foregroundStyle(Color.appSecondary))")
-                .font(.appBody(15))
-                .foregroundStyle(Color.appTextSecondary)
-                .onTapGesture(perform: onSignIn)
+            AuthPrompt(prefix: "Already have an account? ", actionText: "Sign in", action: onSignIn)
         }
     }
 }

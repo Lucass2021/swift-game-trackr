@@ -1,95 +1,130 @@
-import SwiftUI
+import Foundation
 
 @MainActor
 @Observable
-class RegisterViewModel {
-    var name = ""
-    var email = ""
-    var password = ""
-    var confirmPassword = ""
-    var acceptedTerms = false
-    var isLoading = false
-    var errorMessage: String?
+final class RegisterViewModel {
+    static let nameMinLength = 3
+
+    private(set) var name = ""
+    private(set) var email = ""
+    private(set) var password = ""
+    private(set) var confirmPassword = ""
+    private(set) var acceptedTerms = false
+    private(set) var isSubmitted = false
+    private(set) var isLoading = false
+    private(set) var isRegistered = false
     var showSuccess = false
-    private var submitted = false
-    private var pendingUser: User?
+    var toastMessage: String?
+    private var registeredUser: User?
 
     private let repository: AuthRepository
+    private let googleAuth: GoogleAuth
 
-    init(repository: AuthRepository = RemoteAuthRepository()) {
+    init(repository: AuthRepository = RemoteAuthRepository(), googleAuth: GoogleAuth? = nil) {
         self.repository = repository
+        self.googleAuth = googleAuth ?? GoogleAuthService.shared
     }
 
     var nameError: String? {
-        guard submitted else { return nil }
-        let trimmed = name.trimmingCharacters(in: .whitespaces)
-        if trimmed.isEmpty { return ValidationMessage.nameRequired }
-        if trimmed.count < 3 { return ValidationMessage.nameTooShort }
-        return nil
+        isSubmitted ? Self.nameError(for: name) : nil
     }
 
     var emailError: String? {
-        submitted ? AuthValidation.emailError(email) : nil
+        isSubmitted ? AuthValidation.emailError(email) : nil
     }
 
     var passwordError: String? {
-        submitted ? AuthValidation.passwordError(password) : nil
+        isSubmitted ? AuthValidation.passwordError(password) : nil
     }
 
     var confirmPasswordError: String? {
-        submitted ? AuthValidation.confirmPasswordError(password: password, confirmation: confirmPassword) : nil
+        isSubmitted ? AuthValidation.confirmPasswordError(password: password, confirmation: confirmPassword) : nil
     }
 
     var termsError: String? {
-        guard submitted else { return nil }
-        if !acceptedTerms { return ValidationMessage.termsRequired }
-        return nil
+        isSubmitted ? Self.termsError(for: acceptedTerms) : nil
     }
 
-    func signUp(authStore _: AuthStore) async {
-        submitted = true
-        guard nameError == nil, emailError == nil, passwordError == nil, confirmPasswordError == nil,
-              termsError == nil else { return }
+    var canSubmit: Bool {
+        Self.nameError(for: name) == nil
+            && AuthValidation.emailError(email) == nil
+            && AuthValidation.passwordError(password) == nil
+            && AuthValidation.confirmPasswordError(password: password, confirmation: confirmPassword) == nil
+            && Self.termsError(for: acceptedTerms) == nil
+    }
+
+    func onNameChange(_ value: String) {
+        name = value
+    }
+
+    func onEmailChange(_ value: String) {
+        email = value
+    }
+
+    func onPasswordChange(_ value: String) {
+        password = value
+    }
+
+    func onConfirmPasswordChange(_ value: String) {
+        confirmPassword = value
+    }
+
+    func onToggleTerms() {
+        acceptedTerms.toggle()
+    }
+
+    func submit() async {
+        guard !isLoading, !isRegistered else { return }
+        isSubmitted = true
+        guard canSubmit else { return }
+
         isLoading = true
+        toastMessage = nil
         defer { isLoading = false }
+
         do {
-            pendingUser = try await repository.register(
-                name: name,
-                email: email,
+            registeredUser = try await repository.register(
+                name: name.trimmingCharacters(in: .whitespacesAndNewlines),
+                email: email.trimmingCharacters(in: .whitespacesAndNewlines),
                 password: password,
                 passwordConfirmation: confirmPassword
             )
+            isRegistered = true
             showSuccess = true
         } catch {
-            errorMessage = error.userMessage()
+            toastMessage = error.userMessage()
         }
     }
 
     func completeRegistration(authStore: AuthStore) {
-        guard let pendingUser else { return }
-        authStore.authenticate(user: pendingUser)
+        guard let registeredUser else { return }
+        authStore.authenticate(user: registeredUser)
     }
 
-    func signInWithGoogle(authStore: AuthStore) async {
+    func signUpWithGoogle(authStore: AuthStore) async {
+        guard !isLoading, !isRegistered else { return }
         isLoading = true
+        toastMessage = nil
         defer { isLoading = false }
+
         do {
-            let token = try await GoogleAuthService.shared.signIn()
+            let token = try await googleAuth.signIn()
             let user = try await repository.signInWithGoogle(token: token)
             authStore.authenticate(user: user)
         } catch GoogleAuthError.cancelled {
         } catch {
-            errorMessage = error.userMessage()
+            toastMessage = error.userMessage()
         }
     }
 
-    func clear() {
-        name = ""
-        email = ""
-        password = ""
-        confirmPassword = ""
-        acceptedTerms = false
-        errorMessage = nil
-        submitted = false
+    private static func nameError(for name: String) -> String? {
+        let trimmed = name.trimmingCharacters(in: .whitespacesAndNewlines)
+        if trimmed.isEmpty { return ValidationMessage.nameRequired }
+        if trimmed.count < nameMinLength { return ValidationMessage.nameTooShort }
+        return nil
+    }
+
+    private static func termsError(for accepted: Bool) -> String? {
+        accepted ? nil : ValidationMessage.termsRequired
     }
 }

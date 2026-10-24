@@ -8,6 +8,8 @@ actor FakeAuthRepository: AuthRepository {
     private(set) var lastEmail: String?
     private(set) var lastPassword: String?
     private(set) var lastGoogleToken: String?
+    private(set) var registerCount = 0
+    private(set) var lastName: String?
     private var failure: Error?
     private let latency: Duration
 
@@ -30,12 +32,18 @@ actor FakeAuthRepository: AuthRepository {
     }
 
     func register(
-        name _: String,
-        email _: String,
-        password _: String,
+        name: String,
+        email: String,
+        password: String,
         passwordConfirmation _: String
     ) async throws -> User {
-        user
+        registerCount += 1
+        lastName = name
+        lastEmail = email
+        lastPassword = password
+        try await Task.sleep(for: latency)
+        if let failure { throw failure }
+        return user
     }
 
     func signInWithGoogle(token: String) async throws -> User {

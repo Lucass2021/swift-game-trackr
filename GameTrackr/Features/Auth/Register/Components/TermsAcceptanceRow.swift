@@ -1,30 +1,37 @@
 import SwiftUI
 
+private enum Constants {
+    static let checkboxSize: CGFloat = 24
+    static let checkboxBorderWidth: CGFloat = 1.5
+    static let checkIconSize: CGFloat = 16
+}
+
 struct TermsAcceptanceRow: View {
-    @Binding var isAccepted: Bool
+    let isAccepted: Bool
     var error: String?
+    let onToggle: () -> Void
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            HStack(alignment: .top, spacing: 12) {
-                Button {
-                    isAccepted.toggle()
-                } label: {
-                    RoundedRectangle(cornerRadius: 6)
+        VStack(alignment: .leading, spacing: Spacing.xs) {
+            HStack(alignment: .top, spacing: Spacing.sm) {
+                Button(action: onToggle) {
+                    RoundedRectangle(cornerRadius: Radius.sm)
                         .fill(isAccepted ? Color.appPrimary : Color.clear)
-                        .frame(width: 24, height: 24)
+                        .frame(width: Constants.checkboxSize, height: Constants.checkboxSize)
                         .overlay(
-                            RoundedRectangle(cornerRadius: 6)
-                                .stroke(borderColor, lineWidth: 1.5)
+                            RoundedRectangle(cornerRadius: Radius.sm)
+                                .stroke(borderColor, lineWidth: Constants.checkboxBorderWidth)
                         )
                         .overlay {
                             if isAccepted {
-                                AppIconView(icon: .check, size: 14)
+                                AppIconView(icon: .check, size: Constants.checkIconSize)
                                     .foregroundStyle(Color.appOnPrimary)
                             }
                         }
                 }
                 .buttonStyle(.plain)
+                .accessibilityLabel("Accept the terms of use and privacy policy")
+                .accessibilityAddTraits(isAccepted ? .isSelected : [])
 
                 Text(
                     "I have read and accept the **[Terms of Use](https://github.com/lucianobcorrea/game-trackr-api)** and the **[Privacy Policy](https://github.com/lucianobcorrea/game-trackr-api)**."
@@ -51,8 +58,10 @@ struct TermsAcceptanceRow: View {
 }
 
 #Preview {
-    @Previewable @State var isAccepted = false
-    TermsAcceptanceRow(isAccepted: $isAccepted)
-        .padding()
-        .background(Color.appBackground)
+    VStack(spacing: Spacing.lg) {
+        TermsAcceptanceRow(isAccepted: true) {}
+        TermsAcceptanceRow(isAccepted: false, error: ValidationMessage.termsRequired) {}
+    }
+    .padding()
+    .background(Color.appBackground)
 }

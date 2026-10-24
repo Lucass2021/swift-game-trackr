@@ -16,29 +16,46 @@ struct RegisterView: View {
                 title: "Create your profile",
                 subtitle: "Join the global community of players."
             )
-            .padding(.top, 16)
+            .padding(.top, Spacing.md)
             .staggeredAppear(1)
 
-            RegisterFormSection(viewModel: viewModel)
-                .padding(.top, 28)
-                .staggeredAppear(2)
+            RegisterFormSection(
+                name: viewModel.name,
+                email: viewModel.email,
+                password: viewModel.password,
+                confirmPassword: viewModel.confirmPassword,
+                nameError: viewModel.nameError,
+                emailError: viewModel.emailError,
+                passwordError: viewModel.passwordError,
+                confirmPasswordError: viewModel.confirmPasswordError,
+                onNameChange: viewModel.onNameChange,
+                onEmailChange: viewModel.onEmailChange,
+                onPasswordChange: viewModel.onPasswordChange,
+                onConfirmPasswordChange: viewModel.onConfirmPasswordChange
+            )
+            .padding(.top, Spacing.xl)
+            .staggeredAppear(2)
 
-            TermsAcceptanceRow(isAccepted: $viewModel.acceptedTerms, error: viewModel.termsError)
-                .padding(.top, 24)
-                .staggeredAppear(3)
+            TermsAcceptanceRow(
+                isAccepted: viewModel.acceptedTerms,
+                error: viewModel.termsError,
+                onToggle: viewModel.onToggleTerms
+            )
+            .padding(.top, Spacing.xl)
+            .staggeredAppear(3)
 
             RegisterBottomSection(
                 isLoading: viewModel.isLoading,
-                onCreateAccount: { Task { await viewModel.signUp(authStore: authStore) } },
+                onCreateAccount: { Task { await viewModel.submit() } },
                 onSignIn: { showLogin = true }
             )
-            .padding(.top, 24)
+            .padding(.top, Spacing.xl)
             .staggeredAppear(4)
 
             SocialLoginSection(action: {
-                Task { await viewModel.signInWithGoogle(authStore: authStore) }
+                Task { await viewModel.signUpWithGoogle(authStore: authStore) }
             })
-            .padding(.top, 28)
+            .padding(.top, Spacing.xl)
             .staggeredAppear(5)
         }
         .toolbar(.hidden, for: .navigationBar)
@@ -55,8 +72,7 @@ struct RegisterView: View {
                 onPrimary: { viewModel.completeRegistration(authStore: authStore) }
             )
         }
-        .toast(message: $viewModel.errorMessage)
-        .onDisappear { viewModel.clear() }
+        .toast(message: $viewModel.toastMessage)
     }
 }
 
