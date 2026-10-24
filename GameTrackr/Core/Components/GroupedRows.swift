@@ -1,6 +1,6 @@
 import SwiftUI
 
-enum SettingsRowMetrics {
+enum GroupedRowMetrics {
     static let iconBoxWidth: CGFloat = 24
 }
 
@@ -11,13 +11,13 @@ private enum Constants {
     static let progressSize: CGFloat = 16
 }
 
-struct SettingsToggleRow: View {
+struct GroupedToggleRow: View {
     let icon: AppIcon
     let title: String
     @Binding var isOn: Bool
 
     var body: some View {
-        SettingsRowLayout(icon: icon, title: title, tint: .appPrimary, titleColor: .appTextPrimary) {
+        GroupedRowLayout(icon: icon, title: title, tint: .appPrimary, titleColor: .appTextPrimary) {
             Toggle("", isOn: $isOn)
                 .labelsHidden()
                 .tint(Color.appPrimary)
@@ -27,14 +27,14 @@ struct SettingsToggleRow: View {
     }
 }
 
-struct SettingsNavRow: View {
+struct GroupedNavRow: View {
     let icon: AppIcon
     let title: String
     let action: () -> Void
 
     var body: some View {
         Button(action: action) {
-            SettingsRowLayout(icon: icon, title: title, tint: .appPrimary, titleColor: .appTextPrimary) {
+            GroupedRowLayout(icon: icon, title: title, tint: .appPrimary, titleColor: .appTextPrimary) {
                 AppIconView(icon: .forward, size: Constants.chevronSize)
                     .foregroundStyle(Color.appTextSecondary)
             }
@@ -45,7 +45,7 @@ struct SettingsNavRow: View {
     }
 }
 
-struct SettingsDestructiveRow: View {
+struct GroupedDestructiveRow: View {
     let icon: AppIcon
     let title: String
     let isLoading: Bool
@@ -53,7 +53,7 @@ struct SettingsDestructiveRow: View {
 
     var body: some View {
         Button(action: action) {
-            SettingsRowLayout(icon: icon, title: title, tint: .appTertiary, titleColor: .appTertiary) {
+            GroupedRowLayout(icon: icon, title: title, tint: .appTertiary, titleColor: .appTertiary) {
                 if isLoading {
                     ProgressView()
                         .controlSize(.small)
@@ -68,7 +68,7 @@ struct SettingsDestructiveRow: View {
     }
 }
 
-private struct SettingsRowLayout<Trailing: View>: View {
+private struct GroupedRowLayout<Trailing: View>: View {
     let icon: AppIcon
     let title: String
     let tint: Color
@@ -79,7 +79,7 @@ private struct SettingsRowLayout<Trailing: View>: View {
         HStack(spacing: Spacing.sm) {
             AppIconView(icon: icon, size: Constants.iconSize)
                 .foregroundStyle(tint)
-                .frame(width: SettingsRowMetrics.iconBoxWidth)
+                .frame(width: GroupedRowMetrics.iconBoxWidth)
 
             Text(title)
                 .font(.appLabel(Constants.titleSize))
@@ -94,9 +94,9 @@ private struct SettingsRowLayout<Trailing: View>: View {
 
 #Preview {
     VStack(spacing: 0) {
-        SettingsToggleRow(icon: .notifications, title: "Push notifications", isOn: .constant(true))
-        SettingsNavRow(icon: .shieldCheck, title: "Change password") {}
-        SettingsDestructiveRow(icon: .close, title: "Delete account", isLoading: true) {}
+        GroupedToggleRow(icon: .notifications, title: "Push notifications", isOn: .constant(true))
+        GroupedNavRow(icon: .shieldCheck, title: "Change password") {}
+        GroupedDestructiveRow(icon: .close, title: "Delete account", isLoading: true) {}
     }
     .background(Color.appSurfaceCard)
     .preferredColorScheme(.dark)

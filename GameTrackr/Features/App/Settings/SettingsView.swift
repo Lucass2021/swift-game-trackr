@@ -28,14 +28,14 @@ struct SettingsView: View {
                         onRetry: { Task { await viewModel.load() } }
                     )
 
-                    SettingsSection(title: "Account") {
-                        SettingsNavRow(icon: .shieldCheck, title: "Change password") {
+                    GroupedSection(title: "Account") {
+                        GroupedNavRow(icon: .shieldCheck, title: "Change password") {
                             showChangePassword = true
                         }
                     }
 
-                    SettingsSection(title: "Danger zone") {
-                        SettingsDestructiveRow(icon: .close, title: "Delete account", isLoading: viewModel.isDeleting) {
+                    GroupedSection(title: "Danger zone") {
+                        GroupedDestructiveRow(icon: .close, title: "Delete account", isLoading: viewModel.isDeleting) {
                             if !viewModel.isDeleting { showDeleteAlert = true }
                         }
                     }

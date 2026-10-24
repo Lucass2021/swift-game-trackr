@@ -7,16 +7,16 @@ struct SettingsNotificationsSection: View {
     let onRetry: () -> Void
 
     var body: some View {
-        SettingsSection(title: "Notifications") {
+        GroupedSection(title: "Notifications") {
             if let settings {
                 ForEach(Array(NotificationSetting.allCases.enumerated()), id: \.element) { index, setting in
-                    SettingsToggleRow(
+                    GroupedToggleRow(
                         icon: setting.icon,
                         title: setting.title,
                         isOn: Binding(get: { settings.isEnabled(setting) }, set: { onToggle(setting, $0) })
                     )
                     if index < NotificationSetting.allCases.count - 1 {
-                        SettingsDivider()
+                        GroupedDivider()
                     }
                 }
             } else if hasError {
