@@ -4,8 +4,8 @@ import Testing
 
 @MainActor
 struct ChangePasswordViewModelTests {
-    private static let current = "old-secret"
-    private static let new = "new-secret"
+    private nonisolated static let current = "old-secret"
+    private nonisolated static let new = "new-secret"
 
     private let repository = FakePasswordRepository(latency: .zero)
 
@@ -30,6 +30,15 @@ struct ChangePasswordViewModelTests {
         #expect(viewModel.currentPasswordError == "Current password is required")
         #expect(viewModel.newPasswordError == "New password is required")
         #expect(viewModel.confirmPasswordError == "Confirm your new password")
+        #expect(await repository.changeCount == 0)
+    }
+
+    @Test func newPasswordEqualToTheCurrentOneIsRejected() async {
+        let viewModel = viewModel(new: Self.current, confirm: Self.current)
+
+        await viewModel.save()
+
+        #expect(viewModel.newPasswordError == "New password must be different from the current one")
         #expect(await repository.changeCount == 0)
     }
 

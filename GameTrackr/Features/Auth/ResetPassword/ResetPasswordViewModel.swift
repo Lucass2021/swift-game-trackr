@@ -1,16 +1,17 @@
-import SwiftUI
+import Foundation
 
 @MainActor
 @Observable
-class ResetPasswordViewModel {
+final class ResetPasswordViewModel {
     let email: String
     let code: String
-    var password = ""
-    var confirmPassword = ""
-    var isLoading = false
-    var errorMessage: String?
+    private(set) var password = ""
+    private(set) var confirmPassword = ""
+    private(set) var isSubmitted = false
+    private(set) var isLoading = false
+    private(set) var isReset = false
     var showSuccess = false
-    private var submitted = false
+    var toastMessage: String?
 
     private let repository: AuthRepository
 
@@ -21,34 +22,54 @@ class ResetPasswordViewModel {
     }
 
     var passwordError: String? {
-        submitted ? AuthValidation.passwordError(password) : nil
+        isSubmitted ? AuthValidation.passwordError(password) : nil
     }
 
     var confirmPasswordError: String? {
-        submitted ? AuthValidation.confirmPasswordError(password: password, confirmation: confirmPassword) : nil
+        isSubmitted ? AuthValidation.confirmPasswordError(password: password, confirmation: confirmPassword) : nil
     }
 
-    func resetPassword() async {
-        submitted = true
-        guard passwordError == nil, confirmPasswordError == nil else { return }
+    var canSubmit: Bool {
+        AuthValidation.passwordError(password) == nil
+            && AuthValidation.confirmPasswordError(password: password, confirmation: confirmPassword) == nil
+    }
+
+    func onPasswordChange(_ value: String) {
+        password = value
+    }
+
+    func onConfirmPasswordChange(_ value: String) {
+        confirmPassword = value
+    }
+
+    func submit() async {
+        guard !isLoading, !isReset else { return }
+        isSubmitted = true
+        guard canSubmit else { return }
+
         isLoading = true
+        toastMessage = nil
         defer { isLoading = false }
+
         do {
             try await repository.resetPassword(email: email, code: code, newPassword: password)
+            isReset = true
             showSuccess = true
         } catch {
-            errorMessage = error.userMessage()
+            toastMessage = error.userMessage()
         }
     }
 
     func signInAfterReset(authStore: AuthStore) async {
+        guard isReset, !isLoading else { return }
         isLoading = true
         defer { isLoading = false }
+
         do {
             let user = try await repository.login(email: email, password: password)
             authStore.authenticate(user: user)
         } catch {
-            errorMessage = error.userMessage()
+            authStore.isResetFlowActive = false
         }
     }
 }

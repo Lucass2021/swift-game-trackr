@@ -22,7 +22,7 @@ final class ChangePasswordViewModel {
     }
 
     var newPasswordError: String? {
-        isSubmitted ? Self.newPasswordError(for: newPassword) : nil
+        isSubmitted ? Self.newPasswordError(for: newPassword, currentPassword: currentPassword) : nil
     }
 
     var confirmPasswordError: String? {
@@ -31,7 +31,7 @@ final class ChangePasswordViewModel {
 
     var canSave: Bool {
         Self.currentPasswordError(for: currentPassword) == nil
-            && Self.newPasswordError(for: newPassword) == nil
+            && Self.newPasswordError(for: newPassword, currentPassword: currentPassword) == nil
             && Self.confirmPasswordError(for: confirmPassword, password: newPassword) == nil
     }
 
@@ -68,10 +68,11 @@ final class ChangePasswordViewModel {
         password.isEmpty ? "Current password is required" : nil
     }
 
-    private static func newPasswordError(for password: String) -> String? {
+    private static func newPasswordError(for password: String, currentPassword: String) -> String? {
+        let minLength = AuthValidation.passwordMinLength
         if password.isEmpty { return "New password is required" }
-        if password.count < AuthValidation
-            .passwordMinLength { return ValidationMessage.passwordTooShort(AuthValidation.passwordMinLength) }
+        if password.count < minLength { return ValidationMessage.passwordTooShort(minLength) }
+        if password == currentPassword { return "New password must be different from the current one" }
         return nil
     }
 

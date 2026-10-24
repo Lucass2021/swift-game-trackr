@@ -1,19 +1,16 @@
 import SwiftUI
 
 struct ResetPasswordBottomSection: View {
-    @Bindable var viewModel: ResetPasswordViewModel
+    let isLoading: Bool
     let onSave: () -> Void
 
     var body: some View {
-        PrimaryButton(title: "Save new password", isLoading: viewModel.isLoading, action: onSave)
+        PrimaryButton(title: "Save new password", isLoading: isLoading, action: onSave)
     }
 }
 
 #Preview {
-    ResetPasswordBottomSection(
-        viewModel: ResetPasswordViewModel(email: "you@email.com", code: "123456"),
-        onSave: {}
-    )
-    .padding()
-    .background(Color.appBackground)
+    ResetPasswordBottomSection(isLoading: false) {}
+        .padding()
+        .background(Color.appBackground)
 }

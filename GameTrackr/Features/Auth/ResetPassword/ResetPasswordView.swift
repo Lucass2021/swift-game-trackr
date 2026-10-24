@@ -22,18 +22,25 @@ struct ResetPasswordView: View {
                 subtitle: "Your new password must be different from previously used passwords.",
                 alignment: .center
             )
-            .padding(.top, 16)
+            .padding(.top, Spacing.md)
             .staggeredAppear(1)
 
-            ResetPasswordFormSection(viewModel: viewModel)
-                .padding(.top, 28)
-                .staggeredAppear(2)
+            ResetPasswordFormSection(
+                password: viewModel.password,
+                confirmPassword: viewModel.confirmPassword,
+                passwordError: viewModel.passwordError,
+                confirmPasswordError: viewModel.confirmPasswordError,
+                onPasswordChange: viewModel.onPasswordChange,
+                onConfirmPasswordChange: viewModel.onConfirmPasswordChange
+            )
+            .padding(.top, Spacing.xl)
+            .staggeredAppear(2)
 
             ResetPasswordBottomSection(
-                viewModel: viewModel,
-                onSave: { Task { await viewModel.resetPassword() } }
+                isLoading: viewModel.isLoading,
+                onSave: { Task { await viewModel.submit() } }
             )
-            .padding(.top, 28)
+            .padding(.top, Spacing.xl)
             .staggeredAppear(3)
 
             Spacer(minLength: 0)
@@ -49,7 +56,7 @@ struct ResetPasswordView: View {
                 onPrimary: { Task { await viewModel.signInAfterReset(authStore: authStore) } }
             )
         }
-        .toast(message: $viewModel.errorMessage)
+        .toast(message: $viewModel.toastMessage)
     }
 }
 

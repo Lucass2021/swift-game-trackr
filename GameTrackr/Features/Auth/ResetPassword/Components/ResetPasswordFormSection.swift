@@ -1,31 +1,36 @@
 import SwiftUI
 
 struct ResetPasswordFormSection: View {
-    @Bindable var viewModel: ResetPasswordViewModel
+    let password: String
+    let confirmPassword: String
+    let passwordError: String?
+    let confirmPasswordError: String?
+    let onPasswordChange: (String) -> Void
+    let onConfirmPasswordChange: (String) -> Void
 
     var body: some View {
-        VStack(spacing: 20) {
+        VStack(spacing: Spacing.lg) {
             AuthLabeledField(label: "New password") {
                 AuthTextField(
                     placeholder: "••••••••",
-                    text: $viewModel.password,
+                    text: Binding(get: { password }, set: onPasswordChange),
                     isSecure: true,
                     contentType: .newPassword,
-                    error: viewModel.passwordError
+                    error: passwordError
                 )
 
-                if !viewModel.password.isEmpty {
-                    PasswordStrengthMeter(strength: PasswordStrength(password: viewModel.password))
+                if !password.isEmpty {
+                    PasswordStrengthMeter(strength: PasswordStrength(password: password))
                 }
             }
 
             AuthLabeledField(label: "Confirm new password") {
                 AuthTextField(
                     placeholder: "••••••••",
-                    text: $viewModel.confirmPassword,
+                    text: Binding(get: { confirmPassword }, set: onConfirmPasswordChange),
                     isSecure: true,
                     contentType: .newPassword,
-                    error: viewModel.confirmPasswordError
+                    error: confirmPasswordError
                 )
             }
         }
@@ -33,7 +38,14 @@ struct ResetPasswordFormSection: View {
 }
 
 #Preview {
-    ResetPasswordFormSection(viewModel: ResetPasswordViewModel(email: "you@email.com", code: "123456"))
-        .padding()
-        .background(Color.appBackground)
+    ResetPasswordFormSection(
+        password: "secret123",
+        confirmPassword: "secret",
+        passwordError: nil,
+        confirmPasswordError: ValidationMessage.passwordsDoNotMatch,
+        onPasswordChange: { _ in },
+        onConfirmPasswordChange: { _ in }
+    )
+    .padding()
+    .background(Color.appBackground)
 }
