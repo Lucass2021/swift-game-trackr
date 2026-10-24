@@ -58,7 +58,11 @@ struct ProfileMenuView: View {
         case .editProfile: EditProfileView(profile: $profile)
         case .stats: StatsView()
         case .achievements: AchievementsView()
-        case .settings: SettingsView()
+        case .settings:
+            SettingsView(
+                notificationSettingsRepository: FakeNotificationSettingsRepository(),
+                accountRepository: FakeAccountRepository()
+            )
         case .help: HelpView()
         case .about: AboutView()
         }
