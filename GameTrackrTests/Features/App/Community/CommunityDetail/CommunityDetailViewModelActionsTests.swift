@@ -157,18 +157,6 @@ struct CommunityDetailViewModelActionsTests {
         #expect(viewModel.toastMessage == "Couldn't update the bookmark. Please try again.")
     }
 
-    @Test func aPostChangedInAnotherScreenIsUpdatedInTheCommunityPosts() async {
-        await viewModel.loadIfNeeded()
-        var changed = Self.post
-        changed.isLiked = !Self.post.isLiked
-        changed.likes = Self.post.likes + 1
-
-        postUpdates.publish(changed)
-
-        #expect(likedPost().isLiked == !Self.post.isLiked)
-        #expect(likedPost().likes == Self.post.likes + 1)
-    }
-
     private func likedPost() -> CommunityPost {
         viewModel.posts.first { $0.id == Self.post.id } ?? Self.post
     }

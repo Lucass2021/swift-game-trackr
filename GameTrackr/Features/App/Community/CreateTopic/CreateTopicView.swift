@@ -1,46 +1,55 @@
 import SwiftUI
 
 struct CreateTopicView: View {
-    let viewModel: CommunityViewModel
-    var onCreated: (CommunityPost) -> Void = { _ in }
-
     @Environment(AuthStore.self) private var authStore
     @Environment(\.dismiss) private var dismiss
 
-    @State private var model: CreateTopicModel
+    @State private var viewModel: CreateTopicViewModel
     @State private var showDiscardConfirm = false
-    @FocusState private var focusedField: Field?
+    @FocusState private var focusedField: CreateTopicFocusField?
 
-    private enum Field {
-        case title
-        case body
-    }
-
-    init(
-        viewModel: CommunityViewModel,
-        community: Community? = nil,
-        onCreated: @escaping (CommunityPost) -> Void = { _ in }
-    ) {
-        self.viewModel = viewModel
-        self.onCreated = onCreated
-        _model = State(initialValue: CreateTopicModel(community: community))
+    init(community: Community? = nil, repository: CommunityRepository, postUpdates: PostUpdates) {
+        _viewModel = State(initialValue: CreateTopicViewModel(
+            community: community,
+            repository: repository,
+            postUpdates: postUpdates
+        ))
     }
 
     var body: some View {
         VStack(spacing: 0) {
-            header
+            FormHeader(
+                title: "New post",
+                actionLabel: "Post",
+                closeLabel: "Close",
+                savingLabel: "Posting",
+                isSaving: viewModel.isSubmitting,
+                onClose: requestClose,
+                onAction: submit,
+                closeIcon: .close,
+                isActionVisible: !authStore.isGuest
+            )
 
             if authStore.isGuest {
-                guestState
+                EmptyState(
+                    icon: .community,
+                    title: "Posting needs an account",
+                    message: "You're browsing as a guest. Create an account to start discussions in your communities.",
+                    actionTitle: "Create an account",
+                    onAction: { authStore.logout() }
+                )
+                .frame(maxHeight: .infinity)
             } else {
-                form
+                CreateTopicForm(viewModel: viewModel, focusedField: $focusedField)
             }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background(Color.appBackground)
         .preferredColorScheme(.dark)
+        .toast(message: $viewModel.toastMessage)
         .task {
-            await model.loadCommunities()
+            guard !authStore.isGuest else { return }
+            await viewModel.loadIfNeeded()
         }
         .alert("Discard this post?", isPresented: $showDiscardConfirm) {
             Button("Keep editing", role: .cancel) {}
@@ -48,156 +57,25 @@ struct CreateTopicView: View {
         }
     }
 
-    private var header: some View {
-        HStack(spacing: 12) {
-            Button {
-                focusedField = nil
-                if model.hasContent {
-                    showDiscardConfirm = true
-                } else {
-                    dismiss()
-                }
-            } label: {
-                AppIconView(icon: .close, size: 20)
-                    .foregroundStyle(Color.appTextPrimary)
-                    .frame(width: 40, height: 40)
-                    .contentShape(Rectangle())
-            }
-            .buttonStyle(PressableButtonStyle())
-            .accessibilityLabel("Close")
-
-            Text("New post")
-                .font(.appHeadline(20))
-                .foregroundStyle(Color.appTextPrimary)
-
-            Spacer()
-
-            if !authStore.isGuest {
-                Button(action: submit) {
-                    Text(model.isSubmitting ? "Posting..." : "Post")
-                        .font(.appLabel(15))
-                        .foregroundStyle(Color.appOnPrimary)
-                        .padding(.horizontal, 20)
-                        .frame(height: 38)
-                        .background(Capsule().fill(Color.appPrimary))
-                        .contentShape(Capsule())
-                }
-                .buttonStyle(PressableButtonStyle())
-            }
+    private func requestClose() {
+        if viewModel.createdPost != nil {
+            dismiss()
+            return
         }
-        .padding(.horizontal, 16)
-        .padding(.vertical, 12)
-    }
-
-    private var guestState: some View {
-        EmptyState(
-            icon: .community,
-            title: "Posting needs an account",
-            message: "You're browsing as a guest. Create an account to start discussions in your communities.",
-            actionTitle: "Create an account",
-            onAction: { authStore.logout() }
-        )
-        .frame(maxHeight: .infinity)
-    }
-
-    private var form: some View {
-        ScrollView(showsIndicators: false) {
-            VStack(alignment: .leading, spacing: 22) {
-                field("Community", error: model.visibleError(model.communityError)) {
-                    CommunityPickerField(
-                        selection: $model.community,
-                        options: model.communities,
-                        isLocked: model.isCommunityLocked
-                    )
-                }
-                .zIndex(1)
-
-                field("Title", error: model.visibleError(model.titleError), counter: titleCounter) {
-                    TextField(
-                        "",
-                        text: $model.title,
-                        prompt: Text("What's the discussion about?")
-                            .foregroundStyle(Color.appTextSecondary)
-                    )
-                    .font(.appBody(16))
-                    .foregroundStyle(Color.appTextPrimary)
-                    .tint(Color.appPrimary)
-                    .submitLabel(.next)
-                    .focused($focusedField, equals: .title)
-                    .onSubmit { focusedField = .body }
-                    .fieldBox()
-                }
-
-                field("Body", error: model.visibleError(model.bodyError)) {
-                    TextField(
-                        "",
-                        text: $model.body,
-                        prompt: Text("Share your thoughts with the community...")
-                            .foregroundStyle(Color.appTextSecondary),
-                        axis: .vertical
-                    )
-                    .font(.appBody(16))
-                    .foregroundStyle(Color.appTextPrimary)
-                    .tint(Color.appPrimary)
-                    .lineLimit(6 ... 12)
-                    .focused($focusedField, equals: .body)
-                    .padding(14)
-                    .frame(maxWidth: .infinity, minHeight: 160, alignment: .topLeading)
-                    .background(
-                        RoundedRectangle(cornerRadius: 12, style: .continuous)
-                            .fill(Color.appSurfaceCard)
-                    )
-                    .overlay(
-                        RoundedRectangle(cornerRadius: 12, style: .continuous)
-                            .stroke(Color.appOutline, lineWidth: 1)
-                    )
-                }
-            }
-            .padding(.horizontal, 20)
-            .padding(.top, 8)
-            .padding(.bottom, 40)
+        guard !viewModel.isSubmitting else { return }
+        focusedField = nil
+        if viewModel.hasContent {
+            showDiscardConfirm = true
+        } else {
+            dismiss()
         }
-    }
-
-    private var titleCounter: String? {
-        model.titleRemaining <= 20 ? "\(model.titleRemaining)" : nil
-    }
-
-    private func field(
-        _ label: String,
-        error: String?,
-        counter: String? = nil,
-        @ViewBuilder content: () -> some View
-    ) -> some View {
-        VStack(alignment: .leading, spacing: 10) {
-            HStack {
-                SectionLabel(text: label)
-                Spacer()
-                if let counter {
-                    Text(counter)
-                        .font(.appBody(12))
-                        .foregroundStyle(model.titleRemaining < 0 ? Color.appTertiary : Color.appTextSecondary)
-                }
-            }
-
-            content()
-
-            if let error {
-                Text(error)
-                    .font(.appBody(13))
-                    .foregroundStyle(Color.appTertiary)
-            }
-        }
-        .frame(maxWidth: .infinity, alignment: .leading)
     }
 
     private func submit() {
         focusedField = nil
         Task {
-            if let post = await model.submit(using: viewModel) {
-                onCreated(post)
-                dismiss()
-            }
+            guard await viewModel.submit() != nil else { return }
+            dismiss()
         }
     }
 }
@@ -205,7 +83,11 @@ struct CreateTopicView: View {
 #Preview {
     Color.appBackground
         .fullScreenCover(isPresented: .constant(true)) {
-            CreateTopicView(viewModel: CommunityViewModel())
+            CreateTopicView(
+                community: CommunityMockData.all.first,
+                repository: FakeCommunityRepository(),
+                postUpdates: PostUpdates()
+            )
         }
         .environment(AuthStore())
         .preferredColorScheme(.dark)

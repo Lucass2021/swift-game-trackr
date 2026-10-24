@@ -54,7 +54,9 @@ final class CommunityDetailViewModel {
             postUpdates: postUpdates,
             posts: { [weak self] in self?.posts ?? [] },
             replacePost: { [weak self] in self?.replacePost($0) },
-            showToast: { [weak self] in self?.toastMessage = $0 }
+            addPost: { [weak self] in self?.addPost($0) },
+            showToast: { [weak self] in self?.toastMessage = $0 },
+            communityId: community.id
         )
     }
 
@@ -141,6 +143,10 @@ final class CommunityDetailViewModel {
         async let postsLoad: Void = loadPosts(page: 1, isRefresh: isRefresh)
         async let membersLoad: Void = loadMembers()
         _ = await (postsLoad, membersLoad)
+    }
+
+    private func addPost(_ post: CommunityPost) {
+        posts = posts.prependingPost(post)
     }
 
     private func replacePost(_ post: CommunityPost) {

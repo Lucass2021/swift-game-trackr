@@ -47,6 +47,7 @@ final class CommunityFeedViewModel {
             postUpdates: postUpdates,
             posts: { [weak self] in self?.posts ?? [] },
             replacePost: { [weak self] in self?.replacePost($0) },
+            addPost: { [weak self] in self?.onPostCreated($0) },
             showToast: { [weak self] in self?.toastMessage = $0 }
         )
         communityUpdates.observe(self) { [weak self] join in
@@ -104,7 +105,7 @@ final class CommunityFeedViewModel {
     }
 
     func onPostCreated(_ post: CommunityPost) {
-        posts = [post] + posts.filter { $0.id != post.id }
+        posts = posts.prependingPost(post)
     }
 
     func onPostDeleted(_ postId: Int) {

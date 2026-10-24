@@ -7,7 +7,9 @@ final class PostListActions {
     private let postUpdates: PostUpdates
     private let posts: () -> [CommunityPost]
     private let replacePost: (CommunityPost) -> Void
+    private let addPost: (CommunityPost) -> Void
     private let showToast: (String) -> Void
+    private let communityId: Int?
     private var pendingLikeIds: Set<Int> = []
     private var pendingBookmarkIds: Set<Int> = []
 
@@ -17,15 +19,23 @@ final class PostListActions {
         postUpdates: PostUpdates,
         posts: @escaping () -> [CommunityPost],
         replacePost: @escaping (CommunityPost) -> Void,
-        showToast: @escaping (String) -> Void
+        addPost: @escaping (CommunityPost) -> Void,
+        showToast: @escaping (String) -> Void,
+        communityId: Int? = nil
     ) {
         self.repository = repository
         self.feedRepository = feedRepository
         self.postUpdates = postUpdates
         self.posts = posts
         self.replacePost = replacePost
+        self.addPost = addPost
         self.showToast = showToast
+        self.communityId = communityId
         postUpdates.observe(self) { [weak self] post in self?.replacePost(post) }
+        postUpdates.observeCreated(self) { [weak self] post in
+            guard let self, communityId == nil || post.communityId == communityId else { return }
+            addPost(post)
+        }
     }
 
     func onLike(_ postId: Int) async {

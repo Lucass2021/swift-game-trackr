@@ -17,6 +17,7 @@ struct FormHeader: View {
     let onClose: () -> Void
     let onAction: () -> Void
     var closeIcon: AppIcon = .back
+    var isActionVisible = true
 
     var body: some View {
         HStack(spacing: Spacing.sm) {
@@ -35,26 +36,32 @@ struct FormHeader: View {
 
             Spacer()
 
-            Button(action: onAction) {
-                Text(actionLabel)
-                    .font(.appLabel(Constants.actionTextSize))
-                    .foregroundStyle(isSaving ? Color.appPrimary : Color.appOnPrimary)
-                    .overlay {
-                        if isSaving {
-                            ProgressView()
-                                .tint(Color.appOnPrimary)
-                                .accessibilityLabel(savingLabel)
-                        }
-                    }
-                    .padding(.horizontal, Spacing.lg)
-                    .frame(height: Constants.actionHeight)
-                    .background(Capsule().fill(Color.appPrimary))
-                    .contentShape(Capsule())
+            if isActionVisible {
+                actionButton
             }
-            .buttonStyle(PressableButtonStyle())
         }
         .padding(.horizontal, Spacing.md)
         .padding(.vertical, Spacing.sm)
+    }
+
+    private var actionButton: some View {
+        Button(action: onAction) {
+            Text(actionLabel)
+                .font(.appLabel(Constants.actionTextSize))
+                .foregroundStyle(isSaving ? Color.appPrimary : Color.appOnPrimary)
+                .overlay {
+                    if isSaving {
+                        ProgressView()
+                            .tint(Color.appOnPrimary)
+                            .accessibilityLabel(savingLabel)
+                    }
+                }
+                .padding(.horizontal, Spacing.lg)
+                .frame(height: Constants.actionHeight)
+                .background(Capsule().fill(Color.appPrimary))
+                .contentShape(Capsule())
+        }
+        .buttonStyle(PressableButtonStyle())
     }
 }
 

@@ -120,7 +120,7 @@ struct CommunityFeedViewModelActionsTests {
             hasMedia: false
         )
 
-        viewModel.onPostCreated(created)
+        postUpdates.publishCreated(created)
         #expect(viewModel.posts.first?.id == created.id)
 
         viewModel.onCommunityRemoved(77)

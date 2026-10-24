@@ -3,7 +3,6 @@ import SwiftUI
 struct CommunityView: View {
     @Environment(AuthStore.self) private var authStore
     let dependencies: CommunityDependencies
-    @State private var viewModel: CommunityViewModel
     @State private var segment: CommunitySegment = .myFeed
     @State private var selectedPost: CommunityPost?
     @State private var selectedCommunity: Community?
@@ -20,7 +19,6 @@ struct CommunityView: View {
 
     init(dependencies: CommunityDependencies) {
         self.dependencies = dependencies
-        _viewModel = State(initialValue: CommunityViewModel(repository: dependencies.repository))
     }
 
     var body: some View {
@@ -64,7 +62,7 @@ struct CommunityView: View {
         .toast(message: segment == .myFeed ? Bindable(feedViewModel).toastMessage : Bindable(discoverViewModel)
             .toastMessage)
         .fullScreenCover(isPresented: $showCreateTopic) {
-            CreateTopicView(viewModel: viewModel, onCreated: { feedViewModel.onPostCreated($0) })
+            CreateTopicView(repository: dependencies.repository, postUpdates: dependencies.postUpdates)
         }
         .fullScreenCover(isPresented: $showCreateCommunity) {
             CreateCommunityView(repository: dependencies.repository, onCreated: { community in

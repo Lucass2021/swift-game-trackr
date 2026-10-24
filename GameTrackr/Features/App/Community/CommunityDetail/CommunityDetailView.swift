@@ -14,7 +14,8 @@ struct CommunityDetailView: View {
     @State private var viewModel: CommunityDetailViewModel
     @State private var showCreateTopic = false
     @State private var selectedUser: UserProfile?
-    @State private var createTopicViewModel: CommunityViewModel
+    private let repository: CommunityRepository
+    private let postUpdates: PostUpdates
 
     init(
         community: Community,
@@ -28,6 +29,8 @@ struct CommunityDetailView: View {
         self.community = community
         self.onPostSelect = onPostSelect
         self.onDelete = onDelete
+        self.repository = repository
+        self.postUpdates = postUpdates
         _viewModel = State(initialValue: CommunityDetailViewModel(
             community: community,
             repository: repository,
@@ -35,7 +38,6 @@ struct CommunityDetailView: View {
             postUpdates: postUpdates,
             communityUpdates: communityUpdates
         ))
-        _createTopicViewModel = State(initialValue: CommunityViewModel(repository: repository))
     }
 
     private var isOwner: Bool {
@@ -68,7 +70,7 @@ struct CommunityDetailView: View {
         .background(Color.appBackground)
         .task { await viewModel.loadIfNeeded() }
         .fullScreenCover(isPresented: $showCreateTopic) {
-            CreateTopicView(viewModel: createTopicViewModel, community: community)
+            CreateTopicView(community: community, repository: repository, postUpdates: postUpdates)
         }
         .toolbar(.hidden, for: .navigationBar)
         .navigationBarBackButtonHidden(true)
