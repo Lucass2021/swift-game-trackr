@@ -1,24 +1,26 @@
 import SwiftUI
 
 struct ForgotPasswordFormSection: View {
-    @Bindable var viewModel: ForgotPasswordViewModel
+    let email: String
+    let emailError: String?
+    let onEmailChange: (String) -> Void
 
     var body: some View {
         AuthLabeledField(label: "Email") {
             AuthTextField(
                 placeholder: "you@email.com",
-                text: $viewModel.email,
+                text: Binding(get: { email }, set: onEmailChange),
                 icon: .envelope,
                 keyboardType: .emailAddress,
                 contentType: .emailAddress,
-                error: viewModel.emailError
+                error: emailError
             )
         }
     }
 }
 
 #Preview {
-    ForgotPasswordFormSection(viewModel: ForgotPasswordViewModel())
+    ForgotPasswordFormSection(email: "player", emailError: ValidationMessage.emailInvalid) { _ in }
         .padding()
         .background(Color.appBackground)
 }

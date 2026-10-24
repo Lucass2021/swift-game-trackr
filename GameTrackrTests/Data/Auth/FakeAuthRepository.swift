@@ -10,6 +10,7 @@ actor FakeAuthRepository: AuthRepository {
     private(set) var lastGoogleToken: String?
     private(set) var registerCount = 0
     private(set) var lastName: String?
+    private(set) var forgotPasswordCount = 0
     private var failure: Error?
     private let latency: Duration
 
@@ -56,7 +57,12 @@ actor FakeAuthRepository: AuthRepository {
         user
     }
 
-    func forgotPassword(email _: String) async throws {}
+    func forgotPassword(email: String) async throws {
+        forgotPasswordCount += 1
+        lastEmail = email
+        try await Task.sleep(for: latency)
+        if let failure { throw failure }
+    }
 
     func verifyResetCode(email _: String, code _: String) async throws {}
 

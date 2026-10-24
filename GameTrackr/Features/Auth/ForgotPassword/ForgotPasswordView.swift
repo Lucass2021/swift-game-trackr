@@ -17,23 +17,31 @@ struct ForgotPasswordView: View {
                 title: "Reset password",
                 subtitle: "Enter your email and we'll send you a code to create a new password."
             )
-            .padding(.top, 16)
+            .padding(.top, Spacing.md)
             .staggeredAppear(1)
 
-            ForgotPasswordFormSection(viewModel: viewModel)
-                .padding(.top, 28)
-                .staggeredAppear(2)
+            ForgotPasswordFormSection(
+                email: viewModel.email,
+                emailError: viewModel.emailError,
+                onEmailChange: viewModel.onEmailChange
+            )
+            .padding(.top, Spacing.xl)
+            .staggeredAppear(2)
 
             Spacer(minLength: 0)
 
-            ForgotPasswordBottomSection(viewModel: viewModel, onBackToLogin: { dismiss() })
-                .staggeredAppear(3)
+            ForgotPasswordBottomSection(
+                isLoading: viewModel.isLoading,
+                onSendCode: { Task { await viewModel.submit() } },
+                onBackToLogin: { dismiss() }
+            )
+            .staggeredAppear(3)
         }
         .toolbar(.hidden, for: .navigationBar)
-        .navigationDestination(isPresented: $viewModel.showVerifyCode) {
-            VerifyResetCodeView(email: viewModel.email)
+        .navigationDestination(item: $viewModel.sentToEmail) { email in
+            VerifyResetCodeView(email: email)
         }
-        .toast(message: $viewModel.errorMessage)
+        .toast(message: $viewModel.toastMessage)
     }
 }
 

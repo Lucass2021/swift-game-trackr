@@ -1,13 +1,13 @@
-import SwiftUI
+import Foundation
 
 @MainActor
 @Observable
-class ForgotPasswordViewModel {
-    var email = ""
-    var isLoading = false
-    var errorMessage: String?
-    var showVerifyCode = false
-    private var submitted = false
+final class ForgotPasswordViewModel {
+    private(set) var email = ""
+    private(set) var isSubmitted = false
+    private(set) var isLoading = false
+    var sentToEmail: String?
+    var toastMessage: String?
 
     private let repository: AuthRepository
 
@@ -16,19 +16,32 @@ class ForgotPasswordViewModel {
     }
 
     var emailError: String? {
-        submitted ? AuthValidation.emailError(email) : nil
+        isSubmitted ? AuthValidation.emailError(email) : nil
     }
 
-    func sendCode() async {
-        submitted = true
-        guard emailError == nil else { return }
+    var canSubmit: Bool {
+        AuthValidation.emailError(email) == nil
+    }
+
+    func onEmailChange(_ value: String) {
+        email = value
+    }
+
+    func submit() async {
+        guard !isLoading else { return }
+        isSubmitted = true
+        guard canSubmit else { return }
+
+        let trimmedEmail = email.trimmingCharacters(in: .whitespacesAndNewlines)
         isLoading = true
+        toastMessage = nil
         defer { isLoading = false }
+
         do {
-            try await repository.forgotPassword(email: email)
-            showVerifyCode = true
+            try await repository.forgotPassword(email: trimmedEmail)
+            sentToEmail = trimmedEmail
         } catch {
-            errorMessage = error.userMessage()
+            toastMessage = error.userMessage()
         }
     }
 }

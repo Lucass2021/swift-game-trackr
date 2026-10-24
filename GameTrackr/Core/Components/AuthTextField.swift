@@ -39,6 +39,7 @@ struct AuthTextField: View {
                 if let icon {
                     AppIconView(icon: icon, size: Constants.leadingIconSize)
                         .foregroundStyle(Color.appTextSecondary)
+                        .accessibilityHidden(true)
                 }
 
                 Group {
@@ -70,6 +71,8 @@ struct AuthTextField: View {
             }
             .padding(.horizontal, Spacing.md)
             .frame(height: Constants.fieldHeight)
+            .contentShape(RoundedRectangle(cornerRadius: Radius.md))
+            .onTapGesture { isFocused = true }
             .background(Color.appSurfaceCard)
             .clipShape(RoundedRectangle(cornerRadius: Radius.md))
             .overlay(

@@ -1,14 +1,13 @@
 import SwiftUI
 
 struct ForgotPasswordBottomSection: View {
-    @Bindable var viewModel: ForgotPasswordViewModel
+    let isLoading: Bool
+    let onSendCode: () -> Void
     let onBackToLogin: () -> Void
 
     var body: some View {
-        VStack(spacing: 20) {
-            PrimaryButton(title: "Send code", isLoading: viewModel.isLoading) {
-                Task { await viewModel.sendCode() }
-            }
+        VStack(spacing: Spacing.lg) {
+            PrimaryButton(title: "Send code", isLoading: isLoading, action: onSendCode)
 
             Button(action: onBackToLogin) {
                 Text("Back to login")
@@ -21,7 +20,7 @@ struct ForgotPasswordBottomSection: View {
 }
 
 #Preview {
-    ForgotPasswordBottomSection(viewModel: ForgotPasswordViewModel(), onBackToLogin: {})
+    ForgotPasswordBottomSection(isLoading: false, onSendCode: {}, onBackToLogin: {})
         .padding()
         .background(Color.appBackground)
 }
