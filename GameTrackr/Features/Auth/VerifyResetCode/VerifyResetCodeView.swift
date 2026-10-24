@@ -18,36 +18,40 @@ struct VerifyResetCodeView: View {
                 title: "Verify your email",
                 subtitle: "We sent a code to \(viewModel.email)"
             )
-            .padding(.top, 16)
+            .padding(.top, Spacing.md)
             .staggeredAppear(1)
 
-            OTPField(code: $viewModel.code)
-                .padding(.top, 32)
-                .staggeredAppear(2)
-                .onChange(of: viewModel.code) { _, newValue in
-                    guard newValue.count == 6 else { return }
-                    Task { await viewModel.verify() }
-                }
+            OTPField(
+                code: Binding(get: { viewModel.code }, set: viewModel.onCodeChange),
+                length: VerifyResetCodeViewModel.codeLength
+            )
+            .padding(.top, Spacing.xxl)
+            .staggeredAppear(2)
 
             if let codeError = viewModel.codeError {
                 Text(codeError)
                     .font(.appBody(13))
                     .foregroundStyle(Color.appTertiary)
                     .frame(maxWidth: .infinity, alignment: .leading)
-                    .padding(.top, 12)
+                    .padding(.top, Spacing.sm)
+                    .padding(.leading, Spacing.xxs)
             }
 
             Spacer(minLength: 0)
 
-            VerifyResetCodeBottomSection(viewModel: viewModel)
-                .staggeredAppear(3)
+            VerifyResetCodeBottomSection(
+                seconds: viewModel.resendSeconds,
+                onResend: { Task { await viewModel.resend() } },
+                isLoading: viewModel.isLoading,
+                onConfirm: { Task { await viewModel.submit() } }
+            )
+            .staggeredAppear(3)
         }
         .toolbar(.hidden, for: .navigationBar)
-        .navigationDestination(isPresented: $viewModel.showResetPassword) {
-            ResetPasswordView(email: viewModel.email, code: viewModel.code)
+        .navigationDestination(item: $viewModel.verifiedCode) { code in
+            ResetPasswordView(email: viewModel.email, code: code)
         }
-        .toast(message: $viewModel.errorMessage)
-        .task { await viewModel.startResendCountdown() }
+        .toast(message: $viewModel.toastMessage)
     }
 }
 

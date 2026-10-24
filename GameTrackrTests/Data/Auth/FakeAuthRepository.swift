@@ -11,6 +11,8 @@ actor FakeAuthRepository: AuthRepository {
     private(set) var registerCount = 0
     private(set) var lastName: String?
     private(set) var forgotPasswordCount = 0
+    private(set) var verifyCount = 0
+    private(set) var lastCode: String?
     private var failure: Error?
     private let latency: Duration
 
@@ -64,7 +66,13 @@ actor FakeAuthRepository: AuthRepository {
         if let failure { throw failure }
     }
 
-    func verifyResetCode(email _: String, code _: String) async throws {}
+    func verifyResetCode(email: String, code: String) async throws {
+        verifyCount += 1
+        lastEmail = email
+        lastCode = code
+        try await Task.sleep(for: latency)
+        if let failure { throw failure }
+    }
 
     func resetPassword(email _: String, code _: String, newPassword _: String) async throws {}
 }

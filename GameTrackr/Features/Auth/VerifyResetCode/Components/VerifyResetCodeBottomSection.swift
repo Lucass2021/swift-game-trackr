@@ -1,39 +1,22 @@
 import SwiftUI
 
 struct VerifyResetCodeBottomSection: View {
-    @Bindable var viewModel: VerifyResetCodeViewModel
+    let seconds: Int
+    let onResend: () -> Void
+    let isLoading: Bool
+    let onConfirm: () -> Void
 
     var body: some View {
-        VStack(spacing: 20) {
-            resendRow
+        VStack(spacing: Spacing.lg) {
+            ResendRow(seconds: seconds, onResend: onResend)
 
-            PrimaryButton(title: "Confirm", isLoading: viewModel.isLoading) {
-                Task { await viewModel.verify() }
-            }
-        }
-    }
-
-    @ViewBuilder
-    private var resendRow: some View {
-        if viewModel.canResend {
-            Button {
-                Task { await viewModel.resend() }
-            } label: {
-                Text("Didn't get it? \(Text("Resend code").foregroundStyle(Color.appSecondary))")
-                    .font(.appBody(15))
-                    .foregroundStyle(Color.appTextSecondary)
-            }
-            .buttonStyle(.plain)
-        } else {
-            Text("Didn't get it? Resend in \(viewModel.secondsRemaining)s")
-                .font(.appBody(15))
-                .foregroundStyle(Color.appTextSecondary)
+            PrimaryButton(title: "Confirm", isLoading: isLoading, action: onConfirm)
         }
     }
 }
 
 #Preview {
-    VerifyResetCodeBottomSection(viewModel: VerifyResetCodeViewModel(email: "you@email.com"))
+    VerifyResetCodeBottomSection(seconds: 12, onResend: {}, isLoading: false, onConfirm: {})
         .padding()
         .background(Color.appBackground)
 }

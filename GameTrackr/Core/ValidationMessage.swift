@@ -9,9 +9,12 @@ enum ValidationMessage {
     static let passwordsDoNotMatch = "Passwords do not match"
     static let termsRequired = "You must accept the terms to continue"
     static let codeRequired = "Code is required"
-    static let codeInvalid = "Enter the 6-digit code"
 
     static func passwordTooShort(_ minLength: Int) -> String {
         "At least \(minLength) characters"
+    }
+
+    static func codeInvalid(_ length: Int) -> String {
+        "Enter the \(length)-digit code"
     }
 }
