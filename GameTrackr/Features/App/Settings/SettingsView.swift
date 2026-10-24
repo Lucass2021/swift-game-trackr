@@ -45,7 +45,9 @@ struct SettingsView: View {
         .background(Color.appBackground)
         .toolbar(.hidden, for: .navigationBar)
         .navigationBarBackButtonHidden(true)
-        .navigationDestination(isPresented: $showChangePassword) { ChangePasswordView() }
+        .navigationDestination(isPresented: $showChangePassword) {
+            ChangePasswordView(repository: FakePasswordRepository())
+        }
         .alert("Delete account?", isPresented: $showDeleteAlert) {
             Button("Cancel", role: .cancel) {}
             Button("Delete", role: .destructive) { authStore.logout() }
