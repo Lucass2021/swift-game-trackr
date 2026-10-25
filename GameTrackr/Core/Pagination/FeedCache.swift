@@ -3,7 +3,7 @@ import Foundation
 struct FeedKey: Hashable {
     let scope: SearchScope
     let search: String?
-    let platform: GamePlatform?
+    let platformSlug: String?
 }
 
 @MainActor

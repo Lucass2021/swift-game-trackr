@@ -47,7 +47,7 @@ final class SearchViewModel {
         self.scope = scope
         self.repository = repository
         self.searchDebounce = searchDebounce
-        appliedKey = FeedKey(scope: scope, search: nil, platform: nil)
+        appliedKey = FeedKey(scope: scope, search: nil, platformSlug: nil)
     }
 
     func loadIfNeeded() async {
@@ -107,7 +107,7 @@ final class SearchViewModel {
         return FeedKey(
             scope: scope,
             search: trimmed.isEmpty ? nil : trimmed,
-            platform: platforms.first { $0.slug == platformSlug }
+            platformSlug: platformSlug
         )
     }
 
@@ -165,7 +165,7 @@ final class SearchViewModel {
     }
 
     private func fetch(_ page: Int, key: FeedKey) async throws -> Page<Game> {
-        let platformSlug = key.platform?.slug
+        let platformSlug = key.platformSlug
         switch key.scope {
         case .mostAnticipated:
             return try await repository.fetchAllMostAnticipated(
