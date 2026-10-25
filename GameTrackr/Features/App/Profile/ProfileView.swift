@@ -2,7 +2,7 @@ import SwiftUI
 
 struct ProfileView: View {
     let viewModel: ProfileViewModel
-    var profile: Profile = ProfileMockData.profile
+    var profile: Profile?
     var setups: [SetupItem] = []
     var onGameSelect: (String) -> Void = { _ in }
     var onStatusSelect: (LibraryStatus?) -> Void = { _ in }
@@ -22,7 +22,7 @@ struct ProfileView: View {
     private var content: some View {
         if authStore.isGuest {
             ProfileGuestState(onCreateAccount: { authStore.logout() })
-        } else if let overview = viewModel.overview {
+        } else if let overview = viewModel.overview, let profile {
             ProfileContent(
                 overview: overview,
                 profile: profile,
@@ -50,7 +50,7 @@ struct ProfileView: View {
 
 #Preview("Signed in") {
     let viewModel = ProfileViewModel(repository: FakeProfileOverviewRepository(latency: .zero))
-    return ProfileView(viewModel: viewModel)
+    return ProfileView(viewModel: viewModel, profile: ProfileMockData.profile)
         .task { await viewModel.loadFor(1) }
         .environment(AuthStore())
         .preferredColorScheme(.dark)

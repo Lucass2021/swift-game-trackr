@@ -1,7 +1,7 @@
 import SwiftUI
 
 struct EditProfileView: View {
-    @Binding var profile: Profile
+    let profile: Profile
 
     @Environment(\.dismiss) private var dismiss
     @Environment(AuthStore.self) private var authStore
@@ -12,10 +12,10 @@ struct EditProfileView: View {
 
     private let repository: ProfileRepository
 
-    init(profile: Binding<Profile>, repository: ProfileRepository = RemoteProfileRepository()) {
-        _profile = profile
+    init(profile: Profile, repository: ProfileRepository = RemoteProfileRepository()) {
+        self.profile = profile
         self.repository = repository
-        _viewModel = State(initialValue: EditProfileViewModel(profile: profile.wrappedValue, repository: repository))
+        _viewModel = State(initialValue: EditProfileViewModel(profile: profile, repository: repository))
     }
 
     var body: some View {
@@ -63,17 +63,15 @@ struct EditProfileView: View {
     private func save() {
         focusedField = nil
         Task {
-            guard let updated = await viewModel.save(authStore: authStore) else { return }
-            profile = updated
+            guard await viewModel.save(authStore: authStore) != nil else { return }
             dismiss()
         }
     }
 }
 
 #Preview {
-    @Previewable @State var profile = ProfileMockData.profile
     NavigationStack {
-        EditProfileView(profile: $profile, repository: FakeProfileRepository())
+        EditProfileView(profile: ProfileMockData.profile, repository: FakeProfileRepository())
     }
     .environment(AuthStore())
     .preferredColorScheme(.dark)

@@ -4,7 +4,6 @@ struct MainTabView: View {
     @State private var selection: AppTab = .home
     @State private var route: ShellRoute?
     @Environment(AuthStore.self) private var authStore
-    @State private var profile = ProfileMockData.profile
     @State private var mySetupViewModel = MySetupViewModel()
     @State private var library = LibraryDependencies()
     @State private var profileViewModel = ProfileViewModel(repository: FakeProfileOverviewRepository())
@@ -29,7 +28,6 @@ struct MainTabView: View {
             .toolbar(.hidden, for: .navigationBar)
             .navigationDestination(item: $route) { destinationView($0) }
             .task(id: authStore.currentUser?.id) {
-                profile = profile.applying(authStore.currentUser)
                 let userId = authStore.isGuest ? nil : authStore.currentUser?.id
                 async let setups: Void = mySetupViewModel.loadFor(userId)
                 async let libraryEntries: Void = library.viewModel.loadFor(userId)
@@ -38,6 +36,10 @@ struct MainTabView: View {
             }
         }
         .environment(library)
+    }
+
+    private var profile: Profile? {
+        authStore.currentUser.map(Profile.init(user:))
     }
 
     @ViewBuilder
@@ -79,10 +81,11 @@ struct MainTabView: View {
         switch route {
         case let .search(scope): SearchView(scope: scope)
         case .notifications: NotificationsView()
-        case .menu: ProfileMenuView(profile: $profile)
+        case .menu: ProfileMenuView()
         case let .gameDetail(slug): GameDetailView(slug: slug)
         case .stats: StatsView()
-        case .editProfile: EditProfileView(profile: $profile)
+        case .editProfile:
+            if let profile { EditProfileView(profile: profile) }
         case .mySetup: MySetupView(viewModel: mySetupViewModel)
         }
     }

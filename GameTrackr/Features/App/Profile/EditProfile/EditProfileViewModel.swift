@@ -148,7 +148,7 @@ final class EditProfileViewModel {
                 visibility: updated.visibility
             )
             authStore.updateUser(user)
-            savedProfile = updated.applying(user)
+            savedProfile = Profile(user: user)
             return savedProfile
         } catch {
             toastMessage = error.userMessage()

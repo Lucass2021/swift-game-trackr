@@ -1,8 +1,6 @@
 import SwiftUI
 
 struct ProfileMenuView: View {
-    @Binding var profile: Profile
-
     @Environment(AuthStore.self) private var authStore
 
     @State private var destination: ProfileMenuItem?
@@ -55,7 +53,8 @@ struct ProfileMenuView: View {
     @ViewBuilder
     private func destinationView(_ item: ProfileMenuItem) -> some View {
         switch item {
-        case .editProfile: EditProfileView(profile: $profile)
+        case .editProfile:
+            if let user = authStore.currentUser { EditProfileView(profile: Profile(user: user)) }
         case .stats: StatsView()
         case .achievements: AchievementsView()
         case .settings:
@@ -70,9 +69,8 @@ struct ProfileMenuView: View {
 }
 
 #Preview {
-    @Previewable @State var profile = ProfileMockData.profile
     NavigationStack {
-        ProfileMenuView(profile: $profile)
+        ProfileMenuView()
     }
     .environment(AuthStore())
     .preferredColorScheme(.dark)

@@ -15,17 +15,20 @@ struct Profile {
     var avatarEnd: Color {
         Color(hex: avatarHex).darkened(by: 0.28)
     }
+}
 
-    func applying(_ user: User?) -> Profile {
-        guard let user else { return self }
-        var copy = self
-        copy.name = user.name
-        if let username = user.username { copy.username = "@\(username)" }
-        if let color = user.profileColor { copy.avatarHex = color }
-        copy.bio = user.bio ?? ""
-        copy.visibility = user.visibility
-        if let createdAt = user.createdAt { copy.joinedAt = createdAt }
-        return copy
+extension Profile {
+    static let defaultAvatarHex = "#8B5CF6"
+
+    init(user: User) {
+        self.init(
+            name: user.name,
+            username: user.username.map { "@\($0)" } ?? "",
+            bio: user.bio ?? "",
+            joinedAt: user.createdAt,
+            avatarHex: user.profileColor ?? Self.defaultAvatarHex,
+            visibility: user.visibility
+        )
     }
 }
 
