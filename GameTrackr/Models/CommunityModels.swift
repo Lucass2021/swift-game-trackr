@@ -100,6 +100,7 @@ struct CommunityPost: Identifiable, Hashable {
     let id: Int
     let author: String
     let authorId: Int?
+    let authorUsername: String?
     let timeAgo: String
     let communityName: String
     let communityId: Int?
@@ -121,6 +122,7 @@ struct CommunityPost: Identifiable, Hashable {
         id: Int,
         author: String,
         authorId: Int? = nil,
+        authorUsername: String? = nil,
         timeAgo: String,
         communityName: String,
         communityId: Int? = nil,
@@ -141,6 +143,7 @@ struct CommunityPost: Identifiable, Hashable {
         self.id = id
         self.author = author
         self.authorId = authorId
+        self.authorUsername = authorUsername
         self.timeAgo = timeAgo
         self.communityName = communityName
         self.communityId = communityId
@@ -167,6 +170,7 @@ struct CommunityPost: Identifiable, Hashable {
             id: dto.id,
             author: "@\(dto.author?.name ?? "Unknown")",
             authorId: dto.authorId,
+            authorUsername: dto.author?.username,
             timeAgo: Self.formatDate(dto.createdAt),
             communityName: dto.community?.title ?? "",
             communityId: dto.communityId,
@@ -201,6 +205,7 @@ struct CommunityMember: Identifiable, Hashable {
     let avatarUrl: String?
     let avatarStart: Color
     let avatarEnd: Color
+    let username: String?
 
     init(
         id: Int,
@@ -208,12 +213,14 @@ struct CommunityMember: Identifiable, Hashable {
         role: String,
         avatarUrl: String? = nil,
         avatarStart: Color? = nil,
-        avatarEnd: Color? = nil
+        avatarEnd: Color? = nil,
+        username: String? = nil
     ) {
         self.id = id
         self.author = author
         self.role = role
         self.avatarUrl = avatarUrl
+        self.username = username
         let colors = GradientPalette.pair(for: id)
         self.avatarStart = avatarStart ?? colors.0
         self.avatarEnd = avatarEnd ?? colors.1
@@ -224,7 +231,8 @@ struct CommunityMember: Identifiable, Hashable {
             id: dto.id,
             author: "@\(dto.name)",
             role: "Member",
-            avatarUrl: dto.avatarUrl
+            avatarUrl: dto.avatarUrl,
+            username: dto.username
         )
     }
 }

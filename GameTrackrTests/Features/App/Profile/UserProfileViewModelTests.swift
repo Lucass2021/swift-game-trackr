@@ -4,22 +4,39 @@ import Testing
 
 @MainActor
 struct UserProfileViewModelTests {
-    private static let user = UserProfileMockData.user
+    private static let username = "shadowreaper"
     private static let overlapLatency: Duration = .milliseconds(50)
 
     @Test func loadShowsTheHeaderStatsAndSectionsFromTheRepository() async {
-        let viewModel = UserProfileViewModel(user: Self.user, repository: FakeProfileOverviewRepository(latency: .zero))
+        let viewModel = UserProfileViewModel(
+            username: Self.username,
+            repository: FakeProfileOverviewRepository(latency: .zero)
+        )
 
         await viewModel.loadIfNeeded()
 
         #expect(viewModel.profile?.bio == UserProfileMockData.bio)
-        #expect(viewModel.profile?.username == Self.user.username)
+        #expect(viewModel.profile?.username == "@\(Self.username)")
         #expect(viewModel.overview?.stats.totalGames == UserProfileMockData.stats.totalGames)
         #expect(!viewModel.isFriend)
     }
 
+    @Test func theHeaderComesFromTheRepositoryProfileForTheUsername() async {
+        let viewModel = UserProfileViewModel(
+            username: Self.username,
+            repository: FakeProfileOverviewRepository(latency: .zero)
+        )
+
+        await viewModel.loadIfNeeded()
+
+        #expect(viewModel.profile?.name == "ShadowReaper")
+        #expect(viewModel.profile?.username == "@shadowreaper")
+        #expect(viewModel.profile?.avatarHex == UserProfileMockData.avatarHex)
+        #expect(viewModel.profile?.joinedAt == UserProfileMockData.joinedAt)
+    }
+
     @Test func loadFailureShowsTheErrorStateInsteadOfLoadingForever() async {
-        let viewModel = UserProfileViewModel(user: Self.user, repository: FakeProfileOverviewRepository(
+        let viewModel = UserProfileViewModel(username: Self.username, repository: FakeProfileOverviewRepository(
             failure: APIError.networkFailure,
             latency: .zero
         ))
@@ -32,7 +49,7 @@ struct UserProfileViewModelTests {
 
     @Test func retryAfterAFailureShowsTheProfile() async {
         let repository = FakeProfileOverviewRepository(failure: APIError.networkFailure, latency: .zero)
-        let viewModel = UserProfileViewModel(user: Self.user, repository: repository)
+        let viewModel = UserProfileViewModel(username: Self.username, repository: repository)
         await viewModel.loadIfNeeded()
 
         await repository.setFailure(nil)
@@ -44,7 +61,7 @@ struct UserProfileViewModelTests {
 
     @Test func returningToTheScreenKeepsTheProfileWithoutFetchingAgain() async {
         let repository = FakeProfileOverviewRepository(latency: .zero)
-        let viewModel = UserProfileViewModel(user: Self.user, repository: repository)
+        let viewModel = UserProfileViewModel(username: Self.username, repository: repository)
         await viewModel.loadIfNeeded()
 
         await viewModel.loadIfNeeded()
@@ -54,21 +71,21 @@ struct UserProfileViewModelTests {
 
     @Test func addingAFriendSavesItAndSurvivesReopeningTheProfile() async {
         let repository = FakeProfileOverviewRepository(latency: .zero)
-        let viewModel = UserProfileViewModel(user: Self.user, repository: repository)
+        let viewModel = UserProfileViewModel(username: Self.username, repository: repository)
         await viewModel.loadIfNeeded()
 
         await viewModel.onFriendAction(isGuest: false)
-        let reopened = UserProfileViewModel(user: Self.user, repository: repository)
+        let reopened = UserProfileViewModel(username: Self.username, repository: repository)
         await reopened.loadIfNeeded()
 
         #expect(viewModel.isFriend)
-        #expect(await repository.isFriend(Self.user.username))
+        #expect(await repository.isFriend(Self.username))
         #expect(reopened.isFriend)
     }
 
     @Test func aFriendFailureRestoresThePreviousStateAndShowsAnError() async {
         let repository = FakeProfileOverviewRepository(latency: .zero)
-        let viewModel = UserProfileViewModel(user: Self.user, repository: repository)
+        let viewModel = UserProfileViewModel(username: Self.username, repository: repository)
         await viewModel.loadIfNeeded()
 
         await repository.setFailure(APIError.networkFailure)
@@ -80,7 +97,7 @@ struct UserProfileViewModelTests {
 
     @Test func aGuestGetsAToastAndNothingReachesTheRepository() async {
         let repository = FakeProfileOverviewRepository(latency: .zero)
-        let viewModel = UserProfileViewModel(user: Self.user, repository: repository)
+        let viewModel = UserProfileViewModel(username: Self.username, repository: repository)
         await viewModel.loadIfNeeded()
 
         await viewModel.onFriendAction(isGuest: true)
@@ -96,7 +113,7 @@ struct UserProfileViewModelTests {
 
     @Test func aQuickSecondTapSupersedesTheFirstWithoutAnError() async {
         let repository = FakeProfileOverviewRepository(latency: Self.overlapLatency)
-        let viewModel = UserProfileViewModel(user: Self.user, repository: repository)
+        let viewModel = UserProfileViewModel(username: Self.username, repository: repository)
         await viewModel.loadIfNeeded()
 
         let first = Task { await viewModel.onFriendAction(isGuest: false) }
@@ -107,7 +124,7 @@ struct UserProfileViewModelTests {
         await first.value
 
         #expect(!viewModel.isFriend)
-        #expect(await !repository.isFriend(Self.user.username))
+        #expect(await !repository.isFriend(Self.username))
         #expect(viewModel.toastMessage == nil)
     }
 }

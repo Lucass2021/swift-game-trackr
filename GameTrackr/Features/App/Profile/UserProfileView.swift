@@ -1,7 +1,7 @@
 import SwiftUI
 
 struct UserProfileView: View {
-    let user: UserProfile
+    let username: String
 
     @Environment(AuthStore.self) private var authStore
     @Environment(\.dismiss) private var dismiss
@@ -10,14 +10,14 @@ struct UserProfileView: View {
     @State private var showStats = false
     @State private var detailSlug: String?
 
-    init(user: UserProfile, repository: ProfileOverviewRepository = FakeProfileOverviewRepository()) {
-        self.user = user
-        _viewModel = State(initialValue: UserProfileViewModel(user: user, repository: repository))
+    init(username: String, repository: ProfileOverviewRepository = FakeProfileOverviewRepository()) {
+        self.username = username
+        _viewModel = State(initialValue: UserProfileViewModel(username: username, repository: repository))
     }
 
     var body: some View {
         VStack(spacing: 0) {
-            UserProfileTopBar(username: user.username, onBack: { dismiss() })
+            UserProfileTopBar(username: "@\(username)", onBack: { dismiss() })
 
             content
         }
@@ -26,7 +26,7 @@ struct UserProfileView: View {
         .toolbar(.hidden, for: .navigationBar)
         .navigationBarBackButtonHidden(true)
         .navigationDestination(isPresented: $showStats) {
-            StatsView(ownerName: user.username)
+            StatsView(ownerName: "@\(username)")
         }
         .navigationDestination(item: $detailSlug) { slug in
             GameDetailView(slug: slug)
@@ -43,7 +43,7 @@ struct UserProfileView: View {
                 overview: overview,
                 isFriend: viewModel.isFriend,
                 isGuest: authStore.isGuest,
-                shareText: "Check out \(user.name)'s gaming profile on GameTrackr!",
+                shareText: "Check out \(profile.name)'s gaming profile on GameTrackr!",
                 onFriendAction: { Task { await viewModel.onFriendAction(isGuest: authStore.isGuest) } },
                 onMessage: { viewModel.onMessage(isGuest: authStore.isGuest) },
                 onGameSelect: { detailSlug = $0 },
@@ -68,7 +68,7 @@ struct UserProfileView: View {
 
 #Preview("Not friend") {
     NavigationStack {
-        UserProfileView(user: UserProfileMockData.user)
+        UserProfileView(username: UserProfileMockData.username)
     }
     .environment(AuthStore())
     .environment(LibraryDependencies())
@@ -78,8 +78,8 @@ struct UserProfileView: View {
 #Preview("Friend") {
     NavigationStack {
         UserProfileView(
-            user: UserProfileMockData.friend,
-            repository: FakeProfileOverviewRepository(friendUsernames: [UserProfileMockData.friend.username])
+            username: UserProfileMockData.username,
+            repository: FakeProfileOverviewRepository(friendUsernames: [UserProfileMockData.username])
         )
     }
     .environment(AuthStore())
@@ -90,7 +90,7 @@ struct UserProfileView: View {
 #Preview("Error") {
     NavigationStack {
         UserProfileView(
-            user: UserProfileMockData.user,
+            username: UserProfileMockData.username,
             repository: FakeProfileOverviewRepository(failure: APIError.networkFailure, latency: .zero)
         )
     }

@@ -13,7 +13,7 @@ struct CommunityDetailView: View {
     @Environment(\.dismiss) private var dismiss
     @State private var viewModel: CommunityDetailViewModel
     @State private var showCreateTopic = false
-    @State private var selectedUser: UserProfile?
+    @State private var selectedUsername: String?
     private let repository: CommunityRepository
     private let postUpdates: PostUpdates
 
@@ -53,13 +53,7 @@ struct CommunityDetailView: View {
                 isOwner: isOwner,
                 onPostSelect: onPostSelect,
                 onCreatePost: { showCreateTopic = true },
-                onMemberSelect: { member in
-                    selectedUser = UserProfile(
-                        handle: member.author,
-                        avatarStart: member.avatarStart,
-                        avatarEnd: member.avatarEnd
-                    )
-                }
+                onMemberSelect: { member in selectedUsername = member.username }
             )
 
             if viewModel.tab == .posts, viewModel.isJoined, !authStore.isGuest {
@@ -74,8 +68,8 @@ struct CommunityDetailView: View {
         }
         .toolbar(.hidden, for: .navigationBar)
         .navigationBarBackButtonHidden(true)
-        .navigationDestination(item: $selectedUser) { user in
-            UserProfileView(user: user)
+        .navigationDestination(item: $selectedUsername) { username in
+            UserProfileView(username: username)
         }
         .overlay(alignment: .topLeading) {
             CommunityDetailFloatingButton(icon: .back, label: "Back") { dismiss() }

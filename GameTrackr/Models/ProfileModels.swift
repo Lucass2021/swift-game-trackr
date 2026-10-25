@@ -148,6 +148,9 @@ struct ProfileOverview {
 }
 
 struct UserOverview {
+    let name: String
+    let username: String
+    let avatarHex: String
     let bio: String
     let joinedAt: Date?
     let isFriend: Bool

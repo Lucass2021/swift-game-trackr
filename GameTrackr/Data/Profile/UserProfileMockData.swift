@@ -1,20 +1,21 @@
 import SwiftUI
 
 enum UserProfileMockData {
-    static let user = UserProfile(
-        name: "Ava Reyes",
-        username: "@avareyes",
-        avatarStart: .coverCyanStart,
-        avatarEnd: .coverCyanEnd
-    )
+    static let username = "avareyes"
 
-    static let friend = UserProfile(
-        name: "Ava Reyes",
-        username: "@avareyes",
-        avatarStart: .coverCyanStart,
-        avatarEnd: .coverCyanEnd,
-        isFriend: true
-    )
+    static let avatarHex = "#0077B6"
+
+    static let names = [
+        username: "Ava Reyes",
+        "shadowreaper": "ShadowReaper",
+        "pixelwitcher": "PixelWitcher",
+        "retrogamer": "RetroGamer",
+        "chrono_runner": "chrono_runner",
+        "master_of_none": "master_of_none",
+        "questmaster": "QuestMaster",
+        "voidwalker": "VoidWalker",
+        "neonsamurai": "NeonSamurai"
+    ]
 
     static let stats = ProfileStats(totalGames: 87, hours: 934, platinum: 12)
 

@@ -22,4 +22,22 @@ struct CommunityDTOMappingTests {
         #expect(try community(createdAt: "not a date").createdMonth == nil)
         #expect(try community(createdAt: "2026-13-45T00:00:00.000000Z").createdMonth == nil)
     }
+
+    @Test func thePostAuthorUsernameComesFromTheAPIAuthor() throws {
+        let json = """
+        {"id": 7, "title": "Builds", "slug": "builds", "community_id": 1, "author_id": 3,
+        "author": {"id": 3, "name": "Shadow Reaper", "username": "shadowreaper", "profile_color": "#10B981"}}
+        """
+        let post = try CommunityPost(dto: JSONDecoder().decode(PostDTO.self, from: Data(json.utf8)))
+
+        #expect(post.author == "@Shadow Reaper")
+        #expect(post.authorUsername == "shadowreaper")
+    }
+
+    @Test func theMemberUsernameComesFromTheAPIUser() throws {
+        let json = #"{"id": 3, "name": "Shadow Reaper", "username": "shadowreaper"}"#
+        let member = try CommunityMember(dto: JSONDecoder().decode(CommunityUserDTO.self, from: Data(json.utf8)))
+
+        #expect(member.username == "shadowreaper")
+    }
 }

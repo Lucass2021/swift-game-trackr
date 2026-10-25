@@ -11,12 +11,12 @@ final class UserProfileViewModel {
     var toastMessage: String?
 
     private let repository: ProfileOverviewRepository
-    private let user: UserProfile
+    private let username: String
     private var loadTask: Task<Void, Never>?
     private var friendTask: Task<Void, Never>?
 
-    init(user: UserProfile, repository: ProfileOverviewRepository) {
-        self.user = user
+    init(username: String, repository: ProfileOverviewRepository) {
+        self.username = username
         self.repository = repository
     }
 
@@ -54,7 +54,7 @@ final class UserProfileViewModel {
 
     private func saveFriend(_ newValue: Bool) async {
         do {
-            try await repository.setFriend(username: user.username, isFriend: newValue)
+            try await repository.setFriend(username: username, isFriend: newValue)
         } catch {
             guard !Task.isCancelled else { return }
             isFriend = !newValue
@@ -64,14 +64,14 @@ final class UserProfileViewModel {
 
     private func fetch() async {
         do {
-            let result = try await repository.fetchUserOverview(username: user.username)
+            let result = try await repository.fetchUserOverview(username: username)
             guard !Task.isCancelled else { return }
             profile = Profile(
-                name: user.name,
-                username: user.username,
+                name: result.name,
+                username: "@\(result.username)",
                 bio: result.bio,
                 joinedAt: result.joinedAt,
-                avatarHex: user.avatarStart.hexString
+                avatarHex: result.avatarHex
             )
             overview = result.overview
             isFriend = result.isFriend

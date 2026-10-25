@@ -39,6 +39,9 @@ actor FakeProfileOverviewRepository: ProfileOverviewRepository {
         fetchCount += 1
         try await respond()
         return UserOverview(
+            name: UserProfileMockData.names[username] ?? username,
+            username: username,
+            avatarHex: UserProfileMockData.avatarHex,
             bio: userBio,
             joinedAt: userJoinedAt,
             isFriend: friendUsernames.contains(username),

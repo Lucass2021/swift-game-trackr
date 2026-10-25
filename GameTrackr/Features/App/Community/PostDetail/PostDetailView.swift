@@ -8,7 +8,7 @@ struct PostDetailView: View {
     @Environment(AuthStore.self) private var authStore
     @Environment(\.dismiss) private var dismiss
     @State private var viewModel: PostDetailViewModel
-    @State private var selectedUser: UserProfile?
+    @State private var selectedUsername: String?
 
     init(
         post: CommunityPost,
@@ -52,13 +52,7 @@ struct PostDetailView: View {
                 post: viewModel.post,
                 commentCount: viewModel.commentCount,
                 isGuest: authStore.isGuest,
-                onAuthorSelect: {
-                    selectedUser = UserProfile(
-                        handle: post.author,
-                        avatarStart: post.avatarStart,
-                        avatarEnd: post.avatarEnd
-                    )
-                },
+                onAuthorSelect: { selectedUsername = post.authorUsername },
                 onCommunitySelect: { Task { await viewModel.onCommunityTap() } },
                 onLike: { Task { await viewModel.onLike() } },
                 onComment: { viewModel.onCommentsOpen() },
@@ -75,8 +69,8 @@ struct PostDetailView: View {
         .sheet(isPresented: $viewModel.showComments) {
             PostCommentsSheet(viewModel: viewModel, isGuest: authStore.isGuest)
         }
-        .navigationDestination(item: $selectedUser) { user in
-            UserProfileView(user: user)
+        .navigationDestination(item: $selectedUsername) { username in
+            UserProfileView(username: username)
         }
         .alert("Delete post?", isPresented: $viewModel.showDeleteConfirmation) {
             Button("Delete", role: .destructive) { Task { await viewModel.onDeleteConfirmed() } }

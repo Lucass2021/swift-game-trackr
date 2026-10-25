@@ -5,6 +5,7 @@ enum CommunityMockData {
         CommunityPost(
             id: 101,
             author: "@ShadowReaper",
+            authorUsername: "shadowreaper",
             timeAgo: "2h ago",
             communityName: "RPG Speedrunners",
             title: "Finally hit Platinum on Elden Ring!",
@@ -22,6 +23,7 @@ enum CommunityMockData {
         CommunityPost(
             id: 102,
             author: "@PixelWitcher",
+            authorUsername: "pixelwitcher",
             timeAgo: "5h ago",
             communityName: "Cyberpunk Lore",
             title: "New Night City secrets discovered",
@@ -38,6 +40,7 @@ enum CommunityMockData {
         CommunityPost(
             id: 103,
             author: "@RetroGamer",
+            authorUsername: "retrogamer",
             timeAgo: "8h ago",
             communityName: "Retro Vault",
             title: "Is the new DLC worth it?",
@@ -187,6 +190,7 @@ enum CommunityMockData {
         CommunityPost(
             id: 104,
             author: "@chrono_runner",
+            authorUsername: "chrono_runner",
             timeAgo: "2h ago",
             communityName: "RPG Speedrunners",
             title: "New glitch found in Chrono Trigger's 1999 AD sequence!",
@@ -203,6 +207,7 @@ enum CommunityMockData {
         CommunityPost(
             id: 105,
             author: "@master_of_none",
+            authorUsername: "master_of_none",
             timeAgo: "5h ago",
             communityName: "RPG Speedrunners",
             title: "Weekly challenge: barebones level 1 boss rush",
@@ -221,6 +226,7 @@ enum CommunityMockData {
     static let detailPost = CommunityPost(
         id: 106,
         author: "@ShadowReaper",
+        authorUsername: "shadowreaper",
         timeAgo: "Posted on March 14, 2024",
         communityName: "RPG Speedrunners",
         title: "The state of RPGs in 2024: is the golden age back?",
@@ -295,35 +301,40 @@ enum CommunityMockData {
             author: "@ShadowReaper",
             role: "Moderator",
             avatarStart: .coverVioletStart,
-            avatarEnd: .coverVioletEnd
+            avatarEnd: .coverVioletEnd,
+            username: "shadowreaper"
         ),
         CommunityMember(
             id: 402,
             author: "@chrono_runner",
             role: "Moderator",
             avatarStart: .coverAzureStart,
-            avatarEnd: .coverAzureEnd
+            avatarEnd: .coverAzureEnd,
+            username: "chrono_runner"
         ),
         CommunityMember(
             id: 403,
             author: "@QuestMaster",
             role: "Member · joined 2 months ago",
             avatarStart: .coverEmeraldStart,
-            avatarEnd: .coverEmeraldEnd
+            avatarEnd: .coverEmeraldEnd,
+            username: "questmaster"
         ),
         CommunityMember(
             id: 404,
             author: "@VoidWalker",
             role: "Member · joined 5 months ago",
             avatarStart: .coverCrimsonStart,
-            avatarEnd: .coverCrimsonEnd
+            avatarEnd: .coverCrimsonEnd,
+            username: "voidwalker"
         ),
         CommunityMember(
             id: 405,
             author: "@NeonSamurai",
             role: "Member · joined 1 year ago",
             avatarStart: .coverCyanStart,
-            avatarEnd: .coverCyanEnd
+            avatarEnd: .coverCyanEnd,
+            username: "neonsamurai"
         )
     ]
 }
