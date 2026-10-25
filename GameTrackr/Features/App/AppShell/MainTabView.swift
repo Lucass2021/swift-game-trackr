@@ -2,13 +2,7 @@ import SwiftUI
 
 struct MainTabView: View {
     @State private var selection: AppTab = .home
-    @State private var searchScope: SearchScope?
-    @State private var showNotifications = false
-    @State private var showMenu = false
-    @State private var detailSlug: String?
-    @State private var showStats = false
-    @State private var showEditProfile = false
-    @State private var showSetup = false
+    @State private var route: ShellRoute?
     @Environment(AuthStore.self) private var authStore
     @State private var profile = ProfileMockData.profile
     @State private var mySetupViewModel = MySetupViewModel()
@@ -21,9 +15,9 @@ struct MainTabView: View {
         NavigationStack {
             VStack(spacing: 0) {
                 AppHeader(
-                    onNotifications: { showNotifications = true },
-                    onSearch: { searchScope = .all },
-                    onMenu: { showMenu = true }
+                    onNotifications: { route = .notifications },
+                    onSearch: { route = .search(.all) },
+                    onMenu: { route = .menu }
                 )
 
                 content
@@ -33,17 +27,7 @@ struct MainTabView: View {
             }
             .background(Color.appBackground)
             .toolbar(.hidden, for: .navigationBar)
-            .navigationDestination(item: $searchScope) { scope in
-                SearchView(scope: scope)
-            }
-            .navigationDestination(isPresented: $showNotifications) { NotificationsView() }
-            .navigationDestination(isPresented: $showMenu) { ProfileMenuView(profile: $profile) }
-            .navigationDestination(isPresented: $showStats) { StatsView() }
-            .navigationDestination(isPresented: $showEditProfile) { EditProfileView(profile: $profile) }
-            .navigationDestination(isPresented: $showSetup) { MySetupView(viewModel: mySetupViewModel) }
-            .navigationDestination(item: $detailSlug) { slug in
-                GameDetailView(slug: slug)
-            }
+            .navigationDestination(item: $route) { destinationView($0) }
             .task(id: authStore.currentUser?.id) {
                 profile = profile.applying(authStore.currentUser)
                 let userId = authStore.isGuest ? nil : authStore.currentUser?.id
@@ -60,12 +44,16 @@ struct MainTabView: View {
     private var content: some View {
         switch selection {
         case .home:
-            HomeView(viewModel: homeViewModel, onViewAll: { searchScope = $0 }, onGameSelect: { detailSlug = $0 })
+            HomeView(
+                viewModel: homeViewModel,
+                onViewAll: { route = .search($0) },
+                onGameSelect: { route = .gameDetail(slug: $0) }
+            )
         case .library:
             LibraryView(
                 viewModel: library.viewModel,
-                onBrowseGames: { searchScope = .all },
-                onGameSelect: { detailSlug = $0 }
+                onBrowseGames: { route = .search(.all) },
+                onGameSelect: { route = .gameDetail(slug: $0) }
             )
         case .community:
             CommunityView(dependencies: community)
@@ -74,15 +62,28 @@ struct MainTabView: View {
                 viewModel: profileViewModel,
                 profile: profile,
                 setups: mySetupViewModel.setups,
-                onGameSelect: { detailSlug = $0 },
+                onGameSelect: { route = .gameDetail(slug: $0) },
                 onStatusSelect: { status in
                     selection = .library
                     Task { await library.viewModel.onFilterChange(status) }
                 },
-                onEditProfile: { showEditProfile = true },
-                onViewStats: { showStats = true },
-                onViewSetup: { showSetup = true }
+                onEditProfile: { route = .editProfile },
+                onViewStats: { route = .stats },
+                onViewSetup: { route = .mySetup }
             )
+        }
+    }
+
+    @ViewBuilder
+    private func destinationView(_ route: ShellRoute) -> some View {
+        switch route {
+        case let .search(scope): SearchView(scope: scope)
+        case .notifications: NotificationsView()
+        case .menu: ProfileMenuView(profile: $profile)
+        case let .gameDetail(slug): GameDetailView(slug: slug)
+        case .stats: StatsView()
+        case .editProfile: EditProfileView(profile: $profile)
+        case .mySetup: MySetupView(viewModel: mySetupViewModel)
         }
     }
 }
