@@ -5,7 +5,7 @@ import Testing
 @MainActor
 struct SettingsViewModelTests {
     private static let stored = NotificationSettings(friendRequests: false)
-    private static let overlapLatency = Duration.milliseconds(50)
+    private static let overlapLatency = Duration.milliseconds(500)
     private static let waitTimeout = Duration.seconds(2)
 
     private let notificationSettings = FakeNotificationSettingsRepository(settings: Self.stored, latency: .zero)

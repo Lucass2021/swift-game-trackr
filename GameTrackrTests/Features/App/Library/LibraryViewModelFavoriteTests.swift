@@ -5,7 +5,7 @@ import Testing
 @MainActor
 struct LibraryViewModelFavoriteTests {
     private static let userId = 7
-    private static let overlapLatency: Duration = .milliseconds(50)
+    private static let overlapLatency: Duration = .milliseconds(500)
     private static let twinSlug = "cyberpunk-2077-phantom-liberty-2"
     private static let slug = LibraryMockData.entries[0].slug
 
