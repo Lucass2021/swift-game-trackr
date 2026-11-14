@@ -58,8 +58,7 @@ nonisolated struct GameAchievements: Identifiable {
     let id: Int
     let title: String
     let platform: String
-    let coverStart: Color
-    let coverEnd: Color
+    let cover: CoverPalette
     let achievements: [Achievement]
 
     var total: Int {

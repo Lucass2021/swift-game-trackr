@@ -14,8 +14,7 @@ nonisolated enum AchievementsMockData {
         id: 1,
         title: "Elden Ring",
         platform: "PlayStation 5",
-        coverStart: .coverEmeraldStart,
-        coverEnd: .coverEmeraldEnd,
+        cover: .emerald,
         achievements: [
             Achievement(
                 id: 101,
@@ -74,8 +73,7 @@ nonisolated enum AchievementsMockData {
         id: 2,
         title: "Hollow Knight",
         platform: "Nintendo Switch",
-        coverStart: .coverIndigoStart,
-        coverEnd: .coverIndigoEnd,
+        cover: .indigo,
         achievements: [
             Achievement(
                 id: 201,
@@ -134,8 +132,7 @@ nonisolated enum AchievementsMockData {
         id: 3,
         title: "Chrono Trigger",
         platform: "PlayStation 5",
-        coverStart: .coverCrimsonStart,
-        coverEnd: .coverCrimsonEnd,
+        cover: .crimson,
         achievements: [
             Achievement(
                 id: 301,
@@ -174,8 +171,7 @@ nonisolated enum AchievementsMockData {
         id: 4,
         title: "Outer Wilds",
         platform: "PC",
-        coverStart: .coverCyanStart,
-        coverEnd: .coverCyanEnd,
+        cover: .cyan,
         achievements: [
             Achievement(
                 id: 401,
@@ -227,8 +223,7 @@ nonisolated enum AchievementsMockData {
         id: 5,
         title: "Cyberpunk 2077: Phantom Liberty",
         platform: "PlayStation 5",
-        coverStart: .coverVioletStart,
-        coverEnd: .coverVioletEnd,
+        cover: .violet,
         achievements: [
             Achievement(
                 id: 501,
@@ -288,8 +283,7 @@ nonisolated enum AchievementsMockData {
         id: 6,
         title: "Final Fantasy VII Rebirth",
         platform: "PlayStation 5",
-        coverStart: .coverAzureStart,
-        coverEnd: .coverAzureEnd,
+        cover: .azure,
         achievements: [
             Achievement(id: 601, title: "Rebirth", detail: "Obtain all achievements", tier: .platinum, unlockedAt: nil),
             Achievement(

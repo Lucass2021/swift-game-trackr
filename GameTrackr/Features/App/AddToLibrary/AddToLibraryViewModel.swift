@@ -99,8 +99,7 @@ final class AddToLibraryViewModel: Identifiable {
             startedAt: startedAt,
             finishedAt: finishedAt,
             review: trimmedReview.isEmpty ? nil : trimmedReview,
-            coverStart: game.coverStart,
-            coverEnd: game.coverEnd
+            cover: game.cover
         )
     }
 }

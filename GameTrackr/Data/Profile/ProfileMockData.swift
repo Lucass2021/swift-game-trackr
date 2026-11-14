@@ -42,8 +42,7 @@ nonisolated enum ProfileMockData {
             status: .platinum,
             rating: 5,
             hours: 210,
-            coverStart: .coverEmeraldStart,
-            coverEnd: .coverEmeraldEnd
+            cover: .emerald
         ),
         LibraryEntry(
             title: "Hollow Knight",
@@ -51,8 +50,7 @@ nonisolated enum ProfileMockData {
             status: .completed,
             rating: 5,
             hours: 64,
-            coverStart: .coverIndigoStart,
-            coverEnd: .coverIndigoEnd
+            cover: .indigo
         ),
         LibraryEntry(
             title: "Chrono Trigger",
@@ -60,8 +58,7 @@ nonisolated enum ProfileMockData {
             status: .platinum,
             rating: 5,
             hours: 38,
-            coverStart: .coverCrimsonStart,
-            coverEnd: .coverCrimsonEnd
+            cover: .crimson
         ),
         LibraryEntry(
             title: "Outer Wilds",
@@ -69,8 +66,7 @@ nonisolated enum ProfileMockData {
             status: .completed,
             rating: 5,
             hours: 27,
-            coverStart: .coverCyanStart,
-            coverEnd: .coverCyanEnd
+            cover: .cyan
         )
     ]
 
@@ -81,8 +77,7 @@ nonisolated enum ProfileMockData {
             status: .playing,
             rating: 4,
             hours: 32,
-            coverStart: .coverVioletStart,
-            coverEnd: .coverVioletEnd
+            cover: .violet
         ),
         LibraryEntry(
             title: "Final Fantasy VII Rebirth",
@@ -90,8 +85,7 @@ nonisolated enum ProfileMockData {
             status: .playing,
             rating: 5,
             hours: 61,
-            coverStart: .coverAzureStart,
-            coverEnd: .coverAzureEnd
+            cover: .azure
         )
     ]
 

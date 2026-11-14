@@ -39,8 +39,7 @@ struct FakeAchievementsRepositoryTests {
             id: id,
             title: "Game \(id)",
             platform: "PC",
-            coverStart: .black,
-            coverEnd: .black,
+            cover: .violet,
             achievements: achievements
         )
     }

@@ -1,15 +1,13 @@
-import SwiftUI
+import Foundation
 
 nonisolated struct GameScreenshot: Identifiable {
     let id = UUID()
     let url: String?
-    let start: Color
-    let end: Color
+    let cover: CoverPalette
 
-    init(url: String? = nil, start: Color, end: Color) {
+    init(url: String? = nil, cover: CoverPalette) {
         self.url = url
-        self.start = start
-        self.end = end
+        self.cover = cover
     }
 }
 
@@ -25,8 +23,7 @@ nonisolated struct GameDetail {
     let rating: Double?
     let platforms: [String]
     let genres: [String]
-    let coverStart: Color
-    let coverEnd: Color
+    let cover: CoverPalette
     let heroURL: String?
     let screenshots: [GameScreenshot]
     let about: String
@@ -35,7 +32,7 @@ nonisolated struct GameDetail {
 
 nonisolated extension GameDetail {
     init(dto: GameDetailDTO) {
-        let palette = GradientPalette.pair(for: dto.id)
+        let palette = CoverPalette.forGradientId(dto.id)
         let releaseDate = dto.firstReleaseDate.map { Date(timeIntervalSince1970: TimeInterval($0)) }
 
         title = dto.name
@@ -45,11 +42,10 @@ nonisolated extension GameDetail {
             $0.abbreviation ?? PlatformLabel.short(slug: $0.slug, name: $0.name)
         }
         genres = Self.names(dto.genres) + Self.names(dto.themes)
-        coverStart = palette.0
-        coverEnd = palette.1
+        cover = palette
         heroURL = dto.screenshots?.first?.url ?? dto.artworks?.first?.url ?? dto.cover?.url
         screenshots = (dto.screenshots ?? []).map {
-            GameScreenshot(url: $0.url, start: palette.0, end: palette.1)
+            GameScreenshot(url: $0.url, cover: palette)
         }
         about = dto.summary ?? dto.storyline ?? "No description available yet."
         specs = Self.specs(dto: dto, releaseDate: releaseDate)

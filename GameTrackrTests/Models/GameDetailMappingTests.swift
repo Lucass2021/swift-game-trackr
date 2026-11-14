@@ -32,6 +32,8 @@ struct GameDetailMappingTests {
         #expect(game.genres == ["Action RPG", "Cyberpunk"])
         #expect(game.heroURL == Self.screenshotURL)
         #expect(game.screenshots.map(\.url) == [Self.screenshotURL, Self.coverURL])
+        #expect(game.cover == .emerald)
+        #expect(game.screenshots.map(\.cover) == [.emerald, .emerald])
         #expect(game.about == "A cyberpunk climb.")
         #expect(game.specs.map(\.label) == ["Developer", "Publisher", "Released", "Modes"])
         #expect(game.specs.map(\.value) == [

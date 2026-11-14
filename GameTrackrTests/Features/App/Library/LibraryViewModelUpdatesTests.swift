@@ -15,8 +15,7 @@ struct LibraryViewModelUpdatesTests {
         startedAt: nil,
         finishedAt: nil,
         review: nil,
-        coverStart: .coverVioletStart,
-        coverEnd: .coverVioletEnd
+        cover: .violet
     )
 
     @Test func aGameAddedFromItsDetailScreenShowsUpInTheLibrary() async throws {

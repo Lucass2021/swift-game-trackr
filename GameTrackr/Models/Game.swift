@@ -1,4 +1,4 @@
-import SwiftUI
+import Foundation
 
 nonisolated struct GamePlatform: Identifiable, Hashable {
     let id: Int
@@ -64,8 +64,10 @@ nonisolated struct Game: Identifiable, Hashable {
     let rating: Double?
     let coverUrl: String?
     let platformNames: [String]
-    let coverStart: Color
-    let coverEnd: Color
+
+    var cover: CoverPalette {
+        CoverPalette.forGradientId(id)
+    }
 
     var year: String {
         guard let releaseDate else { return "TBA" }
@@ -97,9 +99,6 @@ nonisolated struct Game: Identifiable, Hashable {
         self.rating = rating
         self.coverUrl = coverUrl
         self.platformNames = platformNames
-        let colors = GradientPalette.pair(for: id)
-        coverStart = colors.0
-        coverEnd = colors.1
     }
 
     init(dto: GameDTO) {

@@ -48,8 +48,7 @@ actor FakeLibraryRepository: LibraryRepository {
                 status: entry.status,
                 rating: entry.rating,
                 hours: entry.hours ?? 0,
-                coverStart: entry.coverStart,
-                coverEnd: entry.coverEnd
+                cover: entry.cover
             )
         }
         if let index = entries.firstIndex(where: { $0.slug == entry.slug }) {

@@ -10,8 +10,7 @@ nonisolated enum LibraryMockData {
             status: .playing,
             rating: 4,
             hours: 32,
-            coverStart: .coverVioletStart,
-            coverEnd: .coverVioletEnd
+            cover: .violet
         ),
         LibraryEntry(
             title: "Starfield",
@@ -19,8 +18,7 @@ nonisolated enum LibraryMockData {
             status: .completed,
             rating: 5,
             hours: 128,
-            coverStart: .coverIndigoStart,
-            coverEnd: .coverIndigoEnd
+            cover: .indigo
         ),
         LibraryEntry(
             title: "Elden Ring",
@@ -28,8 +26,7 @@ nonisolated enum LibraryMockData {
             status: .backlog,
             rating: 0,
             hours: 0,
-            coverStart: .coverCrimsonStart,
-            coverEnd: .coverCrimsonEnd
+            cover: .crimson
         ),
         LibraryEntry(
             title: "Uncharted: Legacy of Thieves",
@@ -37,8 +34,7 @@ nonisolated enum LibraryMockData {
             status: .platinum,
             rating: 5,
             hours: 45,
-            coverStart: .coverPineStart,
-            coverEnd: .coverPineEnd
+            cover: .pine
         ),
         LibraryEntry(
             title: "Forza Motorsport",
@@ -46,8 +42,7 @@ nonisolated enum LibraryMockData {
             status: .playing,
             rating: 4,
             hours: 12,
-            coverStart: .coverAzureStart,
-            coverEnd: .coverAzureEnd
+            cover: .azure
         )
     ]
 }

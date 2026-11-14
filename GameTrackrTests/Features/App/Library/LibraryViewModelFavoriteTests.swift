@@ -41,8 +41,7 @@ struct LibraryViewModelFavoriteTests {
             status: original.status,
             rating: original.rating,
             hours: original.hours,
-            coverStart: original.coverStart,
-            coverEnd: original.coverEnd
+            cover: original.cover
         )
         let repository = FakeLibraryRepository(entries: [original, twin], latency: .zero)
         let viewModel = await loadedViewModel(repository)
@@ -63,8 +62,7 @@ struct LibraryViewModelFavoriteTests {
             rating: original.rating,
             hours: original.hours,
             isFavorite: true,
-            coverStart: original.coverStart,
-            coverEnd: original.coverEnd
+            cover: original.cover
         )
         let repository = FakeLibraryRepository(entries: [favorite], latency: Self.overlapLatency)
         let viewModel = await loadedViewModel(repository)

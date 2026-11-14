@@ -16,8 +16,7 @@ struct GameDetailViewModelTests {
         startedAt: nil,
         finishedAt: nil,
         review: nil,
-        coverStart: .coverVioletStart,
-        coverEnd: .coverVioletEnd
+        cover: .violet
     )
     private static let overlapLatency: Duration = .milliseconds(50)
 

@@ -43,8 +43,7 @@ nonisolated struct LibraryEntry: Identifiable {
     let rating: Int
     let hours: Int
     var isFavorite: Bool
-    let coverStart: Color
-    let coverEnd: Color
+    let cover: CoverPalette
 
     init(
         title: String,
@@ -53,8 +52,7 @@ nonisolated struct LibraryEntry: Identifiable {
         rating: Int,
         hours: Int,
         isFavorite: Bool = false,
-        coverStart: Color,
-        coverEnd: Color
+        cover: CoverPalette
     ) {
         self.title = title
         self.slug = slug
@@ -62,8 +60,7 @@ nonisolated struct LibraryEntry: Identifiable {
         self.rating = rating
         self.hours = hours
         self.isFavorite = isFavorite
-        self.coverStart = coverStart
-        self.coverEnd = coverEnd
+        self.cover = cover
     }
 }
 
@@ -82,6 +79,5 @@ nonisolated struct NewLibraryEntry {
     let startedAt: Date?
     let finishedAt: Date?
     let review: String?
-    let coverStart: Color
-    let coverEnd: Color
+    let cover: CoverPalette
 }

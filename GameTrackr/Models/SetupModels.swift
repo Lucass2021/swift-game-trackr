@@ -5,14 +5,14 @@ nonisolated struct SetupItem: Identifiable, Equatable {
     var title: String
     var description: String
     var images: [SetupImage]
-    var palette: SetupPalette
+    var palette: CoverPalette
 
     init(
         id: Int,
         title: String,
         description: String,
         images: [SetupImage] = [],
-        palette: SetupPalette? = nil
+        palette: CoverPalette? = nil
     ) {
         self.id = id
         self.title = title

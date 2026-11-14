@@ -35,14 +35,13 @@ actor FakeGameRepository: GameRepository {
         rating: 4.8,
         platforms: ["PS5", "PC"],
         genres: ["Action RPG", "Open World", "Cyberpunk"],
-        coverStart: .coverVioletStart,
-        coverEnd: .coverVioletEnd,
+        cover: .violet,
         heroURL: nil,
         screenshots: [
-            GameScreenshot(start: .coverIndigoStart, end: .coverIndigoEnd),
-            GameScreenshot(start: .coverCyanStart, end: .coverCyanEnd),
-            GameScreenshot(start: .coverCrimsonStart, end: .coverCrimsonEnd),
-            GameScreenshot(start: .coverEmeraldStart, end: .coverEmeraldEnd)
+            GameScreenshot(cover: .indigo),
+            GameScreenshot(cover: .cyan),
+            GameScreenshot(cover: .crimson),
+            GameScreenshot(cover: .emerald)
         ],
         about: """
         Neon Ascent: Revival is the definitive next-gen cyberpunk experience. Set in \

@@ -38,8 +38,7 @@ nonisolated enum UserProfileMockData {
             status: .platinum,
             rating: 5,
             hours: 168,
-            coverStart: .coverPineStart,
-            coverEnd: .coverPineEnd
+            cover: .pine
         ),
         LibraryEntry(
             title: "Bloodborne",
@@ -47,8 +46,7 @@ nonisolated enum UserProfileMockData {
             status: .completed,
             rating: 5,
             hours: 72,
-            coverStart: .coverCrimsonStart,
-            coverEnd: .coverCrimsonEnd
+            cover: .crimson
         ),
         LibraryEntry(
             title: "Celeste",
@@ -56,8 +54,7 @@ nonisolated enum UserProfileMockData {
             status: .platinum,
             rating: 5,
             hours: 24,
-            coverStart: .coverAzureStart,
-            coverEnd: .coverAzureEnd
+            cover: .azure
         ),
         LibraryEntry(
             title: "Disco Elysium",
@@ -65,8 +62,7 @@ nonisolated enum UserProfileMockData {
             status: .completed,
             rating: 5,
             hours: 41,
-            coverStart: .coverIndigoStart,
-            coverEnd: .coverIndigoEnd
+            cover: .indigo
         )
     ]
 
@@ -77,8 +73,7 @@ nonisolated enum UserProfileMockData {
             status: .playing,
             rating: 5,
             hours: 96,
-            coverStart: .coverEmeraldStart,
-            coverEnd: .coverEmeraldEnd
+            cover: .emerald
         ),
         LibraryEntry(
             title: "Helldivers 2",
@@ -86,8 +81,7 @@ nonisolated enum UserProfileMockData {
             status: .playing,
             rating: 4,
             hours: 44,
-            coverStart: .coverCyanStart,
-            coverEnd: .coverCyanEnd
+            cover: .cyan
         )
     ]
 
