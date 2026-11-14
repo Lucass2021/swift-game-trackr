@@ -2,8 +2,13 @@ import SwiftUI
 
 struct RegisterView: View {
     @Environment(AuthStore.self) private var authStore
-    @State private var viewModel = RegisterViewModel()
+    @State private var viewModel: RegisterViewModel
     let onSignIn: () -> Void
+
+    init(repository: AuthRepository, googleAuth: GoogleAuth, onSignIn: @escaping () -> Void) {
+        _viewModel = State(initialValue: RegisterViewModel(repository: repository, googleAuth: googleAuth))
+        self.onSignIn = onSignIn
+    }
 
     var body: some View {
         @Bindable var viewModel = viewModel
@@ -74,8 +79,9 @@ struct RegisterView: View {
 }
 
 #Preview {
+    let dependencies = AppDependencies()
     NavigationStack {
-        RegisterView(onSignIn: {})
+        RegisterView(repository: dependencies.authRepository, googleAuth: dependencies.googleAuth, onSignIn: {})
     }
     .environment(AuthStore())
     .preferredColorScheme(.dark)

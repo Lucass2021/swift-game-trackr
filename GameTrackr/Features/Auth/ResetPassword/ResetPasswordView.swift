@@ -4,8 +4,8 @@ struct ResetPasswordView: View {
     @Environment(AuthStore.self) private var authStore
     @State private var viewModel: ResetPasswordViewModel
 
-    init(email: String, code: String) {
-        _viewModel = State(initialValue: ResetPasswordViewModel(email: email, code: code))
+    init(email: String, code: String, repository: AuthRepository) {
+        _viewModel = State(initialValue: ResetPasswordViewModel(email: email, code: code, repository: repository))
     }
 
     var body: some View {
@@ -62,7 +62,7 @@ struct ResetPasswordView: View {
 
 #Preview {
     NavigationStack {
-        ResetPasswordView(email: "you@email.com", code: "123456")
+        ResetPasswordView(email: "you@email.com", code: "123456", repository: RemoteAuthRepository())
     }
     .environment(AuthStore())
     .preferredColorScheme(.dark)

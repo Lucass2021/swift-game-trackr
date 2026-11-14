@@ -1,6 +1,7 @@
 import SwiftUI
 
 struct WelcomeView: View {
+    @Environment(AppDependencies.self) private var dependencies
     @State private var path: [AuthRoute] = []
 
     var body: some View {
@@ -47,9 +48,17 @@ struct WelcomeView: View {
             .navigationDestination(for: AuthRoute.self) { route in
                 switch route {
                 case .register:
-                    RegisterView(onSignIn: { open(.login) })
+                    RegisterView(
+                        repository: dependencies.authRepository,
+                        googleAuth: dependencies.googleAuth,
+                        onSignIn: { open(.login) }
+                    )
                 case .login:
-                    LoginView(onSignUp: { open(.register) })
+                    LoginView(
+                        repository: dependencies.authRepository,
+                        googleAuth: dependencies.googleAuth,
+                        onSignUp: { open(.register) }
+                    )
                 }
             }
         }
@@ -62,5 +71,6 @@ struct WelcomeView: View {
 
 #Preview {
     WelcomeView()
+        .environment(AppDependencies())
         .preferredColorScheme(.dark)
 }

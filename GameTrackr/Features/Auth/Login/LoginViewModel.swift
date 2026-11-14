@@ -12,9 +12,9 @@ final class LoginViewModel {
     private let repository: AuthRepository
     private let googleAuth: GoogleAuth
 
-    init(repository: AuthRepository = RemoteAuthRepository(), googleAuth: GoogleAuth? = nil) {
+    init(repository: AuthRepository, googleAuth: GoogleAuth) {
         self.repository = repository
-        self.googleAuth = googleAuth ?? GoogleAuthService.shared
+        self.googleAuth = googleAuth
     }
 
     var emailError: String? {

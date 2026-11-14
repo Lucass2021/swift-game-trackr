@@ -20,8 +20,6 @@ enum GoogleAuthError: LocalizedError {
 
 @MainActor
 final class GoogleAuthService: NSObject, GoogleAuth {
-    static let shared = GoogleAuthService()
-
     static let callbackScheme = "gametrackr"
 
     private var session: ASWebAuthenticationSession?

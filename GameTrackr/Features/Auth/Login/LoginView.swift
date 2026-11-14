@@ -2,8 +2,15 @@ import SwiftUI
 
 struct LoginView: View {
     @Environment(AuthStore.self) private var authStore
-    @State private var viewModel = LoginViewModel()
+    @State private var viewModel: LoginViewModel
+    private let repository: AuthRepository
     let onSignUp: () -> Void
+
+    init(repository: AuthRepository, googleAuth: GoogleAuth, onSignUp: @escaping () -> Void) {
+        self.repository = repository
+        _viewModel = State(initialValue: LoginViewModel(repository: repository, googleAuth: googleAuth))
+        self.onSignUp = onSignUp
+    }
 
     var body: some View {
         @Bindable var viewModel = viewModel
@@ -66,15 +73,16 @@ struct LoginView: View {
         }
         .toolbar(.hidden, for: .navigationBar)
         .navigationDestination(isPresented: $authStore.isResetFlowActive) {
-            ForgotPasswordView()
+            ForgotPasswordView(repository: repository)
         }
         .toast(message: $viewModel.toastMessage)
     }
 }
 
 #Preview {
+    let dependencies = AppDependencies()
     NavigationStack {
-        LoginView(onSignUp: {})
+        LoginView(repository: dependencies.authRepository, googleAuth: dependencies.googleAuth, onSignUp: {})
     }
     .environment(AuthStore())
     .preferredColorScheme(.dark)

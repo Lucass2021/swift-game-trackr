@@ -19,7 +19,7 @@ final class VerifyResetCodeViewModel {
     private let tick: Duration
     private var countdownTask: Task<Void, Never>?
 
-    init(email: String, repository: AuthRepository = RemoteAuthRepository(), tick: Duration = .seconds(1)) {
+    init(email: String, repository: AuthRepository, tick: Duration = .seconds(1)) {
         self.email = email
         self.repository = repository
         self.tick = tick

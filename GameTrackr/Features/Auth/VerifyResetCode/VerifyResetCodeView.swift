@@ -3,8 +3,11 @@ import SwiftUI
 struct VerifyResetCodeView: View {
     @State private var viewModel: VerifyResetCodeViewModel
 
-    init(email: String) {
-        _viewModel = State(initialValue: VerifyResetCodeViewModel(email: email))
+    private let repository: AuthRepository
+
+    init(email: String, repository: AuthRepository) {
+        self.repository = repository
+        _viewModel = State(initialValue: VerifyResetCodeViewModel(email: email, repository: repository))
     }
 
     var body: some View {
@@ -49,7 +52,7 @@ struct VerifyResetCodeView: View {
         }
         .toolbar(.hidden, for: .navigationBar)
         .navigationDestination(item: $viewModel.verifiedCode) { code in
-            ResetPasswordView(email: viewModel.email, code: code)
+            ResetPasswordView(email: viewModel.email, code: code, repository: repository)
         }
         .toast(message: $viewModel.toastMessage)
     }
@@ -57,7 +60,7 @@ struct VerifyResetCodeView: View {
 
 #Preview {
     NavigationStack {
-        VerifyResetCodeView(email: "you@email.com")
+        VerifyResetCodeView(email: "you@email.com", repository: RemoteAuthRepository())
     }
     .environment(AuthStore())
     .preferredColorScheme(.dark)

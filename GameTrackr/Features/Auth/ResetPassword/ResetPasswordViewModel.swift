@@ -15,7 +15,7 @@ final class ResetPasswordViewModel {
 
     private let repository: AuthRepository
 
-    init(email: String, code: String, repository: AuthRepository = RemoteAuthRepository()) {
+    init(email: String, code: String, repository: AuthRepository) {
         self.email = email
         self.code = code
         self.repository = repository

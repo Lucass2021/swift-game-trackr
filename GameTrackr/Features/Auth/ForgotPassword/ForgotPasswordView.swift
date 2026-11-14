@@ -2,7 +2,13 @@ import SwiftUI
 
 struct ForgotPasswordView: View {
     @Environment(\.dismiss) private var dismiss
-    @State private var viewModel = ForgotPasswordViewModel()
+    @State private var viewModel: ForgotPasswordViewModel
+    private let repository: AuthRepository
+
+    init(repository: AuthRepository) {
+        self.repository = repository
+        _viewModel = State(initialValue: ForgotPasswordViewModel(repository: repository))
+    }
 
     var body: some View {
         @Bindable var viewModel = viewModel
@@ -39,7 +45,7 @@ struct ForgotPasswordView: View {
         }
         .toolbar(.hidden, for: .navigationBar)
         .navigationDestination(item: $viewModel.sentToEmail) { email in
-            VerifyResetCodeView(email: email)
+            VerifyResetCodeView(email: email, repository: repository)
         }
         .toast(message: $viewModel.toastMessage)
     }
@@ -47,7 +53,7 @@ struct ForgotPasswordView: View {
 
 #Preview {
     NavigationStack {
-        ForgotPasswordView()
+        ForgotPasswordView(repository: RemoteAuthRepository())
     }
     .environment(AuthStore())
     .preferredColorScheme(.dark)

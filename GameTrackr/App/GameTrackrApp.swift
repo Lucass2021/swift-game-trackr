@@ -2,11 +2,14 @@ import SwiftUI
 
 @main
 struct GameTrackrApp: App {
-    @State private var authStore = AuthStore()
-    @State private var dependencies = AppDependencies()
+    @State private var authStore: AuthStore
+    @State private var dependencies: AppDependencies
 
     init() {
         AppFonts.register()
+        let dependencies = AppDependencies()
+        _dependencies = State(initialValue: dependencies)
+        _authStore = State(initialValue: AuthStore(repository: dependencies.authRepository))
     }
 
     var body: some Scene {

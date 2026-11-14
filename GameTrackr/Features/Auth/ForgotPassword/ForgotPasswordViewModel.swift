@@ -11,7 +11,7 @@ final class ForgotPasswordViewModel {
 
     private let repository: AuthRepository
 
-    init(repository: AuthRepository = RemoteAuthRepository()) {
+    init(repository: AuthRepository) {
         self.repository = repository
     }
 
