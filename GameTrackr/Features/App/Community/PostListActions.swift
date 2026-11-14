@@ -33,8 +33,8 @@ final class PostListActions {
         self.communityId = communityId
         postUpdates.observe(self) { [weak self] post in self?.replacePost(post) }
         postUpdates.observeCreated(self) { [weak self] post in
-            guard let self, communityId == nil || post.communityId == communityId else { return }
-            addPost(post)
+            guard communityId == nil || post.communityId == communityId else { return }
+            self?.addPost(post)
         }
     }
 

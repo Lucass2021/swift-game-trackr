@@ -1,6 +1,6 @@
 import SwiftUI
 
-struct ProfileColor: Identifiable, Hashable {
+nonisolated struct ProfileColor: Identifiable, Hashable {
     let key: String
     let name: String
     let hex: String
@@ -14,7 +14,7 @@ struct ProfileColor: Identifiable, Hashable {
     }
 }
 
-extension ProfileColor {
+nonisolated extension ProfileColor {
     init(dto: ProfileColorDTO) {
         self.init(key: dto.key, name: dto.name, hex: dto.hex)
     }

@@ -1,6 +1,6 @@
 import Foundation
 
-struct VerifyResetCodeRequest: Encodable {
+nonisolated struct VerifyResetCodeRequest: Encodable {
     let email: String
     let code: String
 }

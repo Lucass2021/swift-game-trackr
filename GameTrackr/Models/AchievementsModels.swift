@@ -15,7 +15,7 @@ nonisolated enum AchievementTier: CaseIterable {
         }
     }
 
-    @MainActor var tint: Color {
+    var tint: Color {
         switch self {
         case .bronze: .appNeutral
         case .silver: .appTextSecondary

@@ -1,17 +1,17 @@
 import Foundation
 
-struct ProfileColorDTO: Decodable {
+nonisolated struct ProfileColorDTO: Decodable {
     let key: String
     let name: String
     let hex: String
 }
 
-struct ProfileColorsResponse: Decodable {
+nonisolated struct ProfileColorsResponse: Decodable {
     let message: String?
     let data: [ProfileColorDTO]
 }
 
-struct UpdateProfileRequest: Encodable {
+nonisolated struct UpdateProfileRequest: Encodable {
     let name: String
     let username: String
     let profileColor: String

@@ -1,6 +1,6 @@
 import Foundation
 
-extension Int {
+nonisolated extension Int {
     var abbreviated: String {
         guard self >= 1000 else { return "\(self)" }
         let thousands = Double(self) / 1000

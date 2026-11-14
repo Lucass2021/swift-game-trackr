@@ -1,17 +1,17 @@
 import Foundation
 
-struct GameCoverDTO: Decodable {
+nonisolated struct GameCoverDTO: Decodable {
     let id: Int?
     let url: String?
 }
 
-struct GamePlatformDTO: Decodable {
+nonisolated struct GamePlatformDTO: Decodable {
     let id: Int?
     let name: String?
     let slug: String?
 }
 
-struct GameDTO: Decodable {
+nonisolated struct GameDTO: Decodable {
     let id: Int
     let name: String
     let slug: String?
@@ -29,17 +29,17 @@ struct GameDTO: Decodable {
     }
 }
 
-struct GamesResponse: Decodable {
+nonisolated struct GamesResponse: Decodable {
     let message: String?
     let data: [GameDTO]
 }
 
-struct PlatformsResponse: Decodable {
+nonisolated struct PlatformsResponse: Decodable {
     let message: String?
     let data: [GamePlatformDTO]
 }
 
-struct GamesMeta: Decodable {
+nonisolated struct GamesMeta: Decodable {
     let page: Int
     let perPage: Int
     let total: Int
@@ -54,45 +54,45 @@ struct GamesMeta: Decodable {
     }
 }
 
-struct PaginatedGamesResponse: Decodable {
+nonisolated struct PaginatedGamesResponse: Decodable {
     let message: String?
     let data: [GameDTO]
     let meta: GamesMeta
 }
 
-struct GameImageDTO: Decodable {
+nonisolated struct GameImageDTO: Decodable {
     let id: Int?
     let url: String?
 }
 
-struct GameNamedDTO: Decodable {
+nonisolated struct GameNamedDTO: Decodable {
     let id: Int?
     let name: String?
     let slug: String?
 }
 
-struct GameCompanyDTO: Decodable {
+nonisolated struct GameCompanyDTO: Decodable {
     let name: String?
 }
 
-struct GameInvolvedCompanyDTO: Decodable {
+nonisolated struct GameInvolvedCompanyDTO: Decodable {
     let company: GameCompanyDTO?
     let developer: Bool?
     let publisher: Bool?
 }
 
-struct GameReleaseDateDTO: Decodable {
+nonisolated struct GameReleaseDateDTO: Decodable {
     let date: Int?
     let human: String?
 }
 
-struct GameDetailPlatformDTO: Decodable {
+nonisolated struct GameDetailPlatformDTO: Decodable {
     let name: String?
     let slug: String?
     let abbreviation: String?
 }
 
-struct GameDetailDTO: Decodable {
+nonisolated struct GameDetailDTO: Decodable {
     let id: Int
     let name: String
     let slug: String?
@@ -127,7 +127,7 @@ struct GameDetailDTO: Decodable {
     }
 }
 
-struct GameDetailResponse: Decodable {
+nonisolated struct GameDetailResponse: Decodable {
     let message: String?
     let data: GameDetailDTO
 }

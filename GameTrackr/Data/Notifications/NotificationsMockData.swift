@@ -1,6 +1,6 @@
 import SwiftUI
 
-enum NotificationsMockData {
+nonisolated enum NotificationsMockData {
     static let items: [NotificationItem] = [
         NotificationItem(
             id: 1,

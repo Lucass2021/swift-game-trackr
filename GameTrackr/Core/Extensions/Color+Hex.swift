@@ -1,6 +1,6 @@
 import SwiftUI
 
-extension Color {
+nonisolated extension Color {
     func darkened(by amount: Double) -> Color {
         var hue: CGFloat = 0
         var saturation: CGFloat = 0

@@ -1,6 +1,6 @@
 import Foundation
 
-enum JWT {
+nonisolated enum JWT {
     private static let expiryLeeway: TimeInterval = 10
 
     static func isExpired(_ token: String, leeway: TimeInterval = expiryLeeway, now: Date = Date()) -> Bool {

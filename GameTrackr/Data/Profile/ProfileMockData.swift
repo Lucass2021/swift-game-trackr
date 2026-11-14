@@ -1,6 +1,6 @@
 import SwiftUI
 
-enum ProfileMockData {
+nonisolated enum ProfileMockData {
     static let stats = ProfileStats(totalGames: 142, hours: 1248, platinum: 21)
 
     static let profile = Profile(

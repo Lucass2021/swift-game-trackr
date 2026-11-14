@@ -1,6 +1,6 @@
 import Foundation
 
-struct User: Decodable, Identifiable {
+nonisolated struct User: Decodable, Identifiable {
     let id: Int
     let name: String
     let email: String
@@ -31,13 +31,13 @@ struct User: Decodable, Identifiable {
         createdAt = try container.decodeIfPresent(String.self, forKey: .createdAt).flatMap(Self.parseDate)
     }
 
-    private nonisolated static func parseDate(_ value: String) -> Date? {
+    private static func parseDate(_ value: String) -> Date? {
         try? Date(value, strategy: .iso8601.year().month().day().time(includingFractionalSeconds: true))
     }
 }
 
-extension User {
-    nonisolated init(
+nonisolated extension User {
+    init(
         id: Int,
         name: String,
         email: String,

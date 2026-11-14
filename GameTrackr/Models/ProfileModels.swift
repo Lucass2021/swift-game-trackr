@@ -1,6 +1,6 @@
 import SwiftUI
 
-struct Profile {
+nonisolated struct Profile {
     var name: String
     var username: String
     var bio: String
@@ -17,7 +17,7 @@ struct Profile {
     }
 }
 
-extension Profile {
+nonisolated extension Profile {
     static let defaultAvatarHex = "#8B5CF6"
 
     init(user: User) {
@@ -32,7 +32,7 @@ extension Profile {
     }
 }
 
-enum ProfileVisibility: String, CaseIterable, Identifiable {
+nonisolated enum ProfileVisibility: String, CaseIterable, Identifiable {
     case publicProfile = "public"
     case privateProfile = "private"
 
@@ -66,7 +66,7 @@ enum ProfileVisibility: String, CaseIterable, Identifiable {
     }
 }
 
-struct ProfileStats {
+nonisolated struct ProfileStats {
     let totalGames: Int
     let hours: Int
     let platinum: Int
@@ -77,7 +77,7 @@ struct ProfileStats {
     }
 }
 
-struct StatusCount: Identifiable {
+nonisolated struct StatusCount: Identifiable {
     var id: LibraryStatus {
         status
     }
@@ -86,7 +86,7 @@ struct StatusCount: Identifiable {
     let count: Int
 }
 
-enum ActivityKind {
+nonisolated enum ActivityKind {
     case platinum
     case completed
     case started
@@ -123,7 +123,7 @@ enum ActivityKind {
     }
 }
 
-struct ActivityEvent: Identifiable {
+nonisolated struct ActivityEvent: Identifiable {
     let id: Int
     let kind: ActivityKind
     let gameTitle: String
@@ -139,7 +139,7 @@ struct ActivityEvent: Identifiable {
     }
 }
 
-struct ProfileOverview {
+nonisolated struct ProfileOverview {
     let stats: ProfileStats
     let breakdown: [StatusCount]
     let favorites: [LibraryEntry]
@@ -147,7 +147,7 @@ struct ProfileOverview {
     let activity: [ActivityEvent]
 }
 
-struct UserOverview {
+nonisolated struct UserOverview {
     let name: String
     let username: String
     let avatarHex: String

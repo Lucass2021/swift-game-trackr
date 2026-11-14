@@ -4,7 +4,7 @@ import Foundation
 @Observable
 final class SearchViewModel {
     static let pageSize = 20
-    static let searchDebounce: Duration = .milliseconds(300)
+    nonisolated static let searchDebounce: Duration = .milliseconds(300)
 
     let scope: SearchScope
     private(set) var query = ""

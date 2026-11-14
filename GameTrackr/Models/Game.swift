@@ -1,6 +1,6 @@
 import SwiftUI
 
-struct GamePlatform: Identifiable, Hashable {
+nonisolated struct GamePlatform: Identifiable, Hashable {
     let id: Int
     let slug: String
     let name: String
@@ -21,7 +21,7 @@ struct GamePlatform: Identifiable, Hashable {
     }
 }
 
-enum PlatformLabel {
+nonisolated enum PlatformLabel {
     private static let abbreviations: [String: String] = [
         "win": "PC",
         "linux": "Linux",
@@ -55,7 +55,7 @@ enum PlatformLabel {
     }
 }
 
-struct Game: Identifiable, Hashable {
+nonisolated struct Game: Identifiable, Hashable {
     let id: Int
     let name: String
     let slug: String

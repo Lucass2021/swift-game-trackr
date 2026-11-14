@@ -1,6 +1,6 @@
 import SwiftUI
 
-enum UserProfileMockData {
+nonisolated enum UserProfileMockData {
     static let username = "avareyes"
 
     static let avatarHex = "#0077B6"

@@ -1,6 +1,6 @@
 import Foundation
 
-struct ResetPasswordRequest: Encodable {
+nonisolated struct ResetPasswordRequest: Encodable {
     let email: String
     let code: String
     let password: String

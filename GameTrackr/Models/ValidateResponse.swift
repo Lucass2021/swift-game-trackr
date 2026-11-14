@@ -1,5 +1,5 @@
 import Foundation
 
-struct ValidateResponse: Decodable {
+nonisolated struct ValidateResponse: Decodable {
     let user: User
 }

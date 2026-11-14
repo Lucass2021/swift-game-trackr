@@ -1,6 +1,6 @@
 import SwiftUI
 
-enum StatsMockData {
+nonisolated enum StatsMockData {
     static let stats = UserStats(
         highlights: [
             StatHighlight(label: "Games", value: "142", caption: "+12 this month"),

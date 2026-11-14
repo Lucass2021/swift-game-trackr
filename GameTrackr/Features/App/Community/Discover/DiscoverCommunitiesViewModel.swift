@@ -5,7 +5,7 @@ import Foundation
 final class DiscoverCommunitiesViewModel {
     static let allCategory = "All"
     static let pageSize = 30
-    static let searchDebounce: Duration = .milliseconds(300)
+    nonisolated static let searchDebounce: Duration = .milliseconds(300)
 
     private(set) var query = ""
     private(set) var category = DiscoverCommunitiesViewModel.allCategory

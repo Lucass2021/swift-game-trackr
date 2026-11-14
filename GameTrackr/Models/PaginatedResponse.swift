@@ -1,6 +1,6 @@
 import Foundation
 
-struct PaginatedResponse<T: Decodable>: Decodable {
+nonisolated struct PaginatedResponse<T: Decodable>: Decodable {
     let data: [T]
     let currentPage: Int
     let lastPage: Int

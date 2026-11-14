@@ -1,5 +1,5 @@
 import Foundation
 
-struct RefreshResponse: Decodable {
+nonisolated struct RefreshResponse: Decodable {
     let token: String
 }

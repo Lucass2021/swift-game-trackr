@@ -1,6 +1,6 @@
 import SwiftUI
 
-enum AchievementsMockData {
+nonisolated enum AchievementsMockData {
     static let games: [GameAchievements] = [
         eldenRing,
         hollowKnight,

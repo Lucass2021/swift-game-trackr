@@ -1,3 +1,3 @@
-enum FakeLatency {
+nonisolated enum FakeLatency {
     static let responseDelay = Duration.milliseconds(600)
 }

@@ -1,6 +1,6 @@
 import Foundation
 
-struct RegisterRequest: Encodable {
+nonisolated struct RegisterRequest: Encodable {
     let name: String
     let email: String
     let password: String

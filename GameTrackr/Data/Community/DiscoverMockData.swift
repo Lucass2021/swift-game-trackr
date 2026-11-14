@@ -1,4 +1,4 @@
-enum DiscoverMockData {
+nonisolated enum DiscoverMockData {
     static let mockIdOffset = 1_000_000
 
     static let categoryCommunities: [Community] = CommunityMockData.all.map { community in

@@ -1,6 +1,6 @@
 import SwiftUI
 
-enum CommunityMockData {
+nonisolated enum CommunityMockData {
     static let feed: [CommunityPost] = [
         CommunityPost(
             id: 101,

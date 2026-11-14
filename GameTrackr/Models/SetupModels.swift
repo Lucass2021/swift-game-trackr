@@ -1,6 +1,6 @@
 import SwiftUI
 
-struct SetupItem: Identifiable, Equatable {
+nonisolated struct SetupItem: Identifiable, Equatable {
     let id: Int
     var title: String
     var description: String
@@ -31,7 +31,7 @@ struct SetupItem: Identifiable, Equatable {
     }
 }
 
-struct SetupImage: Identifiable, Equatable {
+nonisolated struct SetupImage: Identifiable, Equatable {
     let id: Int
     let url: String
 }

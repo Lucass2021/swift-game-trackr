@@ -1,6 +1,6 @@
 import SwiftUI
 
-struct Community: Identifiable, Hashable {
+nonisolated struct Community: Identifiable, Hashable {
     let id: Int
     let name: String
     let authorId: Int?
@@ -96,7 +96,7 @@ struct Community: Identifiable, Hashable {
     }
 }
 
-struct CommunityPost: Identifiable, Hashable {
+nonisolated struct CommunityPost: Identifiable, Hashable {
     let id: Int
     let author: String
     let authorId: Int?
@@ -198,7 +198,7 @@ struct CommunityPost: Identifiable, Hashable {
     }
 }
 
-struct CommunityMember: Identifiable, Hashable {
+nonisolated struct CommunityMember: Identifiable, Hashable {
     let id: Int
     let author: String
     let role: String
@@ -237,7 +237,7 @@ struct CommunityMember: Identifiable, Hashable {
     }
 }
 
-struct PostComment: Identifiable, Hashable {
+nonisolated struct PostComment: Identifiable, Hashable {
     let id: Int
     let author: String
     let authorId: Int?
@@ -302,18 +302,18 @@ struct PostComment: Identifiable, Hashable {
     }
 }
 
-extension [PostComment] {
+nonisolated extension [PostComment] {
     var totalCount: Int {
         reduce(0) { $0 + 1 + $1.replies.count }
     }
 }
 
-struct LikeStatus: Hashable {
+nonisolated struct LikeStatus: Hashable {
     let isLiked: Bool
     let likes: Int
 }
 
-enum GradientPalette {
+nonisolated enum GradientPalette {
     private static let pairs: [(Color, Color)] = [
         (.coverEmeraldStart, .coverEmeraldEnd),
         (.coverCrimsonStart, .coverCrimsonEnd),

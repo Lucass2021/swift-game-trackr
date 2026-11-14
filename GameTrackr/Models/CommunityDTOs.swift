@@ -1,6 +1,6 @@
 import Foundation
 
-struct CommunityDTO: Decodable {
+nonisolated struct CommunityDTO: Decodable {
     let id: Int
     let title: String
     let slug: String
@@ -20,7 +20,7 @@ struct CommunityDTO: Decodable {
     }
 }
 
-struct PostDTO: Decodable {
+nonisolated struct PostDTO: Decodable {
     let id: Int
     let title: String
     let slug: String
@@ -44,7 +44,7 @@ struct PostDTO: Decodable {
     }
 }
 
-struct CommentDTO: Decodable {
+nonisolated struct CommentDTO: Decodable {
     let id: Int
     let content: String
     let authorId: Int
@@ -65,7 +65,7 @@ struct CommentDTO: Decodable {
     }
 }
 
-struct CommunityUserDTO: Decodable {
+nonisolated struct CommunityUserDTO: Decodable {
     let id: Int
     let name: String
     let email: String?
@@ -78,7 +78,7 @@ struct CommunityUserDTO: Decodable {
     }
 }
 
-struct MediaDTO: Decodable {
+nonisolated struct MediaDTO: Decodable {
     let id: Int?
     let originalUrl: String
     let collectionName: String?
@@ -90,7 +90,7 @@ struct MediaDTO: Decodable {
     }
 }
 
-struct LikeResponse: Decodable {
+nonisolated struct LikeResponse: Decodable {
     let message: String
     let isLiked: Bool
     let likes: Int
@@ -102,22 +102,22 @@ struct LikeResponse: Decodable {
     }
 }
 
-struct CommentResponse: Decodable {
+nonisolated struct CommentResponse: Decodable {
     let message: String
     let comment: CommentDTO
 }
 
-struct CreateCommunityResponse: Decodable {
+nonisolated struct CreateCommunityResponse: Decodable {
     let community: CommunityDTO
     let message: String
 }
 
-struct CreateCommunityRequest: Encodable {
+nonisolated struct CreateCommunityRequest: Encodable {
     let title: String
     let description: String
 }
 
-struct CreatePostRequest: Encodable {
+nonisolated struct CreatePostRequest: Encodable {
     let title: String
     let description: String?
     let communityId: Int
@@ -128,16 +128,16 @@ struct CreatePostRequest: Encodable {
     }
 }
 
-struct CommentBody: Encodable {
+nonisolated struct CommentBody: Encodable {
     let comment: String
 }
 
-struct CreatePostResponse: Decodable {
+nonisolated struct CreatePostResponse: Decodable {
     let message: String
     let post: PostDTO
 }
 
-struct ReplyResponse: Decodable {
+nonisolated struct ReplyResponse: Decodable {
     let message: String
     let reply: CommentDTO
 }

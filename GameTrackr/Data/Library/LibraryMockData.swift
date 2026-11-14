@@ -1,6 +1,6 @@
 import SwiftUI
 
-enum LibraryMockData {
+nonisolated enum LibraryMockData {
     static let stats = LibraryStats(totalGames: 142, platinum: 21)
 
     static let entries: [LibraryEntry] = [

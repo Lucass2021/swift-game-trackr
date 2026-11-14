@@ -1,6 +1,6 @@
 import SwiftUI
 
-enum HomeMockData {
+nonisolated enum HomeMockData {
     static let sampleGame = Game(
         id: 1,
         name: "Final Fantasy VII Rebirth",

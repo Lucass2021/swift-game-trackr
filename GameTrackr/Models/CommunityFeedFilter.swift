@@ -1,4 +1,4 @@
-enum CommunityFeedFilter: String, CaseIterable, Identifiable {
+nonisolated enum CommunityFeedFilter: String, CaseIterable, Identifiable {
     case latest = "Latest"
     case topRated = "Top Rated"
     case following = "Following"

@@ -1,7 +1,7 @@
 import SwiftUI
 
 actor FakeGameRepository: GameRepository {
-    private static let games = [HomeMockData.sampleGame]
+    private nonisolated static let games = [HomeMockData.sampleGame]
 
     private(set) var fetchNewReleasesCount = 0
     private(set) var fetchMostAnticipatedCount = 0
@@ -29,7 +29,7 @@ actor FakeGameRepository: GameRepository {
         self.latency = latency
     }
 
-    static let gameDetail = GameDetail(
+    nonisolated static let gameDetail = GameDetail(
         title: "Neon Ascent: Revival",
         year: "2024",
         rating: 4.8,

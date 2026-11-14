@@ -1,11 +1,11 @@
 import Foundation
 
-extension [PostComment] {
-    nonisolated func findComment(id: Int) -> PostComment? {
+nonisolated extension [PostComment] {
+    func findComment(id: Int) -> PostComment? {
         flatMap { [$0] + $0.replies }.first { $0.id == id }
     }
 
-    nonisolated func replacingComment(id: Int, _ transform: (inout PostComment) -> Void) -> [PostComment] {
+    func replacingComment(id: Int, _ transform: (inout PostComment) -> Void) -> [PostComment] {
         map { thread in
             var updated = thread
             if updated.id == id { transform(&updated) }
@@ -18,7 +18,7 @@ extension [PostComment] {
         }
     }
 
-    nonisolated func addingReply(to targetId: Int, _ reply: PostComment) -> [PostComment] {
+    func addingReply(to targetId: Int, _ reply: PostComment) -> [PostComment] {
         map { thread in
             guard thread.id == targetId || thread.replies.contains(where: { $0.id == targetId }) else { return thread }
             var updated = thread

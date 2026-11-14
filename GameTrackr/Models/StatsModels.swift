@@ -1,13 +1,13 @@
 import SwiftUI
 
-struct StatHighlight: Identifiable {
+nonisolated struct StatHighlight: Identifiable {
     let id = UUID()
     let label: String
     let value: String
     let caption: String
 }
 
-struct StatusShare: Identifiable {
+nonisolated struct StatusShare: Identifiable {
     var id: LibraryStatus {
         status
     }
@@ -16,7 +16,7 @@ struct StatusShare: Identifiable {
     let percent: Int
 }
 
-struct StatBar: Identifiable {
+nonisolated struct StatBar: Identifiable {
     let id = UUID()
     let label: String
     let value: String
@@ -24,20 +24,20 @@ struct StatBar: Identifiable {
     let tint: Color
 }
 
-struct YearCount: Identifiable {
+nonisolated struct YearCount: Identifiable {
     let id = UUID()
     let year: String
     let count: Int
     let tint: Color
 }
 
-struct AchievementSpotlight {
+nonisolated struct AchievementSpotlight {
     let title: String
     let message: String
     let actionTitle: String
 }
 
-struct UserStats {
+nonisolated struct UserStats {
     let highlights: [StatHighlight]
     let statusShare: [StatusShare]
     let genres: [StatBar]

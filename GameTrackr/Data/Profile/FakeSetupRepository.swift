@@ -1,7 +1,7 @@
 import Foundation
 
 actor FakeSetupRepository: SetupRepository {
-    private static let fakeImageScheme = "fake://"
+    private nonisolated static let fakeImageScheme = "fake://"
 
     private(set) var fetchCount = 0
     private var setups: [SetupItem]

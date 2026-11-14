@@ -4,9 +4,9 @@ import Testing
 
 @MainActor
 struct CreateTopicViewModelTests {
-    private static let community = CommunityMockData.all.first { $0.isJoined }!
-    private static let title = "Best co-op games of the year?"
-    private static let body = "Looking for something to play with friends this weekend."
+    private nonisolated static let community = CommunityMockData.all.first { $0.isJoined }!
+    private nonisolated static let title = "Best co-op games of the year?"
+    private nonisolated static let body = "Looking for something to play with friends this weekend."
 
     private let repository = FakeCommunityRepository(latency: .zero)
     private let postUpdates = PostUpdates()

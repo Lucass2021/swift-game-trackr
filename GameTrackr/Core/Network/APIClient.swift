@@ -1,6 +1,6 @@
 import Foundation
 
-private struct LaravelErrorBody: Decodable {
+private nonisolated struct LaravelErrorBody: Decodable {
     let message: String?
     let errors: [String: [String]]?
     let error: String?

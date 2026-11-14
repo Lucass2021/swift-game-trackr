@@ -1,6 +1,6 @@
 import SwiftUI
 
-enum LibraryStatus: String, CaseIterable, Identifiable {
+nonisolated enum LibraryStatus: String, CaseIterable, Identifiable {
     case playing = "Playing"
     case completed = "Completed"
     case backlog = "Backlog"
@@ -32,7 +32,7 @@ enum LibraryStatus: String, CaseIterable, Identifiable {
     }
 }
 
-struct LibraryEntry: Identifiable {
+nonisolated struct LibraryEntry: Identifiable {
     var id: String {
         slug
     }
@@ -67,12 +67,12 @@ struct LibraryEntry: Identifiable {
     }
 }
 
-struct LibraryStats {
+nonisolated struct LibraryStats {
     let totalGames: Int
     let platinum: Int
 }
 
-struct NewLibraryEntry {
+nonisolated struct NewLibraryEntry {
     let title: String
     let slug: String
     let status: LibraryStatus

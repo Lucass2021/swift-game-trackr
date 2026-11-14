@@ -1,6 +1,6 @@
 import SwiftUI
 
-struct GameScreenshot: Identifiable {
+nonisolated struct GameScreenshot: Identifiable {
     let id = UUID()
     let url: String?
     let start: Color
@@ -13,13 +13,13 @@ struct GameScreenshot: Identifiable {
     }
 }
 
-struct GameSpec: Identifiable {
+nonisolated struct GameSpec: Identifiable {
     let id = UUID()
     let label: String
     let value: String
 }
 
-struct GameDetail {
+nonisolated struct GameDetail {
     let title: String
     let year: String
     let rating: Double?
@@ -33,7 +33,7 @@ struct GameDetail {
     let specs: [GameSpec]
 }
 
-extension GameDetail {
+nonisolated extension GameDetail {
     init(dto: GameDetailDTO) {
         let palette = GradientPalette.pair(for: dto.id)
         let releaseDate = dto.firstReleaseDate.map { Date(timeIntervalSince1970: TimeInterval($0)) }
@@ -82,7 +82,7 @@ extension GameDetail {
     }
 }
 
-private extension String {
+private nonisolated extension String {
     var nilIfEmpty: String? {
         isEmpty ? nil : self
     }

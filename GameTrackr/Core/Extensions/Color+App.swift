@@ -1,6 +1,6 @@
 import SwiftUI
 
-extension Color {
+nonisolated extension Color {
     static let appPrimary = Color(hex: "B5FF3A")
     static let appSecondary = Color(hex: "22D3EE")
     static let appTertiary = Color(hex: "FF5C6C")
@@ -30,7 +30,7 @@ extension Color {
     static let coverPineEnd = Color(hex: "1B263B")
 }
 
-extension Color {
+nonisolated extension Color {
     init(hex: String) {
         let value = hex.hasPrefix("#") ? String(hex.dropFirst()) : hex
         var int: UInt64 = 0

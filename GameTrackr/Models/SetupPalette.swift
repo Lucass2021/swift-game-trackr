@@ -1,6 +1,6 @@
 import SwiftUI
 
-enum SetupPalette: String, CaseIterable, Identifiable {
+nonisolated enum SetupPalette: String, CaseIterable, Identifiable {
     case violet
     case emerald
     case crimson

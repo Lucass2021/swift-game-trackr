@@ -1,6 +1,6 @@
 import Foundation
 
-struct MessageResponse: Decodable {
+nonisolated struct MessageResponse: Decodable {
     let error: String?
     let message: String?
 }

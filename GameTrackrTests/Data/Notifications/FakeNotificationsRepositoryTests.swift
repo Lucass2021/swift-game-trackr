@@ -2,6 +2,7 @@ import Foundation
 import Testing
 @testable import GameTrackr
 
+@MainActor
 struct FakeNotificationsRepositoryTests {
     private static let perPage = 4
 
