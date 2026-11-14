@@ -7,20 +7,6 @@ private enum Constants {
     static let barHeight: CGFloat = 7
     static let barMinWidth: CGFloat = 6
     static let labelSize: CGFloat = 14
-    static let wishlistAlpha = 0.55
-}
-
-extension LibraryStatus {
-    var barTint: Color {
-        switch self {
-        case .playing: .appPrimary
-        case .completed: .appSecondary
-        case .backlog: .appTextSecondary
-        case .platinum: .appTextPrimary
-        case .abandoned: .appTertiary
-        case .wishlist: .appSecondary.opacity(Constants.wishlistAlpha)
-        }
-    }
 }
 
 struct ProfileBreakdownSection: View {

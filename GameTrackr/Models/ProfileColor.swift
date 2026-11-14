@@ -1,4 +1,4 @@
-import SwiftUI
+import Foundation
 
 nonisolated struct ProfileColor: Identifiable, Hashable {
     let key: String
@@ -7,10 +7,6 @@ nonisolated struct ProfileColor: Identifiable, Hashable {
 
     var id: String {
         key
-    }
-
-    var color: Color {
-        Color(hex: hex)
     }
 }
 

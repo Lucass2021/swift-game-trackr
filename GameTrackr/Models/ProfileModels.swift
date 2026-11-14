@@ -1,4 +1,4 @@
-import SwiftUI
+import Foundation
 
 nonisolated struct Profile {
     var name: String
@@ -7,14 +7,6 @@ nonisolated struct Profile {
     var joinedAt: Date?
     var avatarHex: String
     var visibility: ProfileVisibility = .publicProfile
-
-    var avatarStart: Color {
-        Color(hex: avatarHex)
-    }
-
-    var avatarEnd: Color {
-        Color(hex: avatarHex).darkened(by: 0.28)
-    }
 }
 
 nonisolated extension Profile {
@@ -57,13 +49,6 @@ nonisolated enum ProfileVisibility: String, CaseIterable, Identifiable {
         case .privateProfile: "Only friends can see your library and stats."
         }
     }
-
-    var icon: AppIcon {
-        switch self {
-        case .publicProfile: .eye
-        case .privateProfile: .eyeSlash
-        }
-    }
 }
 
 nonisolated struct ProfileStats {
@@ -93,16 +78,6 @@ nonisolated enum ActivityKind {
     case rated
     case added
 
-    var icon: AppIcon {
-        switch self {
-        case .platinum: .medal
-        case .completed: .success
-        case .started: .brand
-        case .rated: .like
-        case .added: .addToLibrary
-        }
-    }
-
     var verb: String {
         switch self {
         case .platinum: "Platinum on"
@@ -110,15 +85,6 @@ nonisolated enum ActivityKind {
         case .started: "Started playing"
         case .rated: "Rated"
         case .added: "Added to library"
-        }
-    }
-
-    var tint: Color {
-        switch self {
-        case .platinum, .started: .appPrimary
-        case .completed: .appSecondary
-        case .rated: .appTertiary
-        case .added: .appTextSecondary
         }
     }
 }
