@@ -10,30 +10,30 @@ struct GameDetailView: View {
     let slug: String
     var repository: GameRepository = RemoteGameRepository()
 
-    @Environment(LibraryDependencies.self) private var library
+    @Environment(AppDependencies.self) private var dependencies
 
     var body: some View {
-        GameDetailScreen(slug: slug, repository: repository, library: library)
+        GameDetailScreen(slug: slug, repository: repository, dependencies: dependencies)
     }
 }
 
 private struct GameDetailScreen: View {
     let slug: String
-    let library: LibraryDependencies
+    let dependencies: AppDependencies
 
     @Environment(AuthStore.self) private var authStore
     @Environment(\.dismiss) private var dismiss
     @State private var viewModel: GameDetailViewModel
     @State private var addToLibrary: AddToLibraryViewModel?
 
-    init(slug: String, repository: GameRepository, library: LibraryDependencies) {
+    init(slug: String, repository: GameRepository, dependencies: AppDependencies) {
         self.slug = slug
-        self.library = library
+        self.dependencies = dependencies
         _viewModel = State(initialValue: GameDetailViewModel(
             slug: slug,
             repository: repository,
-            libraryRepository: library.repository,
-            libraryUpdates: library.libraryUpdates
+            libraryRepository: dependencies.libraryRepository,
+            libraryUpdates: dependencies.libraryUpdates
         ))
     }
 
@@ -90,8 +90,8 @@ private struct GameDetailScreen: View {
         addToLibrary = AddToLibraryViewModel(
             slug: slug,
             game: game,
-            repository: library.repository,
-            libraryUpdates: library.libraryUpdates
+            repository: dependencies.libraryRepository,
+            libraryUpdates: dependencies.libraryUpdates
         )
     }
 
@@ -131,7 +131,7 @@ private struct GameDetailScreen: View {
         GameDetailView(slug: "neon-ascent-revival", repository: FakeGameRepository())
     }
     .environment(AuthStore())
-    .environment(LibraryDependencies())
+    .environment(AppDependencies())
     .preferredColorScheme(.dark)
 }
 
@@ -143,7 +143,7 @@ private struct GameDetailScreen: View {
         )
     }
     .environment(AuthStore())
-    .environment(LibraryDependencies())
+    .environment(AppDependencies())
     .preferredColorScheme(.dark)
 }
 
@@ -155,6 +155,6 @@ private struct GameDetailScreen: View {
         )
     }
     .environment(AuthStore())
-    .environment(LibraryDependencies())
+    .environment(AppDependencies())
     .preferredColorScheme(.dark)
 }

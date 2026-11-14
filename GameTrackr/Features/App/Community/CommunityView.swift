@@ -2,24 +2,14 @@ import SwiftUI
 
 struct CommunityView: View {
     @Environment(AuthStore.self) private var authStore
-    let dependencies: CommunityDependencies
+    @Environment(AppDependencies.self) private var dependencies
+    let feedViewModel: CommunityFeedViewModel
+    let discoverViewModel: DiscoverCommunitiesViewModel
     @State private var segment: CommunitySegment = .myFeed
     @State private var selectedPost: CommunityPost?
     @State private var selectedCommunity: Community?
     @State private var showCreateTopic = false
     @State private var showCreateCommunity = false
-
-    private var feedViewModel: CommunityFeedViewModel {
-        dependencies.feedViewModel
-    }
-
-    private var discoverViewModel: DiscoverCommunitiesViewModel {
-        dependencies.discoverViewModel
-    }
-
-    init(dependencies: CommunityDependencies) {
-        self.dependencies = dependencies
-    }
 
     var body: some View {
         ZStack(alignment: .bottomTrailing) {
@@ -62,10 +52,10 @@ struct CommunityView: View {
         .toast(message: segment == .myFeed ? Bindable(feedViewModel).toastMessage : Bindable(discoverViewModel)
             .toastMessage)
         .fullScreenCover(isPresented: $showCreateTopic) {
-            CreateTopicView(repository: dependencies.repository, postUpdates: dependencies.postUpdates)
+            CreateTopicView(repository: dependencies.communityRepository, postUpdates: dependencies.postUpdates)
         }
         .fullScreenCover(isPresented: $showCreateCommunity) {
-            CreateCommunityView(repository: dependencies.repository, onCreated: { community in
+            CreateCommunityView(repository: dependencies.communityRepository, onCreated: { community in
                 discoverViewModel.onCommunityCreated(community)
                 selectedCommunity = community
             })
@@ -78,8 +68,8 @@ struct CommunityView: View {
                     selectedCommunity = community
                 },
                 onDelete: { feedViewModel.onPostDeleted(post.id) },
-                repository: dependencies.repository,
-                feedRepository: dependencies.feedRepository,
+                repository: dependencies.communityRepository,
+                feedRepository: dependencies.communityFeedRepository,
                 postUpdates: dependencies.postUpdates
             )
         }
@@ -91,8 +81,8 @@ struct CommunityView: View {
                     discoverViewModel.onCommunityRemoved(community.id)
                     feedViewModel.onCommunityRemoved(community.id)
                 },
-                repository: dependencies.repository,
-                feedRepository: dependencies.feedRepository,
+                repository: dependencies.communityRepository,
+                feedRepository: dependencies.communityFeedRepository,
                 postUpdates: dependencies.postUpdates,
                 communityUpdates: dependencies.communityUpdates
             )
@@ -101,10 +91,22 @@ struct CommunityView: View {
 }
 
 #Preview {
+    let dependencies = AppDependencies(communityRepository: FakeCommunityRepository(latency: .zero))
     NavigationStack {
-        CommunityView(dependencies: CommunityDependencies(repository: FakeCommunityRepository(latency: .zero)))
+        CommunityView(
+            feedViewModel: CommunityFeedViewModel(
+                feedRepository: dependencies.communityFeedRepository,
+                repository: dependencies.communityRepository,
+                postUpdates: dependencies.postUpdates,
+                communityUpdates: dependencies.communityUpdates
+            ),
+            discoverViewModel: DiscoverCommunitiesViewModel(
+                repository: dependencies.discoverCommunitiesRepository,
+                communityUpdates: dependencies.communityUpdates
+            )
+        )
     }
     .environment(AuthStore())
-    .environment(LibraryDependencies())
+    .environment(dependencies)
     .preferredColorScheme(.dark)
 }

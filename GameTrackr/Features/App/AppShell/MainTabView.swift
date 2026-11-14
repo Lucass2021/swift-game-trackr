@@ -5,10 +5,30 @@ struct MainTabView: View {
     @State private var route: ShellRoute?
     @Environment(AuthStore.self) private var authStore
     @State private var mySetupViewModel = MySetupViewModel()
-    @State private var library = LibraryDependencies()
-    @State private var profileViewModel = ProfileViewModel(repository: FakeProfileOverviewRepository())
-    @State private var community = CommunityDependencies()
-    @State private var homeViewModel = HomeViewModel(repository: RemoteGameRepository())
+    @State private var libraryViewModel: LibraryViewModel
+    @State private var profileViewModel: ProfileViewModel
+    @State private var homeViewModel: HomeViewModel
+    @State private var communityFeedViewModel: CommunityFeedViewModel
+    @State private var discoverCommunitiesViewModel: DiscoverCommunitiesViewModel
+
+    init(dependencies: AppDependencies) {
+        _libraryViewModel = State(initialValue: LibraryViewModel(
+            repository: dependencies.libraryRepository,
+            libraryUpdates: dependencies.libraryUpdates
+        ))
+        _profileViewModel = State(initialValue: ProfileViewModel(repository: dependencies.profileOverviewRepository))
+        _homeViewModel = State(initialValue: HomeViewModel(repository: dependencies.gameRepository))
+        _communityFeedViewModel = State(initialValue: CommunityFeedViewModel(
+            feedRepository: dependencies.communityFeedRepository,
+            repository: dependencies.communityRepository,
+            postUpdates: dependencies.postUpdates,
+            communityUpdates: dependencies.communityUpdates
+        ))
+        _discoverCommunitiesViewModel = State(initialValue: DiscoverCommunitiesViewModel(
+            repository: dependencies.discoverCommunitiesRepository,
+            communityUpdates: dependencies.communityUpdates
+        ))
+    }
 
     var body: some View {
         NavigationStack {
@@ -30,12 +50,11 @@ struct MainTabView: View {
             .task(id: authStore.currentUser?.id) {
                 let userId = authStore.isGuest ? nil : authStore.currentUser?.id
                 async let setups: Void = mySetupViewModel.loadFor(userId)
-                async let libraryEntries: Void = library.viewModel.loadFor(userId)
+                async let libraryEntries: Void = libraryViewModel.loadFor(userId)
                 async let profileOverview: Void = profileViewModel.loadFor(userId)
                 _ = await (setups, libraryEntries, profileOverview)
             }
         }
-        .environment(library)
     }
 
     private var profile: Profile? {
@@ -53,12 +72,12 @@ struct MainTabView: View {
             )
         case .library:
             LibraryView(
-                viewModel: library.viewModel,
+                viewModel: libraryViewModel,
                 onBrowseGames: { route = .search(.all) },
                 onGameSelect: { route = .gameDetail(slug: $0) }
             )
         case .community:
-            CommunityView(dependencies: community)
+            CommunityView(feedViewModel: communityFeedViewModel, discoverViewModel: discoverCommunitiesViewModel)
         case .profile:
             ProfileView(
                 viewModel: profileViewModel,
@@ -67,7 +86,7 @@ struct MainTabView: View {
                 onGameSelect: { route = .gameDetail(slug: $0) },
                 onStatusSelect: { status in
                     selection = .library
-                    Task { await library.viewModel.onFilterChange(status) }
+                    Task { await libraryViewModel.onFilterChange(status) }
                 },
                 onEditProfile: { route = .editProfile },
                 onViewStats: { route = .stats },
@@ -92,7 +111,9 @@ struct MainTabView: View {
 }
 
 #Preview {
-    MainTabView()
+    let dependencies = AppDependencies()
+    MainTabView(dependencies: dependencies)
         .environment(AuthStore())
+        .environment(dependencies)
         .preferredColorScheme(.dark)
 }

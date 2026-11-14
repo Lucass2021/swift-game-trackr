@@ -68,6 +68,6 @@ struct SearchView: View {
         SearchView(repository: FakeGameRepository(latency: .zero))
     }
     .environment(AuthStore())
-    .environment(LibraryDependencies())
+    .environment(AppDependencies())
     .preferredColorScheme(.dark)
 }

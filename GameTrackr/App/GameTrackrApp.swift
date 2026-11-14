@@ -3,6 +3,7 @@ import SwiftUI
 @main
 struct GameTrackrApp: App {
     @State private var authStore = AuthStore()
+    @State private var dependencies = AppDependencies()
 
     init() {
         AppFonts.register()
@@ -12,12 +13,14 @@ struct GameTrackrApp: App {
         WindowGroup {
             RootView()
                 .environment(authStore)
+                .environment(dependencies)
         }
     }
 }
 
 private struct RootView: View {
     @Environment(AuthStore.self) private var authStore
+    @Environment(AppDependencies.self) private var dependencies
     @State private var showSplash = true
     @State private var animationFinished = false
     @State private var authResolved = false
@@ -25,7 +28,7 @@ private struct RootView: View {
     var body: some View {
         ZStack {
             if authStore.isInApp {
-                MainTabView()
+                MainTabView(dependencies: dependencies)
             } else {
                 WelcomeView()
             }
