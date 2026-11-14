@@ -1,4 +1,4 @@
-import SwiftUI
+import Foundation
 
 nonisolated enum AchievementTier: CaseIterable {
     case bronze
@@ -13,19 +13,6 @@ nonisolated enum AchievementTier: CaseIterable {
         case .gold: "Gold"
         case .platinum: "Platinum"
         }
-    }
-
-    var tint: Color {
-        switch self {
-        case .bronze: .appNeutral
-        case .silver: .appTextSecondary
-        case .gold: .appPrimary
-        case .platinum: .appSecondary
-        }
-    }
-
-    @MainActor var icon: AppIcon {
-        self == .platinum ? .trophy : .medal
     }
 }
 

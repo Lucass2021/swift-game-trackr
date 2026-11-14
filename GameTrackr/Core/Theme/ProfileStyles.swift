@@ -2,7 +2,6 @@ import SwiftUI
 
 private nonisolated enum Constants {
     static let avatarGradientDepth = 0.28
-    static let wishlistTintAlpha = 0.55
 }
 
 nonisolated extension Profile {
@@ -27,19 +26,6 @@ extension ProfileVisibility {
 nonisolated extension ProfileColor {
     var color: Color {
         Color(hex: hex)
-    }
-}
-
-nonisolated extension LibraryStatus {
-    var barTint: Color {
-        switch self {
-        case .playing: .appPrimary
-        case .completed: .appSecondary
-        case .backlog: .appTextSecondary
-        case .platinum: .appTextPrimary
-        case .abandoned: .appTertiary
-        case .wishlist: .appSecondary.opacity(Constants.wishlistTintAlpha)
-        }
     }
 }
 

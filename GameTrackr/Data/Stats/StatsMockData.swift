@@ -13,20 +13,20 @@ nonisolated enum StatsMockData {
             StatusShare(status: .backlog, percent: 25)
         ],
         genres: [
-            StatBar(label: "RPG", value: "42 games", fraction: 1.0, tint: .appPrimary),
-            StatBar(label: "Action", value: "38 games", fraction: 0.9, tint: .appSecondary),
-            StatBar(label: "Strategy", value: "21 games", fraction: 0.5, tint: .appPrimary)
+            StatBar(label: "RPG", value: "42 games", fraction: 1.0, accent: .primary),
+            StatBar(label: "Action", value: "38 games", fraction: 0.9, accent: .secondary),
+            StatBar(label: "Strategy", value: "21 games", fraction: 0.5, accent: .primary)
         ],
         platforms: [
-            StatBar(label: "PlayStation 5", value: "60%", fraction: 0.6, tint: .appSecondary),
-            StatBar(label: "PC Master Race", value: "25%", fraction: 0.25, tint: .appPrimary),
-            StatBar(label: "Nintendo Switch", value: "15%", fraction: 0.15, tint: .appSecondary)
+            StatBar(label: "PlayStation 5", value: "60%", fraction: 0.6, accent: .secondary),
+            StatBar(label: "PC Master Race", value: "25%", fraction: 0.25, accent: .primary),
+            StatBar(label: "Nintendo Switch", value: "15%", fraction: 0.15, accent: .secondary)
         ],
         yearsCompleted: [
-            YearCount(year: "2021", count: 9, tint: .appSecondary.opacity(0.45)),
-            YearCount(year: "2022", count: 14, tint: .appPrimary.opacity(0.5)),
-            YearCount(year: "2023", count: 22, tint: .appSecondary),
-            YearCount(year: "2024", count: 24, tint: .appPrimary)
+            YearCount(year: "2021", count: 9, accent: .secondaryMuted),
+            YearCount(year: "2022", count: 14, accent: .primaryMuted),
+            YearCount(year: "2023", count: 22, accent: .secondary),
+            YearCount(year: "2024", count: 24, accent: .primary)
         ],
         spotlight: AchievementSpotlight(
             title: "Achievement Master",

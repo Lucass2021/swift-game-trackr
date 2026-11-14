@@ -1,4 +1,4 @@
-import SwiftUI
+import Foundation
 
 nonisolated struct StatHighlight: Identifiable {
     let id = UUID()
@@ -21,14 +21,21 @@ nonisolated struct StatBar: Identifiable {
     let label: String
     let value: String
     let fraction: Double
-    let tint: Color
+    let accent: StatAccent
 }
 
 nonisolated struct YearCount: Identifiable {
     let id = UUID()
     let year: String
     let count: Int
-    let tint: Color
+    let accent: StatAccent
+}
+
+nonisolated enum StatAccent {
+    case primary
+    case secondary
+    case primaryMuted
+    case secondaryMuted
 }
 
 nonisolated struct AchievementSpotlight {
