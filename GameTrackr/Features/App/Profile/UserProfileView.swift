@@ -1,6 +1,7 @@
 import SwiftUI
 
 struct UserProfileView: View {
+    @Environment(AppDependencies.self) private var dependencies
     let username: String
 
     @Environment(AuthStore.self) private var authStore
@@ -10,7 +11,7 @@ struct UserProfileView: View {
     @State private var showStats = false
     @State private var detailSlug: String?
 
-    init(username: String, repository: ProfileOverviewRepository = FakeProfileOverviewRepository()) {
+    init(username: String, repository: ProfileOverviewRepository) {
         self.username = username
         _viewModel = State(initialValue: UserProfileViewModel(username: username, repository: repository))
     }
@@ -26,7 +27,7 @@ struct UserProfileView: View {
         .toolbar(.hidden, for: .navigationBar)
         .navigationBarBackButtonHidden(true)
         .navigationDestination(isPresented: $showStats) {
-            StatsView(ownerName: "@\(username)")
+            StatsView(ownerName: "@\(username)", repository: dependencies.statsRepository)
         }
         .navigationDestination(item: $detailSlug) { slug in
             GameDetailView(slug: slug)
@@ -68,7 +69,7 @@ struct UserProfileView: View {
 
 #Preview("Not friend") {
     NavigationStack {
-        UserProfileView(username: UserProfileMockData.username)
+        UserProfileView(username: UserProfileMockData.username, repository: FakeProfileOverviewRepository())
     }
     .environment(AuthStore())
     .environment(AppDependencies())

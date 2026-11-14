@@ -1,6 +1,7 @@
 import SwiftUI
 
 struct ProfileMenuView: View {
+    @Environment(AppDependencies.self) private var dependencies
     @Environment(AuthStore.self) private var authStore
 
     @State private var destination: ProfileMenuItem?
@@ -54,13 +55,15 @@ struct ProfileMenuView: View {
     private func destinationView(_ item: ProfileMenuItem) -> some View {
         switch item {
         case .editProfile:
-            if let user = authStore.currentUser { EditProfileView(profile: Profile(user: user)) }
-        case .stats: StatsView()
-        case .achievements: AchievementsView()
+            if let user = authStore.currentUser {
+                EditProfileView(profile: Profile(user: user), repository: dependencies.profileRepository)
+            }
+        case .stats: StatsView(repository: dependencies.statsRepository)
+        case .achievements: AchievementsView(repository: dependencies.achievementsRepository)
         case .settings:
             SettingsView(
-                notificationSettingsRepository: FakeNotificationSettingsRepository(),
-                accountRepository: FakeAccountRepository()
+                notificationSettingsRepository: dependencies.notificationSettingsRepository,
+                accountRepository: dependencies.accountRepository
             )
         case .help: HelpView()
         case .about: AboutView()
@@ -73,5 +76,6 @@ struct ProfileMenuView: View {
         ProfileMenuView()
     }
     .environment(AuthStore())
+    .environment(AppDependencies())
     .preferredColorScheme(.dark)
 }

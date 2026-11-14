@@ -9,7 +9,7 @@ struct AchievementsView: View {
     @State private var selectedGameId: Int?
     private let repository: AchievementsRepository
 
-    init(ownerName: String? = nil, repository: AchievementsRepository = FakeAchievementsRepository()) {
+    init(ownerName: String? = nil, repository: AchievementsRepository) {
         self.ownerName = ownerName
         self.repository = repository
         _viewModel = State(initialValue: AchievementsViewModel(repository: repository))
@@ -78,14 +78,14 @@ struct AchievementsView: View {
 
 #Preview("Own") {
     NavigationStack {
-        AchievementsView()
+        AchievementsView(repository: FakeAchievementsRepository(latency: .zero))
     }
     .preferredColorScheme(.dark)
 }
 
 #Preview("Other user") {
     NavigationStack {
-        AchievementsView(ownerName: "Ana")
+        AchievementsView(ownerName: "Ana", repository: FakeAchievementsRepository(latency: .zero))
     }
     .preferredColorScheme(.dark)
 }

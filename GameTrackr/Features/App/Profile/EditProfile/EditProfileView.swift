@@ -12,7 +12,7 @@ struct EditProfileView: View {
 
     private let repository: ProfileRepository
 
-    init(profile: Profile, repository: ProfileRepository = RemoteProfileRepository()) {
+    init(profile: Profile, repository: ProfileRepository) {
         self.profile = profile
         self.repository = repository
         _viewModel = State(initialValue: EditProfileViewModel(profile: profile, repository: repository))

@@ -24,7 +24,7 @@ final class EditSetupViewModel {
 
     init(
         setup: SetupItem?,
-        repository: SetupRepository = RemoteSetupRepository(),
+        repository: SetupRepository,
         encode: @escaping @Sendable (SetupPhoto) -> SetupImageUpload? = SetupPhotoEncoder.encode
     ) {
         isNew = setup == nil

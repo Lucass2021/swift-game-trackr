@@ -11,7 +11,7 @@ final class MySetupViewModel {
     private var loadTask: Task<Void, Never>?
     private var loadedUserId: Int?
 
-    init(repository: SetupRepository = RemoteSetupRepository()) {
+    init(repository: SetupRepository) {
         self.repository = repository
     }
 

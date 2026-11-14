@@ -28,7 +28,7 @@ final class EditProfileViewModel {
 
     private let repository: ProfileRepository
 
-    init(profile: Profile, repository: ProfileRepository = RemoteProfileRepository()) {
+    init(profile: Profile, repository: ProfileRepository) {
         original = profile
         self.repository = repository
         name = profile.name

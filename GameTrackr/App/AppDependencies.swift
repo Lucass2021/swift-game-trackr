@@ -12,12 +12,22 @@ final class AppDependencies {
     let postUpdates = PostUpdates()
     let communityUpdates = CommunityUpdates()
     let profileOverviewRepository: ProfileOverviewRepository
+    let profileRepository: ProfileRepository
+    let setupRepository: SetupRepository
+    let statsRepository: StatsRepository
+    let achievementsRepository: AchievementsRepository
+    let notificationsRepository: NotificationsRepository
+    let notificationSettingsRepository: NotificationSettingsRepository
+    let accountRepository: AccountRepository
+    let passwordRepository: PasswordRepository
 
     init(
         gameRepository: GameRepository = RemoteGameRepository(),
         libraryRepository: LibraryRepository? = nil,
         communityRepository: CommunityRepository = RemoteCommunityRepository(),
-        profileOverviewRepository: ProfileOverviewRepository? = nil
+        profileOverviewRepository: ProfileOverviewRepository? = nil,
+        profileRepository: ProfileRepository = RemoteProfileRepository(),
+        setupRepository: SetupRepository = RemoteSetupRepository()
     ) {
         self.gameRepository = gameRepository
         self.libraryRepository = libraryRepository ?? FakeLibraryRepository()
@@ -25,5 +35,13 @@ final class AppDependencies {
         communityFeedRepository = FakeCommunityFeedRepository(remote: communityRepository)
         discoverCommunitiesRepository = FakeDiscoverCommunitiesRepository(remote: communityRepository)
         self.profileOverviewRepository = profileOverviewRepository ?? FakeProfileOverviewRepository()
+        self.profileRepository = profileRepository
+        self.setupRepository = setupRepository
+        statsRepository = FakeStatsRepository()
+        achievementsRepository = FakeAchievementsRepository()
+        notificationsRepository = FakeNotificationsRepository()
+        notificationSettingsRepository = FakeNotificationSettingsRepository()
+        accountRepository = FakeAccountRepository()
+        passwordRepository = FakePasswordRepository()
     }
 }

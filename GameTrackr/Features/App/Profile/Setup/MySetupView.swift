@@ -1,6 +1,7 @@
 import SwiftUI
 
 struct MySetupView: View {
+    @Environment(AppDependencies.self) private var dependencies
     let viewModel: MySetupViewModel
 
     @Environment(\.dismiss) private var dismiss
@@ -19,6 +20,7 @@ struct MySetupView: View {
         .fullScreenCover(item: $editing) { editing in
             EditSetupView(
                 setup: editing.setup,
+                repository: dependencies.setupRepository,
                 onSaved: viewModel.onSetupSaved,
                 onDeleted: viewModel.onSetupDeleted
             )
@@ -84,6 +86,7 @@ private struct SetupEditing: Identifiable {
         MySetupView(viewModel: viewModel)
     }
     .task { await viewModel.load() }
+    .environment(AppDependencies(setupRepository: FakeSetupRepository()))
     .preferredColorScheme(.dark)
 }
 
@@ -91,5 +94,6 @@ private struct SetupEditing: Identifiable {
     NavigationStack {
         MySetupView(viewModel: MySetupViewModel(repository: FakeSetupRepository(setups: [])))
     }
+    .environment(AppDependencies(setupRepository: FakeSetupRepository()))
     .preferredColorScheme(.dark)
 }

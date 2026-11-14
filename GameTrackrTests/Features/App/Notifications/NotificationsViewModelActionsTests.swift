@@ -30,6 +30,17 @@ struct NotificationsViewModelActionsTests {
         #expect(!storedItems.contains { $0.unread })
     }
 
+    @Test func markAllReadSurvivesReopeningTheScreen() async {
+        await loadFirstPage()
+        await viewModel.onMarkAllRead()
+
+        let reopened = NotificationsViewModel(repository: repository)
+        await reopened.loadIfNeeded()
+        await reopened.onFilterChange(.unread)
+
+        #expect(reopened.items.isEmpty)
+    }
+
     @Test func markAllReadWithTheUnreadFilterLeavesNothingToShow() async {
         await loadFirstPage(.unread)
 

@@ -5,7 +5,7 @@ struct GameAchievementsView: View {
 
     @State private var viewModel: GameAchievementsViewModel
 
-    init(gameId: Int, repository: AchievementsRepository = FakeAchievementsRepository()) {
+    init(gameId: Int, repository: AchievementsRepository) {
         _viewModel = State(initialValue: GameAchievementsViewModel(gameId: gameId, repository: repository))
     }
 
@@ -80,14 +80,20 @@ struct GameAchievementsView: View {
 
 #Preview("Platinum") {
     NavigationStack {
-        GameAchievementsView(gameId: AchievementsMockData.games[0].id)
+        GameAchievementsView(
+            gameId: AchievementsMockData.games[0].id,
+            repository: FakeAchievementsRepository(latency: .zero)
+        )
     }
     .preferredColorScheme(.dark)
 }
 
 #Preview("In progress") {
     NavigationStack {
-        GameAchievementsView(gameId: AchievementsMockData.games[4].id)
+        GameAchievementsView(
+            gameId: AchievementsMockData.games[4].id,
+            repository: FakeAchievementsRepository(latency: .zero)
+        )
     }
     .preferredColorScheme(.dark)
 }

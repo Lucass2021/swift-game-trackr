@@ -21,6 +21,7 @@ struct NotificationsTopBar: View {
                     .contentShape(Rectangle())
             }
             .buttonStyle(PressableButtonStyle())
+            .accessibilityLabel("Back")
 
             Text("Notifications")
                 .font(.appHeadline(Constants.titleSize))

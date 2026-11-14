@@ -6,7 +6,7 @@ struct NotificationsView: View {
 
     @State private var viewModel: NotificationsViewModel
 
-    init(repository: NotificationsRepository = FakeNotificationsRepository()) {
+    init(repository: NotificationsRepository) {
         _viewModel = State(initialValue: NotificationsViewModel(repository: repository))
     }
 
@@ -94,7 +94,7 @@ struct NotificationsView: View {
 
 #Preview("Signed in") {
     NavigationStack {
-        NotificationsView()
+        NotificationsView(repository: FakeNotificationsRepository(latency: .zero))
     }
     .environment(AuthStore())
     .preferredColorScheme(.dark)
@@ -114,7 +114,7 @@ struct NotificationsView: View {
     let authStore = AuthStore()
     authStore.continueAsGuest()
     return NavigationStack {
-        NotificationsView()
+        NotificationsView(repository: FakeNotificationsRepository(latency: .zero))
     }
     .environment(authStore)
     .preferredColorScheme(.dark)

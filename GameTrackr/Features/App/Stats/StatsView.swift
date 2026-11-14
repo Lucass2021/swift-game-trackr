@@ -1,6 +1,7 @@
 import SwiftUI
 
 struct StatsView: View {
+    @Environment(AppDependencies.self) private var dependencies
     var ownerName: String?
 
     @Environment(\.dismiss) private var dismiss
@@ -8,7 +9,7 @@ struct StatsView: View {
     @State private var viewModel: StatsViewModel
     @State private var showAchievements = false
 
-    init(ownerName: String? = nil, repository: StatsRepository = FakeStatsRepository()) {
+    init(ownerName: String? = nil, repository: StatsRepository) {
         self.ownerName = ownerName
         _viewModel = State(initialValue: StatsViewModel(repository: repository))
     }
@@ -30,7 +31,7 @@ struct StatsView: View {
         .toolbar(.hidden, for: .navigationBar)
         .navigationBarBackButtonHidden(true)
         .navigationDestination(isPresented: $showAchievements) {
-            AchievementsView(ownerName: ownerName)
+            AchievementsView(ownerName: ownerName, repository: dependencies.achievementsRepository)
         }
         .task { await viewModel.loadIfNeeded() }
     }
@@ -92,15 +93,17 @@ struct StatsView: View {
 
 #Preview("Own stats") {
     NavigationStack {
-        StatsView()
+        StatsView(repository: FakeStatsRepository(latency: .zero))
     }
+    .environment(AppDependencies())
     .preferredColorScheme(.dark)
 }
 
 #Preview("Other user") {
     NavigationStack {
-        StatsView(ownerName: "Ana")
+        StatsView(ownerName: "Ana", repository: FakeStatsRepository(latency: .zero))
     }
+    .environment(AppDependencies())
     .preferredColorScheme(.dark)
 }
 
@@ -108,5 +111,6 @@ struct StatsView: View {
     NavigationStack {
         StatsView(repository: FakeStatsRepository(failure: APIError.networkFailure, latency: .zero))
     }
+    .environment(AppDependencies())
     .preferredColorScheme(.dark)
 }

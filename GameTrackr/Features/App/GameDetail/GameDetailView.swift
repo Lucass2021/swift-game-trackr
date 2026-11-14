@@ -8,12 +8,11 @@ private enum Constants {
 
 struct GameDetailView: View {
     let slug: String
-    var repository: GameRepository = RemoteGameRepository()
 
     @Environment(AppDependencies.self) private var dependencies
 
     var body: some View {
-        GameDetailScreen(slug: slug, repository: repository, dependencies: dependencies)
+        GameDetailScreen(slug: slug, repository: dependencies.gameRepository, dependencies: dependencies)
     }
 }
 
@@ -128,33 +127,29 @@ private struct GameDetailScreen: View {
 
 #Preview("Loaded") {
     NavigationStack {
-        GameDetailView(slug: "neon-ascent-revival", repository: FakeGameRepository())
+        GameDetailView(slug: "neon-ascent-revival")
     }
     .environment(AuthStore())
-    .environment(AppDependencies())
+    .environment(AppDependencies(gameRepository: FakeGameRepository()))
     .preferredColorScheme(.dark)
 }
 
 #Preview("Loading") {
     NavigationStack {
-        GameDetailView(
-            slug: "neon-ascent-revival",
-            repository: FakeGameRepository(latency: Constants.loadingPreviewLatency)
-        )
+        GameDetailView(slug: "neon-ascent-revival")
     }
     .environment(AuthStore())
-    .environment(AppDependencies())
+    .environment(AppDependencies(gameRepository: FakeGameRepository(latency: Constants.loadingPreviewLatency)))
     .preferredColorScheme(.dark)
 }
 
 #Preview("Error") {
     NavigationStack {
-        GameDetailView(
-            slug: "neon-ascent-revival",
-            repository: FakeGameRepository(fetchGameFailure: APIError.networkFailure, latency: .zero)
-        )
+        GameDetailView(slug: "neon-ascent-revival")
     }
     .environment(AuthStore())
-    .environment(AppDependencies())
+    .environment(AppDependencies(
+        gameRepository: FakeGameRepository(fetchGameFailure: APIError.networkFailure, latency: .zero)
+    ))
     .preferredColorScheme(.dark)
 }

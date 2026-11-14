@@ -1,6 +1,7 @@
 import SwiftUI
 
 struct PostDetailView: View {
+    @Environment(AppDependencies.self) private var dependencies
     let post: CommunityPost
     var onCommunitySelect: (Community) -> Void = { _ in }
     var onDelete: () -> Void = {}
@@ -14,7 +15,7 @@ struct PostDetailView: View {
         post: CommunityPost,
         onCommunitySelect: @escaping (Community) -> Void = { _ in },
         onDelete: @escaping () -> Void = {},
-        repository: CommunityRepository = RemoteCommunityRepository(),
+        repository: CommunityRepository,
         feedRepository: CommunityFeedRepository,
         postUpdates: PostUpdates
     ) {
@@ -70,7 +71,7 @@ struct PostDetailView: View {
             PostCommentsSheet(viewModel: viewModel, isGuest: authStore.isGuest)
         }
         .navigationDestination(item: $selectedUsername) { username in
-            UserProfileView(username: username)
+            UserProfileView(username: username, repository: dependencies.profileOverviewRepository)
         }
         .alert("Delete post?", isPresented: $viewModel.showDeleteConfirmation) {
             Button("Delete", role: .destructive) { Task { await viewModel.onDeleteConfirmed() } }

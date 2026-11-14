@@ -4,7 +4,8 @@ struct MainTabView: View {
     @State private var selection: AppTab = .home
     @State private var route: ShellRoute?
     @Environment(AuthStore.self) private var authStore
-    @State private var mySetupViewModel = MySetupViewModel()
+    private let dependencies: AppDependencies
+    @State private var mySetupViewModel: MySetupViewModel
     @State private var libraryViewModel: LibraryViewModel
     @State private var profileViewModel: ProfileViewModel
     @State private var homeViewModel: HomeViewModel
@@ -12,6 +13,8 @@ struct MainTabView: View {
     @State private var discoverCommunitiesViewModel: DiscoverCommunitiesViewModel
 
     init(dependencies: AppDependencies) {
+        self.dependencies = dependencies
+        _mySetupViewModel = State(initialValue: MySetupViewModel(repository: dependencies.setupRepository))
         _libraryViewModel = State(initialValue: LibraryViewModel(
             repository: dependencies.libraryRepository,
             libraryUpdates: dependencies.libraryUpdates
@@ -98,13 +101,13 @@ struct MainTabView: View {
     @ViewBuilder
     private func destinationView(_ route: ShellRoute) -> some View {
         switch route {
-        case let .search(scope): SearchView(scope: scope)
-        case .notifications: NotificationsView()
+        case let .search(scope): SearchView(scope: scope, repository: dependencies.gameRepository)
+        case .notifications: NotificationsView(repository: dependencies.notificationsRepository)
         case .menu: ProfileMenuView()
         case let .gameDetail(slug): GameDetailView(slug: slug)
-        case .stats: StatsView()
+        case .stats: StatsView(repository: dependencies.statsRepository)
         case .editProfile:
-            if let profile { EditProfileView(profile: profile) }
+            if let profile { EditProfileView(profile: profile, repository: dependencies.profileRepository) }
         case .mySetup: MySetupView(viewModel: mySetupViewModel)
         }
     }

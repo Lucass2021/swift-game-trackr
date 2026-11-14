@@ -5,6 +5,7 @@ private enum Constants {
 }
 
 struct CommunityDetailView: View {
+    @Environment(AppDependencies.self) private var dependencies
     let community: Community
     var onPostSelect: (CommunityPost) -> Void = { _ in }
     var onDelete: () -> Void = {}
@@ -21,7 +22,7 @@ struct CommunityDetailView: View {
         community: Community,
         onPostSelect: @escaping (CommunityPost) -> Void = { _ in },
         onDelete: @escaping () -> Void = {},
-        repository: CommunityRepository = RemoteCommunityRepository(),
+        repository: CommunityRepository,
         feedRepository: CommunityFeedRepository,
         postUpdates: PostUpdates,
         communityUpdates: CommunityUpdates
@@ -69,7 +70,7 @@ struct CommunityDetailView: View {
         .toolbar(.hidden, for: .navigationBar)
         .navigationBarBackButtonHidden(true)
         .navigationDestination(item: $selectedUsername) { username in
-            UserProfileView(username: username)
+            UserProfileView(username: username, repository: dependencies.profileOverviewRepository)
         }
         .overlay(alignment: .topLeading) {
             CommunityDetailFloatingButton(icon: .back, label: "Back") { dismiss() }

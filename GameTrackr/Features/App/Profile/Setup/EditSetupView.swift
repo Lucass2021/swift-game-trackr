@@ -20,7 +20,7 @@ struct EditSetupView: View {
 
     init(
         setup: SetupItem?,
-        repository: SetupRepository = RemoteSetupRepository(),
+        repository: SetupRepository,
         onSaved: @escaping (SetupItem) -> Void,
         onDeleted: @escaping (Int) -> Void
     ) {

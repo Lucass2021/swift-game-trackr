@@ -6,7 +6,7 @@ struct SearchView: View {
     @State private var detailSlug: String?
     @FocusState private var searchFocused: Bool
 
-    init(scope: SearchScope = .all, repository: GameRepository = RemoteGameRepository()) {
+    init(scope: SearchScope = .all, repository: GameRepository) {
         _viewModel = State(initialValue: SearchViewModel(scope: scope, repository: repository))
     }
 

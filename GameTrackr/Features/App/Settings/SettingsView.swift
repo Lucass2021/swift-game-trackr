@@ -1,6 +1,7 @@
 import SwiftUI
 
 struct SettingsView: View {
+    @Environment(AppDependencies.self) private var dependencies
     @Environment(AuthStore.self) private var authStore
     @Environment(\.dismiss) private var dismiss
 
@@ -55,7 +56,7 @@ struct SettingsView: View {
             if isDeleted { authStore.logout() }
         }
         .navigationDestination(isPresented: $showChangePassword) {
-            ChangePasswordView(repository: FakePasswordRepository())
+            ChangePasswordView(repository: dependencies.passwordRepository)
         }
         .alert("Delete account?", isPresented: $showDeleteAlert) {
             Button("Cancel", role: .cancel) {}
@@ -74,5 +75,6 @@ struct SettingsView: View {
         )
     }
     .environment(AuthStore())
+    .environment(AppDependencies())
     .preferredColorScheme(.dark)
 }
