@@ -77,8 +77,7 @@ actor FakeCommunityRepository: CommunityRepository {
                 online: "1",
                 description: description,
                 isJoined: true,
-                iconStart: .coverEmeraldStart,
-                iconEnd: .coverEmeraldEnd
+                icon: .emerald
             )
         }
         communities.insert(created, at: 0)

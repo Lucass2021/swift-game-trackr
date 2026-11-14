@@ -40,4 +40,19 @@ struct CommunityDTOMappingTests {
 
         #expect(member.username == "shadowreaper")
     }
+
+    @Test func theCommunityPalettesComeFromTheAPIIds() throws {
+        let postJSON = #"{"id": 7, "title": "Builds", "slug": "builds", "community_id": 1, "author_id": 3}"#
+        let memberJSON = #"{"id": 3, "name": "Shadow Reaper"}"#
+        let commentJSON = #"{"id": 4, "content": "Nice", "author_id": 3, "post_id": 7}"#
+        let post = try CommunityPost(dto: JSONDecoder().decode(PostDTO.self, from: Data(postJSON.utf8)))
+        let member = try CommunityMember(dto: JSONDecoder().decode(CommunityUserDTO.self, from: Data(memberJSON.utf8)))
+        let comment = try PostComment(dto: JSONDecoder().decode(CommentDTO.self, from: Data(commentJSON.utf8)))
+
+        #expect(try community(createdAt: nil).icon == .crimson)
+        #expect(post.avatar == .emerald)
+        #expect(post.media == .azure)
+        #expect(member.avatar == .azure)
+        #expect(comment.avatar == .violet)
+    }
 }

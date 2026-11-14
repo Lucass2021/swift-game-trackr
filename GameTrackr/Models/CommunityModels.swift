@@ -1,4 +1,4 @@
-import SwiftUI
+import Foundation
 
 nonisolated struct Community: Identifiable, Hashable {
     let id: Int
@@ -11,8 +11,7 @@ nonisolated struct Community: Identifiable, Hashable {
     var isJoined: Bool
     let avatarUrl: String?
     let coverUrl: String?
-    let iconStart: Color
-    let iconEnd: Color
+    let icon: CoverPalette
     let createdMonth: String?
 
     let online: String
@@ -45,8 +44,7 @@ nonisolated struct Community: Identifiable, Hashable {
         isJoined: Bool = false,
         avatarUrl: String? = nil,
         coverUrl: String? = nil,
-        iconStart: Color? = nil,
-        iconEnd: Color? = nil,
+        icon: CoverPalette? = nil,
         createdMonth: String? = nil
     ) {
         self.id = id
@@ -60,9 +58,7 @@ nonisolated struct Community: Identifiable, Hashable {
         self.isJoined = isJoined
         self.avatarUrl = avatarUrl
         self.coverUrl = coverUrl
-        let colors = GradientPalette.pair(for: id)
-        self.iconStart = iconStart ?? colors.0
-        self.iconEnd = iconEnd ?? colors.1
+        self.icon = icon ?? CoverPalette.forGradientId(id)
         self.createdMonth = createdMonth
     }
 
@@ -97,6 +93,8 @@ nonisolated struct Community: Identifiable, Hashable {
 }
 
 nonisolated struct CommunityPost: Identifiable, Hashable {
+    private static let mediaPaletteOffset = 3
+
     let id: Int
     let author: String
     let authorId: Int?
@@ -113,10 +111,8 @@ nonisolated struct CommunityPost: Identifiable, Hashable {
     var isBookmarked = false
     let imageUrl: String?
     let avatarUrl: String?
-    let avatarStart: Color
-    let avatarEnd: Color
-    let mediaStart: Color
-    let mediaEnd: Color
+    let avatar: CoverPalette
+    let media: CoverPalette
 
     init(
         id: Int,
@@ -135,10 +131,8 @@ nonisolated struct CommunityPost: Identifiable, Hashable {
         isBookmarked: Bool = false,
         imageUrl: String? = nil,
         avatarUrl: String? = nil,
-        avatarStart: Color? = nil,
-        avatarEnd: Color? = nil,
-        mediaStart: Color? = nil,
-        mediaEnd: Color? = nil
+        avatar: CoverPalette? = nil,
+        media: CoverPalette? = nil
     ) {
         self.id = id
         self.author = author
@@ -156,12 +150,8 @@ nonisolated struct CommunityPost: Identifiable, Hashable {
         self.isBookmarked = isBookmarked
         self.imageUrl = imageUrl
         self.avatarUrl = avatarUrl
-        let aColors = GradientPalette.pair(for: id)
-        self.avatarStart = avatarStart ?? aColors.0
-        self.avatarEnd = avatarEnd ?? aColors.1
-        let mColors = GradientPalette.pair(for: id + 3)
-        self.mediaStart = mediaStart ?? mColors.0
-        self.mediaEnd = mediaEnd ?? mColors.1
+        self.avatar = avatar ?? CoverPalette.forGradientId(id)
+        self.media = media ?? CoverPalette.forGradientId(id + Self.mediaPaletteOffset)
     }
 
     init(dto: PostDTO) {
@@ -203,8 +193,7 @@ nonisolated struct CommunityMember: Identifiable, Hashable {
     let author: String
     let role: String
     let avatarUrl: String?
-    let avatarStart: Color
-    let avatarEnd: Color
+    let avatar: CoverPalette
     let username: String?
 
     init(
@@ -212,8 +201,7 @@ nonisolated struct CommunityMember: Identifiable, Hashable {
         author: String,
         role: String,
         avatarUrl: String? = nil,
-        avatarStart: Color? = nil,
-        avatarEnd: Color? = nil,
+        avatar: CoverPalette? = nil,
         username: String? = nil
     ) {
         self.id = id
@@ -221,9 +209,7 @@ nonisolated struct CommunityMember: Identifiable, Hashable {
         self.role = role
         self.avatarUrl = avatarUrl
         self.username = username
-        let colors = GradientPalette.pair(for: id)
-        self.avatarStart = avatarStart ?? colors.0
-        self.avatarEnd = avatarEnd ?? colors.1
+        self.avatar = avatar ?? CoverPalette.forGradientId(id)
     }
 
     init(dto: CommunityUserDTO) {
@@ -246,8 +232,7 @@ nonisolated struct PostComment: Identifiable, Hashable {
     var likes: Int
     var isLiked = false
     let avatarUrl: String?
-    let avatarStart: Color
-    let avatarEnd: Color
+    let avatar: CoverPalette
     var replies: [PostComment] = []
 
     init(
@@ -259,8 +244,7 @@ nonisolated struct PostComment: Identifiable, Hashable {
         likes: Int,
         isLiked: Bool = false,
         avatarUrl: String? = nil,
-        avatarStart: Color? = nil,
-        avatarEnd: Color? = nil,
+        avatar: CoverPalette? = nil,
         replies: [PostComment] = []
     ) {
         self.id = id
@@ -271,9 +255,7 @@ nonisolated struct PostComment: Identifiable, Hashable {
         self.likes = likes
         self.isLiked = isLiked
         self.avatarUrl = avatarUrl
-        let colors = GradientPalette.pair(for: id)
-        self.avatarStart = avatarStart ?? colors.0
-        self.avatarEnd = avatarEnd ?? colors.1
+        self.avatar = avatar ?? CoverPalette.forGradientId(id)
         self.replies = replies
     }
 
@@ -311,20 +293,4 @@ nonisolated extension [PostComment] {
 nonisolated struct LikeStatus: Hashable {
     let isLiked: Bool
     let likes: Int
-}
-
-nonisolated enum GradientPalette {
-    private static let pairs: [(Color, Color)] = [
-        (.coverEmeraldStart, .coverEmeraldEnd),
-        (.coverCrimsonStart, .coverCrimsonEnd),
-        (.coverIndigoStart, .coverIndigoEnd),
-        (.coverAzureStart, .coverAzureEnd),
-        (.coverVioletStart, .coverVioletEnd),
-        (.coverCyanStart, .coverCyanEnd),
-        (.coverPineStart, .coverPineEnd)
-    ]
-
-    static func pair(for id: Int) -> (Color, Color) {
-        pairs[abs(id) % pairs.count]
-    }
 }

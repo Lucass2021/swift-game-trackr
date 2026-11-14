@@ -15,10 +15,8 @@ nonisolated enum CommunityMockData {
             comments: 84,
             hasMedia: true,
             isLiked: true,
-            avatarStart: .coverVioletStart,
-            avatarEnd: .coverVioletEnd,
-            mediaStart: .coverEmeraldStart,
-            mediaEnd: .coverEmeraldEnd
+            avatar: .violet,
+            media: .emerald
         ),
         CommunityPost(
             id: 102,
@@ -32,10 +30,8 @@ nonisolated enum CommunityMockData {
             likes: 2401,
             comments: 312,
             hasMedia: true,
-            avatarStart: .coverPineStart,
-            avatarEnd: .coverPineEnd,
-            mediaStart: .coverIndigoStart,
-            mediaEnd: .coverIndigoEnd
+            avatar: .pine,
+            media: .indigo
         ),
         CommunityPost(
             id: 103,
@@ -49,10 +45,8 @@ nonisolated enum CommunityMockData {
             likes: 85,
             comments: 12,
             hasMedia: false,
-            avatarStart: .coverAzureStart,
-            avatarEnd: .coverAzureEnd,
-            mediaStart: .coverCyanStart,
-            mediaEnd: .coverCyanEnd
+            avatar: .azure,
+            media: .cyan
         )
     ]
 
@@ -65,8 +59,7 @@ nonisolated enum CommunityMockData {
         online: "89",
         description: "The ultimate hub for breaking world records in classic and modern RPGs.",
         isJoined: false,
-        iconStart: .coverEmeraldStart,
-        iconEnd: .coverEmeraldEnd
+        icon: .emerald
     )
 
     static let featured: [Community] = [
@@ -79,8 +72,7 @@ nonisolated enum CommunityMockData {
             online: "120",
             description: "Theories, item descriptions and everything the Lands Between refuse to explain.",
             isJoined: false,
-            iconStart: .coverEmeraldStart,
-            iconEnd: .coverEmeraldEnd
+            icon: .emerald
         ),
         Community(
             id: 203,
@@ -91,8 +83,7 @@ nonisolated enum CommunityMockData {
             online: "203",
             description: "Cartridges, CRTs and high scores. Nostalgia lives here.",
             isJoined: false,
-            iconStart: .coverCrimsonStart,
-            iconEnd: .coverCrimsonEnd
+            icon: .crimson
         ),
         Community(
             id: 204,
@@ -103,8 +94,7 @@ nonisolated enum CommunityMockData {
             online: "64",
             description: "Discovery platform for the little games with the biggest ideas.",
             isJoined: false,
-            iconStart: .coverVioletStart,
-            iconEnd: .coverVioletEnd
+            icon: .violet
         )
     ]
 
@@ -118,8 +108,7 @@ nonisolated enum CommunityMockData {
             online: "142",
             description: "Sharing the best builds, materia setups and side quest routes.",
             isJoined: true,
-            iconStart: .coverIndigoStart,
-            iconEnd: .coverIndigoEnd
+            icon: .indigo
         ),
         Community(
             id: 206,
@@ -130,8 +119,7 @@ nonisolated enum CommunityMockData {
             online: "870",
             description: "The ultimate community for lineups, agent picks and ranked climbing.",
             isJoined: false,
-            iconStart: .coverCrimsonStart,
-            iconEnd: .coverCrimsonEnd
+            icon: .crimson
         ),
         Community(
             id: 204,
@@ -142,8 +130,7 @@ nonisolated enum CommunityMockData {
             online: "64",
             description: "Discovery platform for the little games with the biggest ideas.",
             isJoined: false,
-            iconStart: .coverVioletStart,
-            iconEnd: .coverVioletEnd
+            icon: .violet
         ),
         Community(
             id: 207,
@@ -154,8 +141,7 @@ nonisolated enum CommunityMockData {
             online: "310",
             description: "Advanced techniques for hardware tuning, shaders and texture packs.",
             isJoined: false,
-            iconStart: .coverPineStart,
-            iconEnd: .coverPineEnd
+            icon: .pine
         ),
         Community(
             id: 208,
@@ -166,8 +152,7 @@ nonisolated enum CommunityMockData {
             online: "198",
             description: "Frame-perfect tricks, glitch hunting and world record splits.",
             isJoined: true,
-            iconStart: .coverAzureStart,
-            iconEnd: .coverAzureEnd
+            icon: .azure
         )
     ]
 
@@ -181,8 +166,7 @@ nonisolated enum CommunityMockData {
         description: "The ultimate hub for breaking world records in classic and modern RPGs. Share your routes, " +
             "discuss glitch hunting techniques, and compare splits with the fastest players around.",
         isJoined: false,
-        iconStart: .coverEmeraldStart,
-        iconEnd: .coverEmeraldEnd,
+        icon: .emerald,
         createdMonth: "March 2024"
     )
 
@@ -199,10 +183,8 @@ nonisolated enum CommunityMockData {
             likes: 432,
             comments: 24,
             hasMedia: true,
-            avatarStart: .coverAzureStart,
-            avatarEnd: .coverAzureEnd,
-            mediaStart: .coverPineStart,
-            mediaEnd: .coverPineEnd
+            avatar: .azure,
+            media: .pine
         ),
         CommunityPost(
             id: 105,
@@ -216,10 +198,8 @@ nonisolated enum CommunityMockData {
             likes: 1204,
             comments: 156,
             hasMedia: false,
-            avatarStart: .coverCrimsonStart,
-            avatarEnd: .coverCrimsonEnd,
-            mediaStart: .coverCyanStart,
-            mediaEnd: .coverCyanEnd
+            avatar: .crimson,
+            media: .cyan
         )
     ]
 
@@ -237,10 +217,8 @@ nonisolated enum CommunityMockData {
         comments: 24,
         hasMedia: true,
         isLiked: true,
-        avatarStart: .coverVioletStart,
-        avatarEnd: .coverVioletEnd,
-        mediaStart: .coverIndigoStart,
-        mediaEnd: .coverIndigoEnd
+        avatar: .violet,
+        media: .indigo
     )
 
     static let detailPostHighlights = [
@@ -257,8 +235,7 @@ nonisolated enum CommunityMockData {
             content: "I absolutely agree. The resurgence of CRPGs specifically has been a breath of fresh air. 2024 " +
                 "is looking like a legendary year for build variety.",
             likes: 12,
-            avatarStart: .coverVioletStart,
-            avatarEnd: .coverVioletEnd,
+            avatar: .violet,
             replies: [
                 PostComment(
                     id: 302,
@@ -267,8 +244,7 @@ nonisolated enum CommunityMockData {
                     content: "Specifically the combat mechanics in the latest release — they finally got the balance " +
                         "right!",
                     likes: 5,
-                    avatarStart: .coverEmeraldStart,
-                    avatarEnd: .coverEmeraldEnd
+                    avatar: .emerald
                 )
             ]
         ),
@@ -279,8 +255,7 @@ nonisolated enum CommunityMockData {
             content: "The inventory management is still a mess though. No matter how deep the story is, if the UI is " +
                 "clunky the experience suffers.",
             likes: 8,
-            avatarStart: .coverAzureStart,
-            avatarEnd: .coverAzureEnd
+            avatar: .azure
         ),
         PostComment(
             id: 304,
@@ -290,8 +265,7 @@ nonisolated enum CommunityMockData {
                 "another cinematic set piece.",
             likes: 21,
             isLiked: true,
-            avatarStart: .coverCrimsonStart,
-            avatarEnd: .coverCrimsonEnd
+            avatar: .crimson
         )
     ]
 
@@ -300,40 +274,35 @@ nonisolated enum CommunityMockData {
             id: 401,
             author: "@ShadowReaper",
             role: "Moderator",
-            avatarStart: .coverVioletStart,
-            avatarEnd: .coverVioletEnd,
+            avatar: .violet,
             username: "shadowreaper"
         ),
         CommunityMember(
             id: 402,
             author: "@chrono_runner",
             role: "Moderator",
-            avatarStart: .coverAzureStart,
-            avatarEnd: .coverAzureEnd,
+            avatar: .azure,
             username: "chrono_runner"
         ),
         CommunityMember(
             id: 403,
             author: "@QuestMaster",
             role: "Member · joined 2 months ago",
-            avatarStart: .coverEmeraldStart,
-            avatarEnd: .coverEmeraldEnd,
+            avatar: .emerald,
             username: "questmaster"
         ),
         CommunityMember(
             id: 404,
             author: "@VoidWalker",
             role: "Member · joined 5 months ago",
-            avatarStart: .coverCrimsonStart,
-            avatarEnd: .coverCrimsonEnd,
+            avatar: .crimson,
             username: "voidwalker"
         ),
         CommunityMember(
             id: 405,
             author: "@NeonSamurai",
             role: "Member · joined 1 year ago",
-            avatarStart: .coverCyanStart,
-            avatarEnd: .coverCyanEnd,
+            avatar: .cyan,
             username: "neonsamurai"
         )
     ]

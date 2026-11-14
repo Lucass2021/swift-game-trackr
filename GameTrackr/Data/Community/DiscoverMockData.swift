@@ -14,8 +14,7 @@ nonisolated enum DiscoverMockData {
             isJoined: community.isJoined,
             avatarUrl: community.avatarUrl,
             coverUrl: community.coverUrl,
-            iconStart: community.iconStart,
-            iconEnd: community.iconEnd,
+            icon: community.icon,
             createdMonth: community.createdMonth
         )
     }
