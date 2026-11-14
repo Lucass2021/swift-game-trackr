@@ -1,18 +1,14 @@
 import SwiftUI
 
 struct WelcomeBottomSection: View {
-    @Binding var showRegister: Bool
-    @Binding var showLogin: Bool
+    let onCreateAccount: () -> Void
+    let onSignIn: () -> Void
 
     var body: some View {
         VStack(spacing: 14) {
-            PrimaryButton(title: "Create account") {
-                showRegister = true
-            }
+            PrimaryButton(title: "Create account", action: onCreateAccount)
 
-            SecondaryButton(title: "Sign in") {
-                showLogin = true
-            }
+            SecondaryButton(title: "Sign in", action: onSignIn)
 
             Text(
                 "By continuing, you agree to our **[Terms](https://github.com/lucianobcorrea/game-trackr-api)** and\n **[Privacy Policy](https://github.com/lucianobcorrea/game-trackr-api)**."
@@ -27,11 +23,9 @@ struct WelcomeBottomSection: View {
 }
 
 #Preview {
-    @Previewable @State var showRegister = false
-    @Previewable @State var showLogin = false
     ZStack {
         Color.appBackground.ignoresSafeArea()
-        WelcomeBottomSection(showRegister: $showRegister, showLogin: $showLogin)
+        WelcomeBottomSection(onCreateAccount: {}, onSignIn: {})
             .padding(.horizontal, 24)
     }
 }

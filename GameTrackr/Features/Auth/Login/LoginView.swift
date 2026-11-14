@@ -3,7 +3,7 @@ import SwiftUI
 struct LoginView: View {
     @Environment(AuthStore.self) private var authStore
     @State private var viewModel = LoginViewModel()
-    @State private var showRegister = false
+    let onSignUp: () -> Void
 
     var body: some View {
         @Bindable var viewModel = viewModel
@@ -52,11 +52,9 @@ struct LoginView: View {
             .padding(.top, Spacing.xl)
             .staggeredAppear(5)
 
-            AuthPrompt(prefix: "Don't have an account? ", actionText: "Sign up") {
-                showRegister = true
-            }
-            .padding(.top, Spacing.xl)
-            .staggeredAppear(6)
+            AuthPrompt(prefix: "Don't have an account? ", actionText: "Sign up", action: onSignUp)
+                .padding(.top, Spacing.xl)
+                .staggeredAppear(6)
 
             AuthPrompt(prefix: "Just exploring? ", actionText: "Continue as guest") {
                 authStore.continueAsGuest()
@@ -67,9 +65,6 @@ struct LoginView: View {
             Spacer(minLength: 0)
         }
         .toolbar(.hidden, for: .navigationBar)
-        .navigationDestination(isPresented: $showRegister) {
-            RegisterView()
-        }
         .navigationDestination(isPresented: $authStore.isResetFlowActive) {
             ForgotPasswordView()
         }
@@ -79,7 +74,7 @@ struct LoginView: View {
 
 #Preview {
     NavigationStack {
-        LoginView()
+        LoginView(onSignUp: {})
     }
     .environment(AuthStore())
     .preferredColorScheme(.dark)

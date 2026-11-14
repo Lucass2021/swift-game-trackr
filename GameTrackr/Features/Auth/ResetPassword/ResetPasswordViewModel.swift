@@ -61,7 +61,7 @@ final class ResetPasswordViewModel {
     }
 
     func signInAfterReset(authStore: AuthStore) async {
-        guard isReset, !isLoading else { return }
+        guard isReset, !isLoading, !authStore.isAuthenticated else { return }
         isLoading = true
         defer { isLoading = false }
 

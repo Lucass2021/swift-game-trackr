@@ -95,6 +95,17 @@ struct ResetPasswordViewModelTests {
         #expect(authStore.isAuthenticated)
     }
 
+    @Test func signInAfterResetIsIgnoredOnceSignedIn() async {
+        let viewModel = viewModel()
+        await viewModel.submit()
+
+        await viewModel.signInAfterReset(authStore: authStore)
+        await viewModel.signInAfterReset(authStore: authStore)
+
+        #expect(await repository.loginCount == 1)
+        #expect(authStore.isAuthenticated)
+    }
+
     @Test func signInFailureAfterResetReturnsToLogin() async {
         let viewModel = viewModel()
         await viewModel.submit()

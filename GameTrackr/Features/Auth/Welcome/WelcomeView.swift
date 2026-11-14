@@ -1,11 +1,10 @@
 import SwiftUI
 
 struct WelcomeView: View {
-    @State private var showRegister = false
-    @State private var showLogin = false
+    @State private var path: [AuthRoute] = []
 
     var body: some View {
-        NavigationStack {
+        NavigationStack(path: $path) {
             VStack(spacing: 0) {
                 HStack {
                     Image("logo-wordmark")
@@ -33,8 +32,11 @@ struct WelcomeView: View {
                 .staggeredAppear(1)
                 .padding(.bottom, 40)
 
-                WelcomeBottomSection(showRegister: $showRegister, showLogin: $showLogin)
-                    .staggeredAppear(2)
+                WelcomeBottomSection(
+                    onCreateAccount: { open(.register) },
+                    onSignIn: { open(.login) }
+                )
+                .staggeredAppear(2)
             }
             .padding(.horizontal, 24)
             .padding(.top, 16)
@@ -42,13 +44,19 @@ struct WelcomeView: View {
             .frame(maxWidth: .infinity, maxHeight: .infinity)
             .background(WelcomeBackground())
             .toolbar(.hidden, for: .navigationBar)
-            .navigationDestination(isPresented: $showRegister) {
-                RegisterView()
-            }
-            .navigationDestination(isPresented: $showLogin) {
-                LoginView()
+            .navigationDestination(for: AuthRoute.self) { route in
+                switch route {
+                case .register:
+                    RegisterView(onSignIn: { open(.login) })
+                case .login:
+                    LoginView(onSignUp: { open(.register) })
+                }
             }
         }
+    }
+
+    private func open(_ route: AuthRoute) {
+        path = openAuthRoute(route, in: path)
     }
 }
 

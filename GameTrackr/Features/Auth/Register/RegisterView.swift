@@ -3,7 +3,7 @@ import SwiftUI
 struct RegisterView: View {
     @Environment(AuthStore.self) private var authStore
     @State private var viewModel = RegisterViewModel()
-    @State private var showLogin = false
+    let onSignIn: () -> Void
 
     var body: some View {
         @Bindable var viewModel = viewModel
@@ -47,7 +47,7 @@ struct RegisterView: View {
             RegisterBottomSection(
                 isLoading: viewModel.isLoading,
                 onCreateAccount: { Task { await viewModel.submit() } },
-                onSignIn: { showLogin = true }
+                onSignIn: onSignIn
             )
             .padding(.top, Spacing.xl)
             .staggeredAppear(4)
@@ -59,9 +59,6 @@ struct RegisterView: View {
             .staggeredAppear(5)
         }
         .toolbar(.hidden, for: .navigationBar)
-        .navigationDestination(isPresented: $showLogin) {
-            LoginView()
-        }
         .navigationDestination(isPresented: $viewModel.showSuccess) {
             SuccessView(
                 title: "Account created!",
@@ -78,7 +75,7 @@ struct RegisterView: View {
 
 #Preview {
     NavigationStack {
-        RegisterView()
+        RegisterView(onSignIn: {})
     }
     .environment(AuthStore())
     .preferredColorScheme(.dark)
