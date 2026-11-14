@@ -45,7 +45,7 @@ class AuthStore {
         guard isAuthenticated else { return }
         do {
             currentUser = try await repository.validate()
-        } catch APIError.unauthorized {
+        } catch APIError.unauthorized, APIError.forbidden {
             logout()
         } catch {}
     }

@@ -8,6 +8,7 @@ final class StubURLProtocol: URLProtocol {
 
     nonisolated(unsafe) static var stub: Stub?
     nonisolated(unsafe) static var stubsByPath: [String: Stub] = [:]
+    nonisolated(unsafe) static var failingPaths: Set<String> = []
     nonisolated(unsafe) static var requests: [URLRequest] = []
     nonisolated(unsafe) static var lastRequest: URLRequest?
     nonisolated(unsafe) static var lastRequestBody: Data?
@@ -30,6 +31,10 @@ final class StubURLProtocol: URLProtocol {
         Self.lastRequest = request
         Self.requests.append(request)
         Self.lastRequestBody = request.httpBody ?? request.httpBodyStream.map(Self.readAll)
+        if let url = request.url, Self.failingPaths.contains(where: { url.path.hasSuffix($0) }) {
+            client?.urlProtocol(self, didFailWithError: URLError(.notConnectedToInternet))
+            return
+        }
         guard let url = request.url,
               let stub = Self.stubsByPath.first(where: { url.path.hasSuffix($0.key) })?.value ?? Self.stub,
               let response = HTTPURLResponse(url: url, statusCode: stub.statusCode, httpVersion: nil, headerFields: nil)

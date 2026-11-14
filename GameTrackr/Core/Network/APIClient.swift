@@ -51,42 +51,38 @@ actor APIClient {
         var token = endpoint.requiresAuth ? tokenStore.get() : nil
 
         if let current = token, JWT.isExpired(current) {
-            token = try await refreshToken()
+            token = try await refreshToken(spentToken: current)
         }
 
         do {
             return try await perform(endpoint, payload: payload, token: token)
         } catch APIError.unauthorized {
-            guard endpoint.requiresAuth, token != nil else { throw APIError.unauthorized }
-            let newToken = try await refreshToken()
+            guard endpoint.requiresAuth, let spent = token else { throw APIError.unauthorized }
+            let newToken = try await refreshToken(spentToken: spent)
             return try await perform(endpoint, payload: payload, token: newToken)
         }
     }
 
-    private func refreshToken() async throws -> String {
+    private func refreshToken(spentToken: String) async throws -> String {
         if let existing = refreshTask {
             return try await existing.value
         }
+        guard let current = tokenStore.get() else { throw APIError.unauthorized }
+        if current != spentToken { return current }
 
         let task = Task<String, Error> {
-            guard let current = self.tokenStore.get() else {
+            do {
+                let response: RefreshResponse = try await self.perform(.refresh, payload: nil, token: current)
+                self.tokenStore.save(response.token)
+                return response.token
+            } catch APIError.unauthorized, APIError.forbidden {
+                self.onRefreshFailure?()
                 throw APIError.unauthorized
             }
-            let response: RefreshResponse = try await self.perform(.refresh, payload: nil, token: current)
-            self.tokenStore.save(response.token)
-            return response.token
         }
         refreshTask = task
-
-        do {
-            let token = try await task.value
-            refreshTask = nil
-            return token
-        } catch {
-            refreshTask = nil
-            onRefreshFailure?()
-            throw APIError.unauthorized
-        }
+        defer { refreshTask = nil }
+        return try await task.value
     }
 
     private func perform<T: Decodable>(

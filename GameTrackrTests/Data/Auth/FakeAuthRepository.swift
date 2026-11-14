@@ -16,6 +16,7 @@ actor FakeAuthRepository: AuthRepository {
     private(set) var resetCount = 0
     private(set) var lastCode: String?
     private var failure: Error?
+    private var validateFailure: Error?
     private let latency: Duration
 
     init(failure: Error? = nil, latency: Duration = .zero) {
@@ -25,6 +26,10 @@ actor FakeAuthRepository: AuthRepository {
 
     func setFailure(_ error: Error?) {
         failure = error
+    }
+
+    func setValidateFailure(_ error: Error?) {
+        validateFailure = error
     }
 
     func login(email: String, password: String) async throws -> User {
@@ -59,7 +64,8 @@ actor FakeAuthRepository: AuthRepository {
     }
 
     func validate() async throws -> User {
-        user
+        if let validateFailure { throw validateFailure }
+        return user
     }
 
     func forgotPassword(email: String) async throws {
