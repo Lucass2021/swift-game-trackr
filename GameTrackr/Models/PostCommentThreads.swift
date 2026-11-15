@@ -1,6 +1,10 @@
 import Foundation
 
 nonisolated extension [PostComment] {
+    var totalCount: Int {
+        reduce(0) { $0 + 1 + $1.replies.count }
+    }
+
     func findComment(id: Int) -> PostComment? {
         flatMap { [$0] + $0.replies }.first { $0.id == id }
     }

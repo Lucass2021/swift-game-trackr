@@ -41,16 +41,14 @@ actor FakeLibraryRepository: LibraryRepository {
     func addToLibrary(_ entry: NewLibraryEntry) async throws {
         addCount += 1
         try await respond()
-        var added = await MainActor.run {
-            LibraryEntry(
-                title: entry.title,
-                slug: entry.slug,
-                status: entry.status,
-                rating: entry.rating,
-                hours: entry.hours ?? 0,
-                cover: entry.cover
-            )
-        }
+        var added = LibraryEntry(
+            title: entry.title,
+            slug: entry.slug,
+            status: entry.status,
+            rating: entry.rating,
+            hours: entry.hours ?? 0,
+            cover: entry.cover
+        )
         if let index = entries.firstIndex(where: { $0.slug == entry.slug }) {
             added.isFavorite = entries[index].isFavorite
             entries[index] = added
