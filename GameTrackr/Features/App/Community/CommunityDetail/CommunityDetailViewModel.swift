@@ -14,8 +14,6 @@ final class CommunityDetailViewModel {
     private(set) var isLoadingMore = false
     private(set) var hasError = false
     private(set) var loadMoreFailed = false
-    private(set) var members: [CommunityMember] = []
-    private(set) var membersFailed = false
     var showLeaveConfirmation = false
     var showDeleteConfirmation = false
     private(set) var isDeleted = false
@@ -29,11 +27,19 @@ final class CommunityDetailViewModel {
         (1 ..< lastPage).contains(currentPage) && !isLoading && !isLoadingMore && !loadMoreFailed
     }
 
+    var members: [CommunityMember] {
+        membersLoader.members
+    }
+
+    var membersFailed: Bool {
+        membersLoader.hasFailed
+    }
+
     private let repository: CommunityRepository
     private let community: Community
     private let communityUpdates: CommunityUpdates
     private var postsTask: Task<Void, Never>?
-    private var membersTask: Task<Void, Never>?
+    private let membersLoader: CommunityMembersLoader
     @ObservationIgnored private var postActions: PostListActions?
     private var isJoinPending = false
 
@@ -48,6 +54,7 @@ final class CommunityDetailViewModel {
         self.repository = repository
         self.communityUpdates = communityUpdates
         isJoined = community.isJoined
+        membersLoader = CommunityMembersLoader(repository: repository, communityId: community.id)
         postActions = PostListActions(
             repository: repository,
             feedRepository: feedRepository,
@@ -79,7 +86,7 @@ final class CommunityDetailViewModel {
     }
 
     func retryMembers() async {
-        await loadMembers()
+        await membersLoader.load()
     }
 
     func onJoinTap() async {
@@ -141,7 +148,7 @@ final class CommunityDetailViewModel {
 
     private func loadAll(isRefresh: Bool) async {
         async let postsLoad: Void = loadPosts(page: 1, isRefresh: isRefresh)
-        async let membersLoad: Void = loadMembers()
+        async let membersLoad: Void = membersLoader.load()
         _ = await (postsLoad, membersLoad)
     }
 
@@ -187,24 +194,5 @@ final class CommunityDetailViewModel {
         }
         isLoading = false
         isLoadingMore = false
-    }
-
-    private func loadMembers() async {
-        membersTask?.cancel()
-        membersFailed = false
-        let task = Task { await fetchMembers() }
-        membersTask = task
-        await task.value
-    }
-
-    private func fetchMembers() async {
-        do {
-            let result = try await repository.fetchCommunityMembers(id: community.id)
-            guard !Task.isCancelled else { return }
-            members = result
-        } catch {
-            guard !Task.isCancelled else { return }
-            membersFailed = true
-        }
     }
 }
