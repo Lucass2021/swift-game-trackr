@@ -1,14 +1,14 @@
 #!/bin/sh
 
 MAX_LINES=200
-BLOCK_COMMIT=false
+BLOCK_COMMIT=true
 
 too_long=false
 for file in "$@"; do
     [ -f "$file" ] || continue
     lines=$(wc -l < "$file" | tr -d ' ')
     if [ "$lines" -gt "$MAX_LINES" ]; then
-        echo "warning: $file has $lines lines (max $MAX_LINES)"
+        echo "error: $file has $lines lines (max $MAX_LINES)"
         too_long=true
     fi
 done
