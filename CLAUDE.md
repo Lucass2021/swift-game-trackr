@@ -39,7 +39,9 @@
 ## Mocks for screens without API live as Fake repositories (FakeXRepository + XMockData) and are reused by previews and tests
 ## Dependencies are injected through init; no .shared singletons inside ViewModels
 ## Screen folders: Features/<Area>/<Screen>/ with XView, XViewModel and Components/
-## Keep files under ~200 lines; extract components into Components/ when a file grows past that
+## Keep files under ~200 lines; extract components when a file grows past that
+## Component placement: used by one screen -> <Screen>/Components/; by several screens of one area -> <Area>/Components/; across areas -> Core/Components/
+## When a component gains a second user in another screen or area, move it up one level (git mv) in the same batch, on both platforms
 ## Every component and screen has a #Preview
 ## Follow the project architecture and existing patterns whenever possible
 
