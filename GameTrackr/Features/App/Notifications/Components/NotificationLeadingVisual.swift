@@ -13,13 +13,13 @@ struct NotificationLeadingVisual: View {
 
     var body: some View {
         switch leading {
-        case let .avatar(start, end, badge):
-            avatar(start: start, end: end, badge: badge)
-        case let .iconBox(icon, tint):
-            iconBox(icon: icon, tint: tint)
-        case let .thumbnail(start, end):
+        case let .avatar(cover, badge):
+            avatar(start: cover.start, end: cover.end, badge: badge)
+        case let .iconBox(kind):
+            iconBox(icon: kind.icon, tint: kind.tint)
+        case let .thumbnail(cover):
             RoundedRectangle(cornerRadius: Radius.md, style: .continuous)
-                .fill(gradient(start, end))
+                .fill(gradient(cover.start, cover.end))
                 .frame(width: Constants.visualSize, height: Constants.visualSize)
                 .overlay(
                     RoundedRectangle(cornerRadius: Radius.md, style: .continuous)

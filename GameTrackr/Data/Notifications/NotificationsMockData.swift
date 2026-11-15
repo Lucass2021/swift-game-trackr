@@ -5,7 +5,7 @@ nonisolated enum NotificationsMockData {
         NotificationItem(
             id: 1,
             section: .new,
-            leading: .avatar(start: .coverEmeraldStart, end: .coverEmeraldEnd, badge: .online),
+            leading: .avatar(cover: .emerald, badge: .online),
             spans: [
                 NotificationSpan(text: "@NeonShadow_X", style: .actor),
                 NotificationSpan(text: " sent you a friend request", style: .text)
@@ -17,7 +17,7 @@ nonisolated enum NotificationsMockData {
         NotificationItem(
             id: 2,
             section: .new,
-            leading: .avatar(start: .coverAzureStart, end: .coverAzureEnd, badge: .online),
+            leading: .avatar(cover: .azure, badge: .online),
             spans: [
                 NotificationSpan(text: "@QuestMaster", style: .actor),
                 NotificationSpan(text: " replied to your post", style: .text)
@@ -30,7 +30,7 @@ nonisolated enum NotificationsMockData {
         NotificationItem(
             id: 3,
             section: .new,
-            leading: .iconBox(icon: .like, tint: .appPrimary),
+            leading: .iconBox(kind: .like),
             spans: [
                 NotificationSpan(text: "@RetroGamer", style: .actor),
                 NotificationSpan(text: " liked your review of ", style: .text),
@@ -43,7 +43,7 @@ nonisolated enum NotificationsMockData {
         NotificationItem(
             id: 4,
             section: .today,
-            leading: .thumbnail(start: .coverIndigoStart, end: .coverIndigoEnd),
+            leading: .thumbnail(cover: .indigo),
             spans: [
                 NotificationSpan(text: "New post in ", style: .text),
                 NotificationSpan(text: "Neon Arcade // Elite", style: .link)
@@ -54,7 +54,7 @@ nonisolated enum NotificationsMockData {
         NotificationItem(
             id: 5,
             section: .today,
-            leading: .avatar(start: .coverVioletStart, end: .coverVioletEnd, badge: nil),
+            leading: .avatar(cover: .violet, badge: nil),
             spans: [
                 NotificationSpan(text: "@cyber_queen", style: .actor),
                 NotificationSpan(text: " mentioned you in a comment", style: .text)
@@ -65,7 +65,7 @@ nonisolated enum NotificationsMockData {
         NotificationItem(
             id: 6,
             section: .today,
-            leading: .iconBox(icon: .medal, tint: .appPrimary),
+            leading: .iconBox(kind: .achievement),
             spans: [
                 NotificationSpan(text: "You unlocked the ", style: .text),
                 NotificationSpan(text: "Platinum Hunter", style: .highlight),
@@ -76,7 +76,7 @@ nonisolated enum NotificationsMockData {
         NotificationItem(
             id: 7,
             section: .thisWeek,
-            leading: .avatar(start: .coverCrimsonStart, end: .coverCrimsonEnd, badge: .accepted),
+            leading: .avatar(cover: .crimson, badge: .accepted),
             spans: [
                 NotificationSpan(text: "@PixelWarrior", style: .actor),
                 NotificationSpan(text: " accepted your friend request", style: .text)
@@ -86,7 +86,7 @@ nonisolated enum NotificationsMockData {
         NotificationItem(
             id: 8,
             section: .thisWeek,
-            leading: .iconBox(icon: .envelope, tint: .appTextSecondary),
+            leading: .iconBox(kind: .message),
             spans: [
                 NotificationSpan(text: "@vortex_king", style: .actor),
                 NotificationSpan(text: " sent you a message", style: .text)

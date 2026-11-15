@@ -1,4 +1,4 @@
-import SwiftUI
+import Foundation
 
 nonisolated enum NotificationSection: String, CaseIterable {
     case new = "New"
@@ -25,9 +25,15 @@ nonisolated enum AvatarBadge {
 }
 
 nonisolated enum NotificationLeading {
-    case avatar(start: Color, end: Color, badge: AvatarBadge?)
-    case iconBox(icon: AppIcon, tint: Color)
-    case thumbnail(start: Color, end: Color)
+    case avatar(cover: CoverPalette, badge: AvatarBadge?)
+    case iconBox(kind: NotificationIconKind)
+    case thumbnail(cover: CoverPalette)
+}
+
+nonisolated enum NotificationIconKind {
+    case like
+    case achievement
+    case message
 }
 
 nonisolated struct NotificationItem: Identifiable {
