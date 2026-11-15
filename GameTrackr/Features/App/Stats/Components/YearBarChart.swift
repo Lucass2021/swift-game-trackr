@@ -40,7 +40,7 @@ struct YearBarChart: View {
         }
         .frame(maxWidth: .infinity)
         .accessibilityElement(children: .combine)
-        .accessibilityLabel("\(year.year), \(year.count) games")
+        .accessibilityLabel("\(year.year), \(year.count) \(year.count.plural(one: "game", other: "games"))")
     }
 }
 

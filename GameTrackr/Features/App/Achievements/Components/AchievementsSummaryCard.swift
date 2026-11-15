@@ -68,7 +68,12 @@ struct AchievementsSummaryCard: View {
                 .stroke(Color.appOutline, lineWidth: Constants.borderWidth)
         )
         .accessibilityElement(children: .combine)
-        .accessibilityLabel("\(summary.unlockedCount) of \(summary.total) achievements unlocked")
+        .accessibilityLabel(accessibilitySummary)
+    }
+
+    private var accessibilitySummary: String {
+        let noun = summary.total.plural(one: "achievement", other: "achievements")
+        return "\(summary.unlockedCount) of \(summary.total) \(noun) unlocked"
     }
 
     private func miniStat(icon: AppIcon, value: String, label: String) -> some View {

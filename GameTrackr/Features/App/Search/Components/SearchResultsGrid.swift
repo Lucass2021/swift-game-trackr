@@ -35,7 +35,7 @@ struct SearchResultsGrid: View {
 
             Spacer()
 
-            Text("\(viewModel.total) result\(viewModel.total == 1 ? "" : "s")")
+            Text("\(viewModel.total) \(viewModel.total.plural(one: "result", other: "results"))")
                 .font(.appBody(Constants.countSize))
                 .foregroundStyle(Color.appTextSecondary)
         }

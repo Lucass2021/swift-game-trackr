@@ -9,7 +9,7 @@ struct LibraryStatsBar: View {
 
     var body: some View {
         HStack(spacing: Spacing.xs) {
-            Text("\(stats.totalGames) games")
+            Text("\(stats.totalGames) \(stats.totalGames.plural(one: "game", other: "games"))")
                 .foregroundStyle(Color.appTextPrimary)
 
             Text("\u{2022}")

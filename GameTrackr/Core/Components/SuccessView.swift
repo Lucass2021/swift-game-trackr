@@ -41,7 +41,7 @@ struct SuccessView: View {
             VStack(spacing: 14) {
                 PrimaryButton(title: buttonTitle, action: onPrimary)
 
-                Text("Redirecting in \(remaining) seconds…")
+                Text("Redirecting in \(remaining) \(remaining.plural(one: "second", other: "seconds"))…")
                     .font(.appLabel(13))
                     .foregroundStyle(Color.appTextSecondary)
             }

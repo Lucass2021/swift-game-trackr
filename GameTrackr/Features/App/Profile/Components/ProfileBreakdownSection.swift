@@ -55,7 +55,7 @@ struct ProfileBreakdownSection: View {
         }
         .contentShape(Rectangle())
         .accessibilityElement(children: .combine)
-        .accessibilityLabel("\(item.status.rawValue), \(item.count) games")
+        .accessibilityLabel("\(item.status.rawValue), \(item.count) \(item.count.plural(one: "game", other: "games"))")
     }
 
     private func bar(fraction: Double, tint: Color) -> some View {

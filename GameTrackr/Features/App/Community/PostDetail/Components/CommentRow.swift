@@ -42,7 +42,7 @@ struct CommentRow: View {
                     .fixedSize(horizontal: false, vertical: true)
 
                 HStack(spacing: Spacing.xxs) {
-                    Text("\(comment.likes) likes")
+                    Text("\(comment.likes) \(comment.likes.plural(one: "like", other: "likes"))")
                     if !isGuest {
                         Text("·")
                         Button(action: onReply) {
