@@ -44,7 +44,7 @@ struct AddToLibraryForm: View {
                 AddToLibraryField(label: "Review") {
                     ReviewField(
                         value: binding(viewModel.review, viewModel.onReviewChange),
-                        placeholder: "Write a short review..."
+                        placeholder: "Write a short review…"
                     )
                 }
             }

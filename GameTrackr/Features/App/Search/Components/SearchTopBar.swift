@@ -30,7 +30,7 @@ struct SearchTopBar: View {
                 TextField(
                     "",
                     text: $query,
-                    prompt: Text("Search games...").foregroundStyle(Color.appTextSecondary)
+                    prompt: Text("Search games…").foregroundStyle(Color.appTextSecondary)
                 )
                 .focused(isFocused)
                 .foregroundStyle(Color.appTextPrimary)

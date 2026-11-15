@@ -62,7 +62,7 @@ struct FormTextField: View {
     VStack(spacing: Spacing.md) {
         FormTextField(text: $name, placeholder: "How should we call you?")
         FormTextField(text: $username, placeholder: "", prefix: "@")
-        FormTextField(text: $bio, placeholder: "Tell other players...", singleLine: false)
+        FormTextField(text: $bio, placeholder: "Tell other players…", singleLine: false)
     }
     .padding()
     .background(Color.appBackground)

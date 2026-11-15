@@ -60,7 +60,7 @@ struct EditProfileForm: View {
                 FormField(label: "Bio", error: viewModel.bioError, counter: bioCounter) {
                     FormTextField(
                         text: binding(viewModel.bio, viewModel.onBioChange),
-                        placeholder: "Tell other players what you're into...",
+                        placeholder: "Tell other players what you're into…",
                         singleLine: false
                     )
                     .focused(focusedField, equals: .bio)

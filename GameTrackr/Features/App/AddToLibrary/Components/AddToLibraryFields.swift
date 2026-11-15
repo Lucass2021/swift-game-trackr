@@ -108,7 +108,7 @@ struct ReviewField: View {
             NumberField(value: $hours, placeholder: "42")
         }
         AddToLibraryField(label: "Review", error: "Something is missing.") {
-            ReviewField(value: $review, placeholder: "Write a short review...")
+            ReviewField(value: $review, placeholder: "Write a short review…")
         }
     }
     .padding(Spacing.md)

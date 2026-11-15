@@ -78,7 +78,7 @@ struct EditSetupView: View {
                 SetupFormField(label: "Description", error: viewModel.descriptionError) {
                     SetupTextField(
                         text: $viewModel.description,
-                        placeholder: "What's in it? Console, monitor, chair, cables...",
+                        placeholder: "What's in it? Console, monitor, chair, cables…",
                         isMultiline: true
                     )
                     .focused($focusedField, equals: .description)
