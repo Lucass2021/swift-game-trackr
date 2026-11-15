@@ -30,7 +30,7 @@ struct CommunityFeedViewModelSyncTests {
     }
 
     private static func manyPosts() -> [CommunityPost] {
-        let base = CommunityMockData.communityPosts[0]
+        let base = CommunityPostMockData.communityPosts[0]
         return (0 ..< CommunityFeedViewModel.pageSize + 5).map { offset in
             CommunityPost(
                 id: 1000 + offset,
@@ -115,6 +115,6 @@ struct CommunityFeedViewModelSyncTests {
         await feed.onFilterChange(.following)
         await topRated.value
 
-        #expect(feed.posts.map(\.id) == CommunityMockData.feed.map(\.id))
+        #expect(feed.posts.map(\.id) == CommunityPostMockData.feed.map(\.id))
     }
 }

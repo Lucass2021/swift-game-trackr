@@ -5,7 +5,7 @@ import Testing
 @MainActor
 struct CommunityDetailViewModelActionsTests {
     private static let community = CommunityMockData.detailCommunity
-    private static let post = CommunityMockData.communityPosts[0]
+    private static let post = CommunityPostMockData.communityPosts[0]
     private static let overlapLatency: Duration = .milliseconds(50)
 
     private let repository = FakeCommunityRepository(communities: [Self.community], latency: .zero)

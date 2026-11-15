@@ -4,7 +4,7 @@ import Testing
 
 @MainActor
 struct PostDetailViewModelTests {
-    private static let post = CommunityMockData.communityPosts[0]
+    private static let post = CommunityPostMockData.communityPosts[0]
     private static let overlapLatency: Duration = .milliseconds(50)
 
     private let repository = FakeCommunityRepository(latency: .zero)
@@ -25,9 +25,9 @@ struct PostDetailViewModelTests {
     @Test func loadingShowsTheCommentsAndTheirRealCount() async {
         await viewModel.loadIfNeeded()
 
-        #expect(viewModel.comments.map(\.id) == CommunityMockData.comments.map(\.id))
+        #expect(viewModel.comments.map(\.id) == CommunityPostMockData.comments.map(\.id))
         #expect(viewModel.hasLoadedComments)
-        #expect(viewModel.commentCount == CommunityMockData.comments.totalCount)
+        #expect(viewModel.commentCount == CommunityPostMockData.comments.totalCount)
     }
 
     @Test func theCommentCountUsesThePostUntilTheCommentsLoad() async {
@@ -35,7 +35,7 @@ struct PostDetailViewModelTests {
 
         await viewModel.loadIfNeeded()
 
-        #expect(viewModel.commentCount == CommunityMockData.comments.totalCount)
+        #expect(viewModel.commentCount == CommunityPostMockData.comments.totalCount)
     }
 
     @Test func aCommentsFailureShowsTheErrorInsteadOfAnEmptyList() async {
@@ -56,7 +56,7 @@ struct PostDetailViewModelTests {
         await viewModel.loadComments()
 
         #expect(!viewModel.commentsFailed)
-        #expect(viewModel.comments.map(\.id) == CommunityMockData.comments.map(\.id))
+        #expect(viewModel.comments.map(\.id) == CommunityPostMockData.comments.map(\.id))
     }
 
     @Test func returningToTheScreenDoesNotReloadTheComments() async {
@@ -101,7 +101,7 @@ struct PostDetailViewModelTests {
         viewModel.onCommentsOpen()
 
         #expect(viewModel.comments.last?.content == "Great post")
-        #expect(viewModel.comments.count == CommunityMockData.comments.count + 1)
+        #expect(viewModel.comments.count == CommunityPostMockData.comments.count + 1)
     }
 
     @Test func deletingAsksForConfirmationAndClosesAfterItIsDeleted() async {

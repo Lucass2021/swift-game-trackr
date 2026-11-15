@@ -5,7 +5,7 @@ import Testing
 @MainActor
 struct CommunityDetailViewModelSyncTests {
     private static let community = CommunityMockData.detailCommunity
-    private static let post = CommunityMockData.communityPosts[0]
+    private static let post = CommunityPostMockData.communityPosts[0]
     private static let createdPostId = 9001
     private static let otherPostId = 9002
 

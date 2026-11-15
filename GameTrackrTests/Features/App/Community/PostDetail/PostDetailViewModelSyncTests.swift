@@ -4,7 +4,7 @@ import Testing
 
 @MainActor
 struct PostDetailViewModelSyncTests {
-    private static let post = CommunityMockData.communityPosts[0]
+    private static let post = CommunityPostMockData.communityPosts[0]
 
     private let repository = FakeCommunityRepository(latency: .zero)
     private let feedRepository: FakeCommunityFeedRepository

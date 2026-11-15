@@ -20,9 +20,9 @@ actor FakeCommunityRepository: CommunityRepository {
 
     init(
         communities: [Community] = CommunityMockData.all,
-        posts: [CommunityPost] = CommunityMockData.communityPosts,
+        posts: [CommunityPost] = CommunityPostMockData.communityPosts,
         members: [CommunityMember] = CommunityMockData.members,
-        comments: [PostComment] = CommunityMockData.comments,
+        comments: [PostComment] = CommunityPostMockData.comments,
         failure: Error? = nil,
         latency: Duration = FakeLatency.responseDelay
     ) {

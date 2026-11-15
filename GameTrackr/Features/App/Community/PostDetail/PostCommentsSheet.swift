@@ -98,7 +98,7 @@ private struct CommentsBody: View {
 
 #Preview {
     @Previewable @State var viewModel = PostDetailViewModel(
-        post: CommunityMockData.detailPost,
+        post: CommunityPostMockData.detailPost,
         repository: FakeCommunityRepository(),
         feedRepository: FakeCommunityFeedRepository(remote: FakeCommunityRepository()),
         postUpdates: PostUpdates()
@@ -113,7 +113,7 @@ private struct CommentsBody: View {
 
 #Preview("Error") {
     @Previewable @State var viewModel = PostDetailViewModel(
-        post: CommunityMockData.detailPost,
+        post: CommunityPostMockData.detailPost,
         repository: FakeCommunityRepository(failure: APIError.networkFailure),
         feedRepository: FakeCommunityFeedRepository(remote: FakeCommunityRepository()),
         postUpdates: PostUpdates()

@@ -61,8 +61,8 @@ struct PostDetailContent: View {
 
 #Preview {
     PostDetailContent(
-        post: CommunityMockData.detailPost,
-        commentCount: CommunityMockData.detailPost.comments,
+        post: CommunityPostMockData.detailPost,
+        commentCount: CommunityPostMockData.detailPost.comments,
         isGuest: false,
         onAuthorSelect: {},
         onCommunitySelect: {},
@@ -77,8 +77,8 @@ struct PostDetailContent: View {
 
 #Preview("Guest") {
     PostDetailContent(
-        post: CommunityMockData.detailPost,
-        commentCount: CommunityMockData.detailPost.comments,
+        post: CommunityPostMockData.detailPost,
+        commentCount: CommunityPostMockData.detailPost.comments,
         isGuest: true,
         onAuthorSelect: {},
         onCommunitySelect: {},

@@ -4,7 +4,7 @@ import Testing
 
 @MainActor
 struct CommunityFeedViewModelTests {
-    private static let posts = CommunityMockData.communityPosts
+    private static let posts = CommunityPostMockData.communityPosts
     private static let overlapLatency: Duration = .milliseconds(50)
 
     private static func manyPosts() -> [CommunityPost] {
@@ -128,6 +128,6 @@ struct CommunityFeedViewModelTests {
         await viewModel.onFilterChange(.following)
 
         #expect(viewModel.filter == .following)
-        #expect(viewModel.posts.map(\.id) == CommunityMockData.feed.map(\.id))
+        #expect(viewModel.posts.map(\.id) == CommunityPostMockData.feed.map(\.id))
     }
 }

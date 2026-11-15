@@ -95,8 +95,8 @@ struct PostDetailView: View {
 #Preview {
     NavigationStack {
         PostDetailView(
-            post: CommunityMockData.detailPost,
-            repository: FakeCommunityRepository(posts: [CommunityMockData.detailPost]),
+            post: CommunityPostMockData.detailPost,
+            repository: FakeCommunityRepository(posts: [CommunityPostMockData.detailPost]),
             feedRepository: FakeCommunityFeedRepository(remote: FakeCommunityRepository()),
             postUpdates: PostUpdates()
         )

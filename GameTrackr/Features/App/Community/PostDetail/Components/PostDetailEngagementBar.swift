@@ -86,16 +86,16 @@ struct PostDetailEngagementBar: View {
 #Preview {
     VStack {
         PostDetailEngagementBar(
-            post: CommunityMockData.detailPost,
-            commentCount: CommunityMockData.detailPost.comments,
+            post: CommunityPostMockData.detailPost,
+            commentCount: CommunityPostMockData.detailPost.comments,
             isGuest: false,
             onLike: {},
             onComment: {},
             onBookmark: {}
         )
         PostDetailEngagementBar(
-            post: CommunityMockData.detailPost,
-            commentCount: CommunityMockData.detailPost.comments,
+            post: CommunityPostMockData.detailPost,
+            commentCount: CommunityPostMockData.detailPost.comments,
             isGuest: true,
             onLike: {},
             onComment: {},

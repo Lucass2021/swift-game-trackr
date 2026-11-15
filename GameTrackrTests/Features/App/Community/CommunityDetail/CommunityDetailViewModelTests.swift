@@ -8,7 +8,7 @@ struct CommunityDetailViewModelTests {
     private static let overlapLatency: Duration = .milliseconds(50)
 
     private static func manyPosts() -> [CommunityPost] {
-        let base = CommunityMockData.communityPosts[0]
+        let base = CommunityPostMockData.communityPosts[0]
         return (0 ..< CommunityDetailViewModel.pageSize + 5).map { offset in
             CommunityPost(
                 id: 1000 + offset,
@@ -39,7 +39,7 @@ struct CommunityDetailViewModelTests {
 
         await viewModel.loadIfNeeded()
 
-        #expect(viewModel.posts.map(\.id) == CommunityMockData.communityPosts.map(\.id))
+        #expect(viewModel.posts.map(\.id) == CommunityPostMockData.communityPosts.map(\.id))
         #expect(viewModel.members.map(\.id) == CommunityMockData.members.map(\.id))
         #expect(!viewModel.isLoading)
     }

@@ -13,7 +13,7 @@ actor FakeCommunityFeedRepository: CommunityFeedRepository {
 
     init(
         remote: CommunityRepository,
-        followingPosts: [CommunityPost] = CommunityMockData.feed,
+        followingPosts: [CommunityPost] = CommunityPostMockData.feed,
         failure: Error? = nil,
         latency: Duration = FakeLatency.responseDelay
     ) {

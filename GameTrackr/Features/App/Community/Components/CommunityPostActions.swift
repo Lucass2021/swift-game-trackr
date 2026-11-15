@@ -75,7 +75,7 @@ struct CommunityPostActions: View {
 }
 
 #Preview {
-    CommunityPostActions(post: CommunityMockData.feed[0], isGuest: false)
+    CommunityPostActions(post: CommunityPostMockData.feed[0], isGuest: false)
         .padding(Spacing.md)
         .background(Color.appBackground)
         .preferredColorScheme(.dark)

@@ -4,9 +4,9 @@ import Testing
 
 @MainActor
 struct PostCommentThreadsTests {
-    private static let comments = CommunityMockData.comments
-    private static let thread = CommunityMockData.comments[0]
-    private static let reply = CommunityMockData.comments[0].replies[0]
+    private static let comments = CommunityPostMockData.comments
+    private static let thread = CommunityPostMockData.comments[0]
+    private static let reply = CommunityPostMockData.comments[0].replies[0]
 
     @Test func findCommentFindsThreadsAndReplies() {
         #expect(Self.comments.findComment(id: Self.thread.id)?.id == Self.thread.id)

@@ -33,7 +33,7 @@ struct PostDetailAuthorRow: View {
 }
 
 #Preview {
-    PostDetailAuthorRow(post: CommunityMockData.detailPost, onAuthorSelect: {})
+    PostDetailAuthorRow(post: CommunityPostMockData.detailPost, onAuthorSelect: {})
         .padding(Spacing.lg)
         .background(Color.appBackground)
         .preferredColorScheme(.dark)

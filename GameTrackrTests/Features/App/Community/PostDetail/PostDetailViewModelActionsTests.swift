@@ -4,9 +4,9 @@ import Testing
 
 @MainActor
 struct PostDetailViewModelActionsTests {
-    private static let post = CommunityMockData.communityPosts[0]
-    private static let thread = CommunityMockData.comments[0]
-    private static let reply = CommunityMockData.comments[0].replies[0]
+    private static let post = CommunityPostMockData.communityPosts[0]
+    private static let thread = CommunityPostMockData.comments[0]
+    private static let reply = CommunityPostMockData.comments[0].replies[0]
     private static let overlapLatency: Duration = .milliseconds(50)
     private static let likeError = "Couldn't update the like. Please try again."
 
@@ -133,7 +133,7 @@ struct PostDetailViewModelActionsTests {
 
         #expect(viewModel.draft == "Keep me")
         #expect(viewModel.replyingTo?.id == Self.thread.id)
-        #expect(viewModel.comments.count == CommunityMockData.comments.count)
+        #expect(viewModel.comments.count == CommunityPostMockData.comments.count)
         #expect(viewModel.toastMessage == "Couldn't send your comment. Please try again.")
     }
 

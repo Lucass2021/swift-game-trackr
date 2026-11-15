@@ -72,9 +72,9 @@ struct CommentRow: View {
 
 #Preview {
     VStack(alignment: .leading, spacing: Spacing.md) {
-        CommentRow(comment: CommunityMockData.comments[0])
-        CommentRow(comment: CommunityMockData.comments[0].replies[0], isReply: true)
-        CommentRow(comment: CommunityMockData.comments[1], isGuest: true)
+        CommentRow(comment: CommunityPostMockData.comments[0])
+        CommentRow(comment: CommunityPostMockData.comments[0].replies[0], isReply: true)
+        CommentRow(comment: CommunityPostMockData.comments[1], isGuest: true)
     }
     .padding(Spacing.lg)
     .background(Color.appSurfaceCard)

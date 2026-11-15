@@ -32,7 +32,7 @@ struct PostDetailMedia: View {
 }
 
 #Preview {
-    PostDetailMedia(post: CommunityMockData.detailPost)
+    PostDetailMedia(post: CommunityPostMockData.detailPost)
         .padding(Spacing.lg)
         .background(Color.appBackground)
         .preferredColorScheme(.dark)

@@ -118,8 +118,8 @@ struct CommunityPostCard: View {
 #Preview {
     ScrollView {
         VStack(spacing: Spacing.md) {
-            CommunityPostCard(post: CommunityMockData.feed[0])
-            CommunityPostCard(post: CommunityMockData.feed[CommunityMockData.feed.count - 1], isGuest: true)
+            CommunityPostCard(post: CommunityPostMockData.feed[0])
+            CommunityPostCard(post: CommunityPostMockData.feed[CommunityPostMockData.feed.count - 1], isGuest: true)
         }
         .padding(Spacing.lg)
     }
